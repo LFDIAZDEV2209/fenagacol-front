@@ -5,7 +5,9 @@ import Link from "next/link";
 import { Card, Input, PageHeader, ExportButton } from "@/components/ui";
 import { useConfig } from "@/lib/config-store";
 import { deptName, muniName } from "@/lib/mock-data";
+import { emptyFilters } from "@/lib/filters";
 import { downloadExcel, assocRows } from "@/lib/export-excel";
+import { useSummaryQuery } from "@/lib/server-data";
 import { useToast } from "@/components/toast";
 import { fmtNum } from "@/lib/format";
 
@@ -13,16 +15,23 @@ export default function AsociacionesPage() {
   const { cfg, ready, toggleAssoc, membersOf } = useConfig();
   const { push } = useToast();
   const [q, setQ] = React.useState("");
+  // Miembros reales por asociación (servidor); fallback a conteo local sin red.
+  const { summary } = useSummaryQuery(emptyFilters);
+  const serverMembers = React.useMemo(
+    () => new Map((summary?.byAssoc ?? []).map((a) => [a.id, a.value])),
+    [summary]
+  );
+  const members = (id: string) => serverMembers.get(id) ?? membersOf(id);
 
   const filtered = React.useMemo(
     () => cfg.assocs.filter((a) => !q || a.name.toLowerCase().includes(q.toLowerCase())),
     [cfg.assocs, q]
   );
-  const totalMembers = filtered.reduce((a, b) => a + membersOf(b.id), 0);
+  const totalMembers = filtered.reduce((a, b) => a + members(b.id), 0);
 
-  function exportAll() {
-    downloadExcel("asociaciones", [
-      { name: "Asociaciones", rows: assocRows(filtered.map((a) => ({ ...a, members: membersOf(a.id) }))) },
+  async function exportAll() {
+    await downloadExcel("asociaciones", [
+      { name: "Asociaciones", rows: assocRows(filtered.map((a) => ({ ...a, members: members(a.id) }))) },
     ]);
     push(`Excel descargado con ${fmtNum(filtered.length)} asociaciones`);
   }
@@ -65,7 +74,7 @@ export default function AsociacionesPage() {
                 <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                   <span className="inline-flex items-center gap-1 rounded-full border border-[#E7E2D9] bg-[#F4F4F2] px-2 py-0.5 text-[11px] font-semibold text-[#732427]">
                     <Users size={11} />
-                    {fmtNum(membersOf(a.id))} miembros
+                    {fmtNum(members(a.id))} miembros
                   </span>
                   {!a.active && (
                     <span className="rounded-full bg-[#F1EFEA] px-2 py-0.5 text-[11px] font-semibold text-[#78716C]">Inactiva</span>
@@ -129,7 +138,7 @@ export default function AsociacionesPage() {
                   </td>
                   <td className="px-3 py-2.5 text-[#44403C]">{deptName(a.departmentId)}</td>
                   <td className="px-3 py-2.5 text-[#44403C]">{muniName(a.municipalityId)}</td>
-                  <td className="px-4 py-2.5 text-right font-semibold text-[#1C1917]">{fmtNum(membersOf(a.id))}</td>
+                  <td className="px-4 py-2.5 text-right font-semibold text-[#1C1917]">{fmtNum(members(a.id))}</td>
                 </tr>
               ))}
             </tbody>

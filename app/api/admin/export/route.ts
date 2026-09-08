@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { parseFilters, requireAdmin, toNextDay } from "../_lib";
 
-// GET /api/admin/directory?q&from&to&departmentId&municipalityId&role&associationId&sort&dir&page&pageSize
-// Paginación y filtros 100% en servidor (PostgREST + count exact).
+// GET /api/admin/export?mismos filtros que directory
+// Devuelve TODAS las filas filtradas (tope 20.000) para el Excel del cliente.
 export async function GET(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
@@ -12,19 +12,17 @@ export async function GET(req: Request) {
     const f = parseFilters(new URL(req.url).searchParams);
     const sb = await createServiceClient();
 
-    // Mapa label -> id para el filtro por rol
     const rRoles = await sb.from("roles").select("id,label");
     if (rRoles.error) throw new Error(rRoles.error.message);
     const labelById = new Map((rRoles.data ?? []).map((r) => [r.id as string, r.label as string]));
     let roleId: string | null = null;
     if (f.role) {
       roleId = (rRoles.data ?? []).find((r) => (r.label as string).toLowerCase() === f.role.toLowerCase())?.id as string ?? null;
-      if (!roleId) return NextResponse.json({ people: [], total: 0, page: f.page, pageSize: f.pageSize });
+      if (!roleId) return NextResponse.json({ rows: [] });
     }
 
     const select = roleId ? "*, person_roles!inner(role_id)" : "*, person_roles(role_id)";
-    let query = sb.from("people").select(select, { count: "exact" });
-
+    let query = sb.from("people").select(select);
     if (f.q) {
       query = query.or(`full_name.ilike.%${f.q}%,identity_number.ilike.%${f.q}%,phone.ilike.%${f.q}%`);
     }
@@ -34,17 +32,12 @@ export async function GET(req: Request) {
     if (f.municipalityId) query = query.eq("municipality_id", f.municipalityId);
     if (f.associationId) query = query.eq("association_id", f.associationId);
     if (roleId) query = query.eq("person_roles.role_id", roleId);
+    query = query.order("created_at", { ascending: false }).range(0, 19999);
 
-    query = query.order(f.sortKey === "name" ? "full_name" : "created_at", {
-      ascending: f.sortDir === "asc",
-    });
-    const lo = (f.page - 1) * f.pageSize;
-    query = query.range(lo, lo + f.pageSize - 1);
-
-    const { data, count, error } = await query;
+    const { data, error } = await query;
     if (error) throw new Error(error.message);
 
-    const people = (data ?? []).map((p) => {
+    const rows = (data ?? []).map((p) => {
       const roles = ((p.person_roles ?? []) as { role_id: string }[])
         .map((pr) => labelById.get(pr.role_id))
         .filter((l): l is string => !!l);
@@ -62,11 +55,10 @@ export async function GET(req: Request) {
         createdAt: String(p.created_at).slice(0, 10),
       };
     });
-
-    return NextResponse.json({ people, total: count ?? 0, page: f.page, pageSize: f.pageSize });
+    return NextResponse.json({ rows });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Error leyendo el directorio." },
+      { error: e instanceof Error ? e.message : "Error exportando." },
       { status: 500 }
     );
   }

@@ -156,8 +156,9 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
           assocs: AssocOpt[];
         }>,
       ]);
-      if (cat.status === "fulfilled" && cat.value && cat.value.roles.length) {
-        setCfg((c) => ({ ...c, roles: cat.value.roles, assocs: cat.value.assocs.length ? cat.value.assocs : c.assocs }));
+      const catalogs = cat.status === "fulfilled" ? cat.value : null;
+      if (catalogs && catalogs.roles.length) {
+        setCfg((c) => ({ ...c, roles: catalogs.roles, assocs: catalogs.assocs.length ? catalogs.assocs : c.assocs }));
         setServerOk(true);
       }
       if (dir.status === "fulfilled") {

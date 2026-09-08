@@ -11,45 +11,51 @@ import {
   CalendarDays,
   Sparkles,
   TrendingUp,
+  AlertTriangle,
+  RotateCw,
 } from "lucide-react";
 import { Card, PageHeader, ExportButton } from "@/components/ui";
 import { Donut, HBarList, TrendChart } from "@/components/dashboard-charts";
 import { FiltersBar } from "@/components/filters-bar";
 import { useConfig } from "@/lib/config-store";
-import { applyFilters, emptyFilters, summarize, type Filters } from "@/lib/filters";
+import { emptyFilters, type Filters } from "@/lib/filters";
 import { deptName, muniName, assocName } from "@/lib/mock-data";
 import { downloadExcel, personRows } from "@/lib/export-excel";
+import { fetchExportRows, usePeopleQuery, useSummaryQuery } from "@/lib/server-data";
 import { useToast } from "@/components/toast";
 import { fmtNum, fmtPct } from "@/lib/format";
 
 export default function DashboardHome() {
-  const { allPeople, activeRoles, ready } = useConfig();
+  const { activeRoles, ready } = useConfig();
   const { push } = useToast();
   const [filters, setFilters] = React.useState<Filters>(emptyFilters);
 
-  const filtered = React.useMemo(() => applyFilters(allPeople, filters), [allPeople, filters]);
-  const sum = React.useMemo(
-    () => summarize(filtered, activeRoles.map((r) => r.label)),
-    [filtered, activeRoles]
-  );
-  const recent = filtered.slice(0, 6);
+  const { summary, loading: sumLoading, error: sumError, reload: sumReload } = useSummaryQuery(filters);
+  const { data: recent, loading: recLoading } = usePeopleQuery({
+    filters,
+    page: 1,
+    pageSize: 6,
+    sortKey: "date",
+    sortDir: "desc",
+  });
 
-  function exportAll() {
-    downloadExcel("resumen_registros", [
-      { name: "Registros filtrados", rows: personRows(filtered) },
+  async function exportAll() {
+    const rows = await fetchExportRows(filters);
+    await downloadExcel("resumen_registros", [
+      { name: "Registros filtrados", rows: personRows(rows) },
       {
         name: "Por departamento",
-        rows: sum.byDept.map((d) => ({ Departamento: d.name, Registros: d.value })),
+        rows: (summary?.byDept ?? []).map((d) => ({ Departamento: d.name, Registros: d.value })),
       },
       {
         name: "Por rol",
-        rows: sum.byRole.map((r) => ({ Rol: r.label, Registros: r.value, Porcentaje: `${r.pct}%` })),
+        rows: (summary?.byRole ?? []).map((r) => ({ Rol: r.label, Registros: r.value, Porcentaje: `${r.pct}%` })),
       },
     ]);
-    push(`Excel descargado con ${fmtNum(filtered.length)} registros`);
+    push(`Excel descargado con ${fmtNum(rows.length)} registros`);
   }
 
-  if (!ready) {
+  if (!ready || (sumLoading && !summary)) {
     return (
       <div className="space-y-4">
         <div className="h-28 animate-pulse rounded-xl bg-[#F1EFEA]" />
@@ -62,11 +68,31 @@ export default function DashboardHome() {
     );
   }
 
+  if (sumError && !summary) {
+    return (
+      <div className="space-y-4">
+        <PageHeader icon={<LayoutDashboard size={20} />} title="Resumen del gremio" subtitle="Lo que está pasando con los registros." />
+        <Card className="flex flex-col items-center px-4 py-14 text-center">
+          <span className="grid h-11 w-11 place-items-center rounded-xl bg-red-50 text-red-500">
+            <AlertTriangle size={20} />
+          </span>
+          <p className="mt-2.5 text-sm font-semibold text-[#1C1917]">No se pudo cargar el resumen</p>
+          <p className="mt-1 text-[13px] text-[#78716C]">{sumError}</p>
+          <button onClick={sumReload} className="mt-4 inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#732427] px-4 text-[13px] font-semibold text-white">
+            <RotateCw size={14} />
+            Reintentar
+          </button>
+        </Card>
+      </div>
+    );
+  }
+
+  const s = summary!;
   const kpis = [
-    { label: "Total registrados", value: sum.total, sub: "En la selección actual", icon: Users, hero: true },
-    { label: "Galleros", value: sum.galleros, sub: `${fmtPct(sum.galleros, sum.total)} del total`, icon: Bird, hero: false },
-    { label: "Asociados", value: sum.asociados, sub: `${fmtPct(sum.asociados, sum.total)} con asociación`, icon: Handshake, hero: false },
-    { label: "Municipios", value: sum.municipios, sub: "Con presencia", icon: MapPin, hero: false },
+    { label: "Total registrados", value: s.total, sub: "En la selección actual", icon: Users, hero: true },
+    { label: "Galleros", value: s.galleros, sub: `${fmtPct(s.galleros, s.total)} del total`, icon: Bird, hero: false },
+    { label: "Asociados", value: s.asociados, sub: `${fmtPct(s.asociados, s.total)} con asociación`, icon: Handshake, hero: false },
+    { label: "Municipios", value: s.municipios, sub: "Con presencia", icon: MapPin, hero: false },
   ];
 
   return (
@@ -126,7 +152,7 @@ export default function DashboardHome() {
           <span className="ml-auto rounded-full border border-[#EDE9E1] bg-[#FAFAF8] px-2.5 py-1 text-[11px] font-medium text-[#78716C]">Últimas 12 semanas</span>
         </h3>
         <div className="mt-3">
-          <TrendChart data={sum.trend} />
+          <TrendChart data={s.trend} />
         </div>
       </Card>
 
@@ -137,14 +163,14 @@ export default function DashboardHome() {
             Top departamentos
           </h3>
           <div className="mt-3">
-            <HBarList items={sum.byDept} />
+            <HBarList items={s.byDept} />
           </div>
           <h3 className="mt-5 flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
             <MapPin size={15} className="text-[#732427]" />
             Top municipios
           </h3>
           <div className="mt-3">
-            <HBarList items={sum.byMuni.slice(0, 5)} />
+            <HBarList items={s.byMuni.slice(0, 5)} />
           </div>
         </Card>
         <Card className="animate-fade-up stagger-4 flex flex-col p-4 lg:col-span-2">
@@ -153,7 +179,7 @@ export default function DashboardHome() {
             Distribución por rol
           </h3>
           <div className="flex flex-1 flex-col justify-center py-2">
-            <Donut items={sum.byRole} />
+            <Donut items={s.byRole} />
           </div>
         </Card>
       </div>
@@ -181,10 +207,10 @@ export default function DashboardHome() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F4F4F2]">
-              {recent.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-[13px] text-[#A8A29E]">Sin registros con esos filtros</td>
-                </tr>
+              {recLoading ? (
+                <tr><td colSpan={5} className="px-4 py-6 text-center text-[13px] text-[#A8A29E]">Cargando...</td></tr>
+              ) : recent.length === 0 ? (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-[13px] text-[#A8A29E]">Sin registros con esos filtros</td></tr>
               ) : (
                 recent.map((p) => (
                   <tr key={p.id} className="transition-colors hover:bg-[#FAF4F5]">

@@ -1,54 +1,58 @@
 "use client";
 import * as React from "react";
-import { Users, Search, Filter, Eye, ChevronLeft, ChevronRight, Bird, Inbox, ArrowUpDown } from "lucide-react";
+import { Users, Search, Filter, Eye, ChevronLeft, ChevronRight, Bird, Inbox, ArrowUpDown, AlertTriangle, RotateCw } from "lucide-react";
 import { Card, Input, PageHeader, ExportButton } from "@/components/ui";
 import { FiltersBar } from "@/components/filters-bar";
 import { PersonDetail } from "@/components/person-detail";
 import { useConfig } from "@/lib/config-store";
-import { applyFilters, emptyFilters, type Filters } from "@/lib/filters";
+import { emptyFilters, type Filters } from "@/lib/filters";
 import { deptName, muniName, assocName, type Person } from "@/lib/mock-data";
 import { downloadExcel, personRows } from "@/lib/export-excel";
+import { fetchExportRows, useDebouncedValue, usePeopleQuery } from "@/lib/server-data";
 import { useToast } from "@/components/toast";
 import { fmtDate, fmtNum } from "@/lib/format";
 
-type SortKey = "name" | "date";
 const PAGE_SIZE = 10;
 
 export default function RegistradosPage() {
-  const { allPeople, activeRoles, ready } = useConfig();
+  const { activeRoles } = useConfig();
   const { push } = useToast();
   const [filters, setFilters] = React.useState<Filters>(emptyFilters);
   const [page, setPage] = React.useState(1);
-  const [sort, setSort] = React.useState<{ key: SortKey; dir: 1 | -1 }>({ key: "date", dir: -1 });
+  const [sort, setSort] = React.useState<{ key: "name" | "date"; dir: "asc" | "desc" }>({ key: "date", dir: "desc" });
   const [selected, setSelected] = React.useState<Person | null>(null);
 
-  const filtered = React.useMemo(() => {
-    const f = applyFilters(allPeople, filters);
-    const dir = sort.dir;
-    return [...f].sort((a, b) =>
-      sort.key === "name" ? a.fullName.localeCompare(b.fullName, "es") * dir : (a.createdAt < b.createdAt ? -1 : 1) * dir
-    );
-  }, [allPeople, filters, sort]);
+  // Búsqueda con debounce; el resto de filtros dispara de inmediato (con abort).
+  const debouncedQ = useDebouncedValue(filters.q);
+  const serverFilters = React.useMemo(() => ({ ...filters, q: debouncedQ }), [filters, debouncedQ]);
+  const { data, total, loading, error, reload } = usePeopleQuery({
+    filters: serverFilters,
+    page,
+    pageSize: PAGE_SIZE,
+    sortKey: sort.key,
+    sortDir: sort.dir,
+  });
 
-  // Al cambiar filtros se vuelve a la página 1 (vía updateFilters, sin effects).
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   function updateFilters(f: Filters) {
     setFilters(f);
     setPage(1);
   }
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageData = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  function toggleSort(key: SortKey) {
-    setSort((s) => (s.key === key ? { key, dir: s.dir === 1 ? -1 : 1 } : { key, dir: key === "name" ? 1 : -1 }));
+  function toggleSort(key: "name" | "date") {
+    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: key === "name" ? "asc" : "desc" }));
+    setPage(1);
   }
 
-  function exportFiltered() {
-    downloadExcel("registros", [{ name: "Registros", rows: personRows(filtered) }]);
-    push(`Excel descargado con ${fmtNum(filtered.length)} registros`);
+  async function exportFiltered() {
+    const rows = await fetchExportRows(serverFilters);
+    await downloadExcel("registros", [{ name: "Registros", rows: personRows(rows) }]);
+    push(`Excel descargado con ${fmtNum(rows.length)} registros`);
   }
 
-  const sortIcon = (key: SortKey) => (
-    <ArrowUpDown size={12} className={sort.key === key ? "text-[#732427]" : "text-[#D6D3D1]"} />
+  const sortIcon = (key: "name" | "date") => (
+    <ArrowUpDown size={12} className={sort.key === key ? "text-white" : "text-white/40"} />
   );
 
   return (
@@ -79,15 +83,27 @@ export default function RegistradosPage() {
         <div className="flex items-center justify-between border-b border-[#F1EFEA] px-4 py-2.5">
           <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#1C1917]">
             <Filter size={13} className="text-[#732427]" />
-            {fmtNum(filtered.length)} {filtered.length === 1 ? "persona encontrada" : "personas encontradas"}
+            {loading && total === 0 ? "Buscando..." : `${fmtNum(total)} ${total === 1 ? "persona encontrada" : "personas encontradas"}`}
           </p>
-          <p className="hidden text-[11px] text-[#A8A29E] sm:block">Toca el encabezado para ordenar</p>
+          <p className="hidden text-[11px] text-[#A8A29E] sm:block">Toca el encabezado para ordenar · paginado en servidor</p>
         </div>
-        {!ready ? (
+        {loading ? (
           <div className="space-y-2 p-4">
             {[0, 1, 2, 3, 4].map((i) => (
               <div key={i} className="h-10 animate-pulse rounded-lg bg-[#F1EFEA]" />
             ))}
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center px-4 py-14 text-center">
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-red-50 text-red-500">
+              <AlertTriangle size={20} />
+            </span>
+            <p className="mt-2.5 text-sm font-semibold text-[#1C1917]">No se pudieron cargar los registros</p>
+            <p className="mt-1 text-[13px] text-[#78716C]">{error}</p>
+            <button onClick={reload} className="mt-4 inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#732427] px-4 text-[13px] font-semibold text-white transition-all duration-200 hover:-translate-y-px">
+              <RotateCw size={14} />
+              Reintentar
+            </button>
           </div>
         ) : (
           <div className="overflow-auto">
@@ -114,7 +130,7 @@ export default function RegistradosPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F4F4F2]">
-                {pageData.length === 0 ? (
+                {data.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="py-14 text-center">
                       <div className="animate-fade-up mx-auto max-w-[320px]">
@@ -127,7 +143,7 @@ export default function RegistradosPage() {
                     </td>
                   </tr>
                 ) : (
-                  pageData.map((p) => (
+                  data.map((p) => (
                     <tr key={p.id} className="transition-colors hover:bg-[#FAF4F5]">
                       <td className="px-4 py-2.5 font-medium text-[#1C1917]">{p.fullName}</td>
                       <td className="px-3 py-2.5 font-mono text-xs text-[#44403C]">{p.identity}</td>
@@ -161,13 +177,13 @@ export default function RegistradosPage() {
         )}
 
         <div className="flex items-center justify-between border-t border-[#F1EFEA] bg-[#FAFAF8]/60 p-3">
-          <p className="text-xs text-[#78716C]">Página {page} de {totalPages}</p>
+          <p className="text-xs text-[#78716C]">Página {Math.min(page, totalPages)} de {totalPages} · {fmtNum(total)} registros</p>
           <div className="flex gap-2">
-            <button disabled={page === 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-full border border-[#E7E2D9] bg-white px-3.5 text-[13px] font-medium transition-all duration-200 hover:-translate-y-px hover:shadow-sm disabled:opacity-40 disabled:hover:translate-y-0">
+            <button disabled={page === 1 || loading} onClick={() => setPage((p) => Math.max(1, p - 1))} className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-full border border-[#E7E2D9] bg-white px-3.5 text-[13px] font-medium transition-all duration-200 hover:-translate-y-px hover:shadow-sm disabled:opacity-40 disabled:hover:translate-y-0">
               <ChevronLeft size={14} />
               Anterior
             </button>
-            <button disabled={page === totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-full bg-[#732427] px-3.5 text-[13px] font-medium text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#481418] hover:shadow-md disabled:opacity-40 disabled:hover:translate-y-0">
+            <button disabled={page === totalPages || loading} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-full bg-[#732427] px-3.5 text-[13px] font-medium text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#481418] hover:shadow-md disabled:opacity-40 disabled:hover:translate-y-0">
               Siguiente
               <ChevronRight size={14} />
             </button>
