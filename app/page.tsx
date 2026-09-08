@@ -26,9 +26,6 @@ export default function Home() {
                 Registrarme ahora
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" className="ml-2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
-              <Link href="/login" className="h-[52px] px-8 inline-flex items-center justify-center rounded-xl bg-white border border-[#e8ddd0] font-semibold text-[#1c1a17] hover:bg-[#fdf6e8]">
-                Soy administrador
-              </Link>
             </div>
             <div className="mt-8 flex items-center gap-6 border-t border-[#f0e8d5] pt-6">
               <div className="flex -space-x-2">

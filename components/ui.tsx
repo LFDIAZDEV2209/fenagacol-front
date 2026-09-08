@@ -10,7 +10,7 @@ export function ExportButton({
   hint = "Datos filtrados",
   className = "",
 }: {
-  onExport: () => void;
+  onExport: () => void | Promise<void>;
   label?: string;
   hint?: string;
   className?: string;
@@ -21,8 +21,7 @@ export function ExportButton({
     if (busy) return;
     setBusy(true);
     try {
-      await new Promise((r) => setTimeout(r, 60));
-      onExport();
+      await onExport();
     } finally {
       window.setTimeout(() => setBusy(false), 700);
     }

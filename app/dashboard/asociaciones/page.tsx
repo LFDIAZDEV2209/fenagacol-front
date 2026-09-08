@@ -10,7 +10,7 @@ import { useToast } from "@/components/toast";
 import { fmtNum } from "@/lib/format";
 
 export default function AsociacionesPage() {
-  const { cfg, ready, toggleAssoc } = useConfig();
+  const { cfg, ready, toggleAssoc, membersOf } = useConfig();
   const { push } = useToast();
   const [q, setQ] = React.useState("");
 
@@ -18,10 +18,12 @@ export default function AsociacionesPage() {
     () => cfg.assocs.filter((a) => !q || a.name.toLowerCase().includes(q.toLowerCase())),
     [cfg.assocs, q]
   );
-  const totalMembers = filtered.reduce((a, b) => a + (b.members ?? 0), 0);
+  const totalMembers = filtered.reduce((a, b) => a + membersOf(b.id), 0);
 
   function exportAll() {
-    downloadExcel("asociaciones", [{ name: "Asociaciones", rows: assocRows(filtered) }]);
+    downloadExcel("asociaciones", [
+      { name: "Asociaciones", rows: assocRows(filtered.map((a) => ({ ...a, members: membersOf(a.id) }))) },
+    ]);
     push(`Excel descargado con ${fmtNum(filtered.length)} asociaciones`);
   }
 
@@ -63,7 +65,7 @@ export default function AsociacionesPage() {
                 <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                   <span className="inline-flex items-center gap-1 rounded-full border border-[#E7E2D9] bg-[#F4F4F2] px-2 py-0.5 text-[11px] font-semibold text-[#BE123C]">
                     <Users size={11} />
-                    {fmtNum(a.members ?? 0)} miembros
+                    {fmtNum(membersOf(a.id))} miembros
                   </span>
                   {!a.active && (
                     <span className="rounded-full bg-[#F1EFEA] px-2 py-0.5 text-[11px] font-semibold text-[#78716C]">Inactiva</span>
@@ -127,7 +129,7 @@ export default function AsociacionesPage() {
                   </td>
                   <td className="px-3 py-2.5 text-[#44403C]">{deptName(a.departmentId)}</td>
                   <td className="px-3 py-2.5 text-[#44403C]">{muniName(a.municipalityId)}</td>
-                  <td className="px-4 py-2.5 text-right font-semibold text-[#1C1917]">{fmtNum(a.members ?? 0)}</td>
+                  <td className="px-4 py-2.5 text-right font-semibold text-[#1C1917]">{fmtNum(membersOf(a.id))}</td>
                 </tr>
               ))}
             </tbody>

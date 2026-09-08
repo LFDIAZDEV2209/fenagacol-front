@@ -1,7 +1,6 @@
 import { RegistroForm } from "@/components/registro-form";
 import { SiteHeader } from "@/components/site-header";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function RegistroPage() {
   return (
@@ -52,10 +51,6 @@ export default function RegistroPage() {
             <div className="mt-6">
               <RegistroForm />
             </div>
-
-            <p className="mt-6 text-center text-xs text-[#9a8d78]">
-              ¿Eres administrador? <Link href="/login" className="font-semibold text-[#BE123C] hover:underline">Ingresa al dashboard</Link>
-            </p>
           </div>
 
           {/* derecha: contexto humano / confianza — debajo en móvil, sticky en desktop */}

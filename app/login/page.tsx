@@ -56,7 +56,7 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen overflow-x-clip bg-white">
-      <div className="grid min-h-screen lg:grid-cols-[1fr_1.05fr]">
+      <div className="grid min-h-screen lg:grid-cols-[1fr_1.05fr] [&>*]:min-w-0">
         {/* Columna formulario */}
         <div className="flex flex-col px-5 py-5 sm:px-8">
           <div className="flex items-center">
@@ -175,7 +175,7 @@ function LoginForm() {
             <path d="M56 0 C 18 220, 18 580, 56 800 L 56 0 Z" fill="#ffffff" />
           </svg>
 
-          <div className="absolute left-1/2 top-10 z-10 flex -translate-x-1/2 gap-2.5">
+          <div className="absolute left-1/2 top-10 z-10 flex max-w-[92%] -translate-x-1/2 flex-wrap justify-center gap-2.5">
             <span className="animate-fade-up stagger-1 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/12 px-3.5 py-2 text-xs font-semibold text-white backdrop-blur-md">
               <Users size={14} />
               +12 mil registrados

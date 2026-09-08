@@ -128,8 +128,8 @@ function RolesTab() {
                   <Pencil size={14} />
                 </button>
                 <button
-                  onClick={() => {
-                    if (!deleteRole(r.id)) push("Ese rol tiene registros, desactívalo en vez de eliminarlo", "error");
+                  onClick={async () => {
+                    if (!(await deleteRole(r.id))) push("Ese rol tiene registros, desactívalo en vez de eliminarlo", "error");
                     else push("Rol eliminado", "info");
                   }}
                   aria-label={`Eliminar ${r.label}`}
@@ -227,8 +227,8 @@ function AsocsTab() {
                     <td className="px-4 py-2">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => {
-                            const err = deleteAssoc(a.id);
+                          onClick={async () => {
+                            const err = await deleteAssoc(a.id);
                             if (err) push(err, "error");
                             else push("Asociación eliminada", "info");
                           }}

@@ -105,21 +105,29 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    addPerson({
+    const res = await addPerson({
       fullName: data.fullName.trim(),
       identity: data.identity.trim(),
       phone: data.phone.trim(),
       email: data.email.trim(),
       departmentId: data.departmentId,
       municipalityId: data.municipalityId,
-      roles: otherSelected
-        ? [...data.roles.filter((l) => !activeRoles.find((r) => r.label === l)?.isOther), `${data.otroDetalle.trim()}`]
-        : data.roles,
+      roles: data.roles,
+      otherDetail: otherSelected ? data.otroDetalle.trim() : undefined,
       associationId: data.pertenece === "si" ? data.associationId : undefined,
     });
     setSending(false);
+    if (!res.ok && res.code === "DUPLICATE_IDENTITY") {
+      push("Esta identidad ya está registrada.", "error");
+      return;
+    }
+    if (!res.ok) {
+      push("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.", "error");
+      return;
+    }
     setSubmitted(true);
     push("Registro guardado correctamente");
+    if (res.local) push("Guardado en este dispositivo (sin conexión)", "info");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
