@@ -45,18 +45,7 @@ export default function RegistroPage() {
                   <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent opacity-60" />
                   <div className="absolute inset-0 bg-[#4a0f1f]/10 mix-blend-multiply" />
                 </div>
-                <div className="absolute top-0 left-0 right-0 h-1 bg-[#6b1220]" />
-              </div>
-              <div className="px-5 sm:px-7 py-5 bg-white">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="font-display text-[20px] font-bold text-[#1c1a17]">Módulo de Registro</h2>
-                    <p className="text-sm text-[#7a6e5a] mt-1">Completa tus datos para hacer parte de nuestro registro gremial.</p>
-                  </div>
-                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#fdf8ef] border border-[#ece2d1] text-xs font-semibold text-[#6b1220]">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Formulario seguro
-                  </span>
-                </div>
+                <div className="absolute top-0 left-0 right-0 h-1 bg-[#BE123C]" />
               </div>
             </div>
 
@@ -65,7 +54,7 @@ export default function RegistroPage() {
             </div>
 
             <p className="mt-6 text-center text-xs text-[#9a8d78]">
-              ¿Eres administrador? <Link href="/login" className="font-semibold text-[#6b1220] hover:underline">Ingresa al dashboard</Link>
+              ¿Eres administrador? <Link href="/login" className="font-semibold text-[#BE123C] hover:underline">Ingresa al dashboard</Link>
             </p>
           </div>
 
@@ -94,7 +83,7 @@ export default function RegistroPage() {
                     "Participa en caracterización y apoyos del gremio",
                   ].map((t) => (
                     <li key={t} className="flex gap-2.5 text-sm text-[#4a3f35]">
-                      <span className="mt-0.5 w-5 h-5 rounded-full bg-[#f0e8d5] border border-[#e8ddd0] grid place-items-center text-[#6b1220] text-xs">✓</span>
+                      <span className="mt-0.5 w-5 h-5 rounded-full bg-[#f0e8d5] border border-[#e8ddd0] grid place-items-center text-[#BE123C] text-xs">✓</span>
                       {t}
                     </li>
                   ))}
@@ -102,7 +91,7 @@ export default function RegistroPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl bg-[#6b1220] text-[#fff7e8] p-6 relative overflow-hidden">
+            <div className="rounded-2xl bg-[#BE123C] text-[#fff7e8] p-6 relative overflow-hidden">
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
               <p className="text-xs font-semibold tracking-widest uppercase opacity-70">Testimonio</p>
               <p className="mt-2 text-[15px] leading-relaxed font-medium">“El registro fue muy fácil. En 2 minutos quedé listo y ya me contactaron de la asociación.”</p>
@@ -110,7 +99,7 @@ export default function RegistroPage() {
             </div>
 
             <div className="rounded-2xl bg-white border border-[#ece2d1] p-5 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#fdf8ef] border border-[#ece2d1] grid place-items-center text-[#6b1220]">🛡️</div>
+              <div className="w-10 h-10 rounded-xl bg-[#fdf8ef] border border-[#ece2d1] grid place-items-center text-[#BE123C]">🛡️</div>
               <div>
                 <p className="text-sm font-semibold text-[#1c1a17]">Datos protegidos</p>
                 <p className="text-xs text-[#7a6e5a]">Solo el equipo administrador autorizado puede ver la información.</p>

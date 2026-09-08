@@ -72,15 +72,19 @@ export function TrendChart({ data }: { data: { label: string; value: number; key
   );
 }
 
-export function Donut({ items }: { items: { label: string; value: number }[] }) {
-  const total = items.reduce((a, b) => a + b.value, 0);
-  if (!total) return <p className="py-6 text-center text-[13px] text-[#A8A29E]">Sin datos con esos filtros</p>;
+function withSegments(items: { label: string; value: number }[]) {
   let acc = 0;
-  const segs = items.map((r, i) => {
+  return items.map((r, i) => {
     const start = acc;
     acc += r.value;
     return { ...r, start, end: acc, color: ROLE_COLORS[i % ROLE_COLORS.length] };
   });
+}
+
+export function Donut({ items }: { items: { label: string; value: number }[] }) {
+  const total = items.reduce((a, b) => a + b.value, 0);
+  if (!total) return <p className="py-6 text-center text-[13px] text-[#A8A29E]">Sin datos con esos filtros</p>;
+  const segs = withSegments(items);
   const gradient = segs.map((s) => `${s.color} ${(s.start / total) * 100}% ${(s.end / total) * 100}%`).join(", ");
 
   return (

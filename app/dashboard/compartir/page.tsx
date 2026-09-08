@@ -7,8 +7,10 @@ import { SharePanel } from "@/components/share-form";
 export default function CompartirPage() {
   const [url, setUrl] = React.useState("");
 
+  // URL solo en cliente (SSR no tiene window): se resuelve tras montar.
   React.useEffect(() => {
-    setUrl(`${window.location.origin}/registro`);
+    const id = window.requestAnimationFrame(() => setUrl(`${window.location.origin}/registro`));
+    return () => window.cancelAnimationFrame(id);
   }, []);
 
   return (

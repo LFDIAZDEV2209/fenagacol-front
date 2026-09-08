@@ -30,7 +30,11 @@ export default function RegistradosPage() {
     );
   }, [allPeople, filters, sort]);
 
-  React.useEffect(() => setPage(1), [filters]);
+  // Al cambiar filtros se vuelve a la página 1 (vía updateFilters, sin effects).
+  function updateFilters(f: Filters) {
+    setFilters(f);
+    setPage(1);
+  }
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageData = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -71,13 +75,13 @@ export default function RegistradosPage() {
             compact
             placeholder="Buscar por nombre, identidad o teléfono..."
             value={filters.q}
-            onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+            onChange={(e) => updateFilters({ ...filters, q: e.target.value })}
             className="bg-[#FAFAF8] pl-9"
           />
         </div>
       </Card>
 
-      <FiltersBar filters={filters} onChange={setFilters} roleOptions={activeRoles.map((r) => r.label)} />
+      <FiltersBar filters={filters} onChange={updateFilters} roleOptions={activeRoles.map((r) => r.label)} />
 
       <Card className="animate-fade-up stagger-2 overflow-hidden">
         <div className="flex items-center justify-between border-b border-[#F1EFEA] px-4 py-2.5">

@@ -127,9 +127,14 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
   const [cfg, setCfg] = React.useState<Config>(defaults);
   const [ready, setReady] = React.useState(false);
 
+  // Carga diferida: evita mismatch de hidratación (SSR usa defaults) y la
+  // lectura de localStorage ocurre una vez montado el cliente.
   React.useEffect(() => {
-    setCfg(load());
-    setReady(true);
+    const id = window.setTimeout(() => {
+      setCfg(load());
+      setReady(true);
+    }, 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   React.useEffect(() => {

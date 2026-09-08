@@ -34,8 +34,9 @@ export async function verifySession(token: string | undefined | null): Promise<s
   const [p, s] = token.split(".");
   if (!p || !s) return null;
   try {
-    const payloadBytes = b64urlDecode(p);
-    const sigBytes = b64urlDecode(s);
+    // Copias con ArrayBuffer propio (TS 5.7+ exige BufferSource exacto)
+    const payloadBytes = new Uint8Array(b64urlDecode(p));
+    const sigBytes = new Uint8Array(b64urlDecode(s));
     const ok = await crypto.subtle.verify("HMAC", await key(), sigBytes, payloadBytes);
     if (!ok) return null;
     const payload = new TextDecoder().decode(payloadBytes);
