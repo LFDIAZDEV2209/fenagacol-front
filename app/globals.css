@@ -41,9 +41,7 @@
   border-color: var(--border);
 }
 
-html {
-  scrollbar-gutter: stable;
-}
+
 
 body {
   background: var(--background);

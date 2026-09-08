@@ -160,22 +160,22 @@ function LoginForm() {
           <p className="text-center text-[11px] text-[#A8A29E]">© {new Date().getFullYear()} Fenagacol · Tu Carné Gremial</p>
         </div>
 
-        {/* Columna visual con wave divisorio */}
-        <div className="relative hidden min-h-screen overflow-hidden bg-[#3D0A17] lg:block">
+        {/* Columna visual con wave elegante en la separación */}
+        <div className="relative hidden min-h-screen w-full overflow-hidden bg-[#3D0A17] lg:block">
           <Image
-            src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1000&q=80&auto=format&fit=crop"
-            alt="Campo colombiano al atardecer"
+            src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&q=80&auto=format&fit=crop"
+            alt="Atardecer sobre el campo colombiano"
             fill
             className="object-cover"
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#2A0710]/95 via-[#732427]/35 to-[#732427]/10" />
-          {/* Wave de separación */}
-          <svg className="absolute inset-y-0 -left-px z-10 h-full w-14" viewBox="0 0 56 800" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M56 0 C 18 220, 18 580, 56 800 L 56 0 Z" fill="#ffffff" />
+          {/* Wave vertical suave entre el formulario y la imagen */}
+          <svg className="absolute inset-y-0 -left-px z-[5] h-full w-[76px]" viewBox="0 0 72 800" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M72 0 C50 200 50 300 56 400 C62 500 52 640 40 800 L0 800 L0 0 Z" fill="#ffffff" />
           </svg>
 
-          <div className="absolute left-1/2 top-10 z-10 flex max-w-[92%] -translate-x-1/2 flex-wrap justify-center gap-2.5">
+          <div className="absolute inset-x-0 top-8 z-10 flex flex-wrap justify-center gap-2.5 px-8">
             <span className="animate-fade-up stagger-1 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/12 px-3.5 py-2 text-xs font-semibold text-white backdrop-blur-md">
               <Users size={14} />
               +12 mil registrados
@@ -186,7 +186,7 @@ function LoginForm() {
             </span>
           </div>
 
-          <div className="absolute inset-x-0 bottom-0 z-10 p-10">
+          <div className="absolute inset-x-0 bottom-0 z-10 pb-10 pl-24 pr-10 pt-10">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/60">Panel administrativo</p>
             <h2 className="font-display mt-2 text-[30px] font-bold leading-[1.05] text-white">Datos claros para<br />decisiones del gremio.</h2>
             <p className="mt-2.5 max-w-[40ch] text-[13px] leading-relaxed text-white/70">
