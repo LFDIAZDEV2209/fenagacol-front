@@ -1,5 +1,50 @@
 "use client";
 import * as React from "react";
+import { FileSpreadsheet, Loader2 } from "lucide-react";
+
+// Botón de exportación con estado de carga y pista de alcance.
+// onExport genera el archivo (síncrono); el toast de éxito lo pone el caller.
+export function ExportButton({
+  onExport,
+  label = "Exportar Excel",
+  hint = "Datos filtrados",
+  className = "",
+}: {
+  onExport: () => void;
+  label?: string;
+  hint?: string;
+  className?: string;
+}) {
+  const [busy, setBusy] = React.useState(false);
+
+  async function run() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await new Promise((r) => setTimeout(r, 60));
+      onExport();
+    } finally {
+      window.setTimeout(() => setBusy(false), 700);
+    }
+  }
+
+  return (
+    <button
+      onClick={run}
+      disabled={busy}
+      title={hint ? `${label} — ${hint.toLowerCase()}` : label}
+      className={`group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#BE123C] shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98] disabled:cursor-wait disabled:opacity-80 disabled:hover:translate-y-0 ${className}`}
+    >
+      {busy ? <Loader2 size={15} className="animate-spin" /> : <FileSpreadsheet size={15} className="transition-transform duration-200 group-hover:scale-110" />}
+      {busy ? "Generando..." : label}
+      {hint && !busy && (
+        <span className="hidden rounded-full bg-[#FFF1F2] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#BE123C] sm:inline">
+          {hint}
+        </span>
+      )}
+    </button>
+  );
+}
 
 // Botón — rosa principal, compacto, con feedback táctil
 export function Button({
@@ -75,7 +120,7 @@ export function Combobox({
   error,
   disabled,
 }: {
-  label?: string;
+  label?: React.ReactNode;
   placeholder?: string;
   options: { value: string; label: string }[];
   value: string;

@@ -7,13 +7,12 @@ import {
   Bird,
   Handshake,
   MapPin,
-  Download,
   ArrowRight,
   CalendarDays,
   Sparkles,
   TrendingUp,
 } from "lucide-react";
-import { Card, PageHeader } from "@/components/ui";
+import { Card, PageHeader, ExportButton } from "@/components/ui";
 import { Donut, HBarList, TrendChart } from "@/components/dashboard-charts";
 import { FiltersBar } from "@/components/filters-bar";
 import { useConfig } from "@/lib/config-store";
@@ -64,10 +63,10 @@ export default function DashboardHome() {
   }
 
   const kpis = [
-    { label: "Total registrados", value: sum.total, sub: "En la selección actual", icon: Users },
-    { label: "Galleros", value: sum.galleros, sub: `${fmtPct(sum.galleros, sum.total)} del total`, icon: Bird },
-    { label: "Asociados", value: sum.asociados, sub: `${fmtPct(sum.asociados, sum.total)} con asociación`, icon: Handshake },
-    { label: "Municipios", value: sum.municipios, sub: "Con presencia", icon: MapPin },
+    { label: "Total registrados", value: sum.total, sub: "En la selección actual", icon: Users, hero: true },
+    { label: "Galleros", value: sum.galleros, sub: `${fmtPct(sum.galleros, sum.total)} del total`, icon: Bird, hero: false },
+    { label: "Asociados", value: sum.asociados, sub: `${fmtPct(sum.asociados, sum.total)} con asociación`, icon: Handshake, hero: false },
+    { label: "Municipios", value: sum.municipios, sub: "Con presencia", icon: MapPin, hero: false },
   ];
 
   return (
@@ -76,15 +75,7 @@ export default function DashboardHome() {
         icon={<LayoutDashboard size={20} />}
         title="Resumen del gremio"
         subtitle="Lo que está pasando con los registros, en vivo según tus filtros."
-        actions={
-          <button
-            onClick={exportAll}
-            className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#BE123C] transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
-          >
-            <Download size={14} />
-            Exportar Excel
-          </button>
-        }
+        actions={<ExportButton onExport={exportAll} />}
       />
 
       <FiltersBar filters={filters} onChange={setFilters} roleOptions={activeRoles.map((r) => r.label)} />
@@ -92,8 +83,26 @@ export default function DashboardHome() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {kpis.map((k, i) => {
           const Icon = k.icon;
+          if (k.hero) {
+            return (
+              <div key={k.label} className={`animate-fade-up stagger-${i + 1} group relative overflow-hidden rounded-xl bg-[#BE123C] p-4 text-white shadow-[0_10px_28px_rgba(190,18,60,0.35)] transition-all duration-200 hover:-translate-y-1`}>
+                <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
+                <div className="relative flex items-start justify-between gap-2">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-white/75">{k.label}</p>
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/15 transition-transform duration-200 group-hover:scale-110">
+                    <Icon size={15} />
+                  </span>
+                </div>
+                <p className="tnum font-display relative mt-1.5 text-[28px] font-bold leading-none">{fmtNum(k.value)}</p>
+                <p className="relative mt-1.5 flex items-center gap-1 text-[11px] text-white/75">
+                  <Sparkles size={11} />
+                  {k.sub}
+                </p>
+              </div>
+            );
+          }
           return (
-            <Card key={k.label} className={`animate-fade-up stagger-${i + 1} group p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(190,18,60,0.12)]`}>
+            <Card key={k.label} className={`animate-fade-up stagger-${i + 1} group border-t-2 p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(190,18,60,0.1)] ${i === 1 ? "border-t-[#BE123C]" : i === 2 ? "border-t-[#E11D48]" : "border-t-[#D9A441]"}`}>
               <div className="flex items-start justify-between gap-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#A8A29E]">{k.label}</p>
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#F3D9E0] bg-[#FFF1F2] text-[#BE123C] transition-transform duration-200 group-hover:scale-110">

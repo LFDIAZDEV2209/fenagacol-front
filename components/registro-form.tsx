@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { Check, ChevronRight } from "lucide-react";
+import { Building2, Briefcase, Check, ChevronRight, Hash, ListChecks, Mail, MapPin, Phone, User } from "lucide-react";
 import { Button, Card, Combobox, Input, Label, Progress } from "./ui";
 import { DEPARTMENTS, MUNICIPALITIES, getMunicipalitiesByDept } from "@/lib/mock-data";
 import { useConfig } from "@/lib/config-store";
@@ -33,7 +33,12 @@ const initial: FormData = {
   associationId: "",
 };
 
-export function RegistroForm() {
+function FieldIcon({ children }: { children: React.ReactNode }) {
+  return <span className="mr-1.5 inline-flex items-center gap-1.5 align-middle"><span className="text-[#BE123C]">{children}</span></span>;
+}
+
+// preview=true: recorrido visual completo SIN persistir ningún registro.
+export function RegistroForm({ preview = false }: { preview?: boolean }) {
   const { activeRoles, activeAssocs, addPerson, cfg, ready } = useConfig();
   const { push } = useToast();
   const [step, setStep] = React.useState(1);
@@ -93,6 +98,13 @@ export function RegistroForm() {
     if (!validate(4)) return;
     setSending(true);
     await new Promise((r) => setTimeout(r, 800));
+    if (preview) {
+      setSending(false);
+      setSubmitted(true);
+      push("Vista previa: ningún dato fue guardado", "info");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     addPerson({
       fullName: data.fullName.trim(),
       identity: data.identity.trim(),
@@ -125,6 +137,12 @@ export function RegistroForm() {
     const muniLabel = MUNICIPALITIES.find((m) => m.id === data.municipalityId)?.name ?? data.municipalityId;
     return (
       <Card className="animate-fade-up p-6 text-center sm:p-8">
+        {preview && (
+          <p className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+            <ListChecks size={13} />
+            Vista previa — este registro no se guardó
+          </p>
+        )}
         <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-[#BE123C] text-white">
           <Check size={26} strokeWidth={2.5} />
         </div>
@@ -165,29 +183,34 @@ export function RegistroForm() {
       <Progress value={step} max={4} />
 
       <Card className="mt-4 p-5 sm:p-6">
-        <div key={step} className="animate-fade-up">
-          <h2 className="font-display text-xl font-bold text-[#1c1a17]">{stepTitles[step - 1]}</h2>
-          <p className="mt-1 text-sm text-[#7a6e5a]">{stepSubs[step - 1]}</p>
+        <div key={step} className="animate-fade-up flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#F3D9E0] bg-[#FFF1F2] text-[#BE123C]">
+            {step === 1 ? <User size={18} /> : step === 2 ? <MapPin size={18} /> : step === 3 ? <Briefcase size={18} /> : <Building2 size={18} />}
+          </span>
+          <div>
+            <h2 className="font-display text-xl font-bold text-[#1c1a17]">{stepTitles[step - 1]}</h2>
+            <p className="mt-0.5 text-sm text-[#7a6e5a]">{stepSubs[step - 1]}</p>
+          </div>
         </div>
 
         <div className="mt-5">
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="fullName">Nombres y apellidos <span className="text-[#BE123C]">*</span></Label>
+                <Label htmlFor="fullName"><FieldIcon><User size={13} /></FieldIcon>Nombres y apellidos <span className="text-[#BE123C]">*</span></Label>
                 <Input id="fullName" placeholder="Ej: Carlos Andrés Epiayú" value={data.fullName} onChange={(e) => setData({ ...data, fullName: e.target.value })} error={errors.fullName} autoComplete="name" />
               </div>
               <div>
-                <Label htmlFor="identity">Número de identidad <span className="text-[#BE123C]">*</span></Label>
+                <Label htmlFor="identity"><FieldIcon><Hash size={13} /></FieldIcon>Número de identidad <span className="text-[#BE123C]">*</span></Label>
                 <Input id="identity" placeholder="Ej: 1112345678" inputMode="numeric" value={data.identity} onChange={(e) => setData({ ...data, identity: e.target.value.replace(/\D/g, "") })} error={errors.identity} />
               </div>
               <div>
-                <Label htmlFor="phone">Número de teléfono <span className="text-[#BE123C]">*</span></Label>
+                <Label htmlFor="phone"><FieldIcon><Phone size={13} /></FieldIcon>Número de teléfono <span className="text-[#BE123C]">*</span></Label>
                 <Input id="phone" placeholder="Ej: 3001234567" inputMode="tel" value={data.phone} onChange={(e) => setData({ ...data, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} error={errors.phone} />
                 <p className="mt-1.5 text-xs text-[#9a8d78]">Te contactaremos solo para temas del registro.</p>
               </div>
               <div>
-                <Label htmlFor="email">Correo electrónico <span className="font-normal text-[#9a8d78]">(opcional)</span></Label>
+                <Label htmlFor="email"><FieldIcon><Mail size={13} /></FieldIcon>Correo electrónico <span className="font-normal text-[#9a8d78]">(opcional)</span></Label>
                 <Input id="email" placeholder="Ej: carlos@correo.co" type="email" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} error={errors.email} />
               </div>
             </div>
@@ -201,7 +224,7 @@ export function RegistroForm() {
                 <span className="ml-auto hidden text-xs sm:inline">Departamento → Municipio</span>
               </div>
               <Combobox
-                label="Departamento *"
+                label={<span className="inline-flex items-center gap-1.5"><MapPin size={13} className="text-[#BE123C]" />Departamento *</span>}
                 placeholder="Selecciona tu departamento"
                 options={deptos.map((d) => ({ value: d.id, label: d.name }))}
                 value={data.departmentId}
@@ -209,7 +232,7 @@ export function RegistroForm() {
                 error={errors.departmentId}
               />
               <Combobox
-                label="Municipio *"
+                label={<span className="inline-flex items-center gap-1.5"><MapPin size={13} className="text-[#BE123C]" />Municipio *</span>}
                 placeholder={data.departmentId ? "Selecciona tu municipio" : "Primero elige departamento"}
                 options={munis.map((m) => ({ value: m.id, label: m.name }))}
                 value={data.municipalityId}
@@ -223,7 +246,7 @@ export function RegistroForm() {
 
           {step === 3 && (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-[#1c1a17]">Selecciona tu rol <span className="text-[#BE123C]">*</span></p>
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-[#1c1a17]"><Briefcase size={14} className="text-[#BE123C]" />Selecciona tu rol <span className="text-[#BE123C]">*</span></p>
               <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {activeRoles.map((role) => {
                   const active = data.roles.includes(role.label);
@@ -246,7 +269,7 @@ export function RegistroForm() {
               {errors.roles && <p className="mt-2 text-[13px] font-medium text-red-600">{errors.roles}</p>}
               {otherSelected && (
                 <div className="animate-fade-up rounded-xl border border-[#ece2d1] bg-[#fdf8ef] p-4">
-                  <Label htmlFor="otroDetalle">¿Cuál? <span className="text-[#BE123C]">*</span></Label>
+                  <Label htmlFor="otroDetalle"><FieldIcon><Briefcase size={13} /></FieldIcon>¿Cuál? <span className="text-[#BE123C]">*</span></Label>
                   <Input id="otroDetalle" placeholder="Ej: Veterinario, juez de gallera..." value={data.otroDetalle} onChange={(e) => setData({ ...data, otroDetalle: e.target.value })} error={errors.otroDetalle} />
                 </div>
               )}
@@ -279,7 +302,7 @@ export function RegistroForm() {
               {data.pertenece === "si" && (
                 <div className="animate-fade-up rounded-xl border border-[#ece2d1] bg-[#fdf8ef] p-4">
                   <Combobox
-                    label="¿Cuál asociación? *"
+                    label={<span className="inline-flex items-center gap-1.5"><Building2 size={13} className="text-[#BE123C]" />¿Cuál asociación? *</span>}
                     placeholder="Busca tu asociación"
                     options={activeAssocs.map((a) => ({ value: a.id, label: a.name }))}
                     value={data.associationId}
@@ -291,7 +314,7 @@ export function RegistroForm() {
               )}
 
               <div className="flex gap-3 rounded-xl border border-[#e8ddd0] bg-[#f0e8d5] p-3.5">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#e8ddd0] bg-white text-[#BE123C]">✓</div>
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#e8ddd0] bg-white text-[#BE123C]"><ListChecks size={15} /></div>
                 <div>
                   <p className="text-sm font-semibold text-[#1c1a17]">Revisa tus datos antes de enviar.</p>
                   <p className="mt-0.5 text-sm text-[#7a6e5a]">{data.fullName || "—"} · {DEPARTMENTS.find((d) => d.id === data.departmentId)?.name || "Departamento"} · {data.roles.join(", ") || "Rol"}</p>

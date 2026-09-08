@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
-import { BarChart3, Download, MapPin, Building2, Users, FileSpreadsheet } from "lucide-react";
-import { Card, Button, PageHeader } from "@/components/ui";
+import { BarChart3, MapPin, Building2, Users, FileSpreadsheet } from "lucide-react";
+import { Card, PageHeader, ExportButton } from "@/components/ui";
 import { Donut, HBarList, TrendChart } from "@/components/dashboard-charts";
 import { FiltersBar } from "@/components/filters-bar";
 import { useConfig } from "@/lib/config-store";
@@ -47,15 +47,7 @@ export default function ReportesPage() {
         icon={<BarChart3 size={20} />}
         title="Reportes"
         subtitle="Filtra por territorio, fecha, rol y asociación. Todo lo que ves se exporta."
-        actions={
-          <button
-            onClick={exportReport}
-            className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#BE123C] transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
-          >
-            <Download size={14} />
-            Exportar Excel
-          </button>
-        }
+        actions={<ExportButton onExport={exportReport} />}
       />
 
       <FiltersBar filters={filters} onChange={setFilters} roleOptions={activeRoles.map((r) => r.label)} />
@@ -149,10 +141,7 @@ export default function ReportesPage() {
                 <h3 className="text-sm font-semibold text-[#1C1917]">Descarga el Excel del reporte</h3>
                 <p className="text-[13px] text-[#78716C]">4 hojas: registros, departamentos, municipios y roles — con los filtros aplicados.</p>
               </div>
-              <Button size="md" onClick={exportReport}>
-                <Download size={14} />
-                Exportar reporte
-              </Button>
+              <ExportButton onExport={exportReport} label="Exportar reporte" className="h-10 border border-[#F3D9E0]" />
             </div>
           </Card>
         </>

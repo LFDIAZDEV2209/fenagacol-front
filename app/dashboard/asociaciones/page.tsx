@@ -1,8 +1,8 @@
 "use client";
 import * as React from "react";
-import { Building2, Search, MapPin, Users, Inbox, Download, Power, Pencil } from "lucide-react";
+import { Building2, Search, MapPin, Users, Inbox, Power, Pencil } from "lucide-react";
 import Link from "next/link";
-import { Card, Input, PageHeader } from "@/components/ui";
+import { Card, Input, PageHeader, ExportButton } from "@/components/ui";
 import { useConfig } from "@/lib/config-store";
 import { deptName, muniName } from "@/lib/mock-data";
 import { downloadExcel, assocRows } from "@/lib/export-excel";
@@ -31,15 +31,7 @@ export default function AsociacionesPage() {
         icon={<Building2 size={20} />}
         title="Asociaciones"
         subtitle={`${fmtNum(cfg.assocs.length)} asociaciones · ${fmtNum(totalMembers)} miembros en la selección.`}
-        actions={
-          <button
-            onClick={exportAll}
-            className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#BE123C] transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
-          >
-            <Download size={14} />
-            Exportar Excel
-          </button>
-        }
+        actions={<ExportButton onExport={exportAll} />}
       />
 
       <Card className="animate-fade-up stagger-1 p-3.5">

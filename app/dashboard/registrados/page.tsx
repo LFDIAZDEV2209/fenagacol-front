@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
-import { Users, Search, Filter, Download, Eye, ChevronLeft, ChevronRight, Bird, Inbox, ArrowUpDown } from "lucide-react";
-import { Card, Input, PageHeader } from "@/components/ui";
+import { Users, Search, Filter, Eye, ChevronLeft, ChevronRight, Bird, Inbox, ArrowUpDown } from "lucide-react";
+import { Card, Input, PageHeader, ExportButton } from "@/components/ui";
 import { FiltersBar } from "@/components/filters-bar";
 import { PersonDetail } from "@/components/person-detail";
 import { useConfig } from "@/lib/config-store";
@@ -57,15 +57,7 @@ export default function RegistradosPage() {
         icon={<Users size={20} />}
         title="Personas registradas"
         subtitle="Busca, filtra, ordena y exporta el padrón del gremio."
-        actions={
-          <button
-            onClick={exportFiltered}
-            className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#BE123C] transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
-          >
-            <Download size={14} />
-            Exportar Excel
-          </button>
-        }
+        actions={<ExportButton onExport={exportFiltered} />}
       />
 
       <Card className="animate-fade-up stagger-1 p-3.5">
