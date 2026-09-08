@@ -166,6 +166,7 @@ function LoginForm() {
             src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&q=80&auto=format&fit=crop"
             alt="Atardecer sobre el campo colombiano"
             fill
+            sizes="(max-width:1024px) 0vw, 55vw"
             className="object-cover"
             priority
           />

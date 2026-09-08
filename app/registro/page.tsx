@@ -18,6 +18,7 @@ export default function RegistroPage() {
                   src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&q=80&auto=format&fit=crop"
                   alt="Campo colombiano — comunidad rural"
                   fill
+                  sizes="100vw"
                   className="object-cover"
                   priority
                 />
@@ -39,6 +40,7 @@ export default function RegistroPage() {
                     src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=600&q=80&auto=format&fit=crop"
                     alt="Productor rural"
                     fill
+                    sizes="(max-width:1024px) 100vw, 35vw"
                     className="object-cover [object-position:center_30%] opacity-[0.92]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent opacity-60" />
@@ -61,6 +63,7 @@ export default function RegistroPage() {
                   src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=800&q=80&auto=format&fit=crop"
                   alt="Comunidad campesina"
                   fill
+                  sizes="(max-width:1024px) 100vw, 35vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1c0a0d]/70 via-transparent to-transparent" />

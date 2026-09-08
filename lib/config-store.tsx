@@ -143,33 +143,31 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
 
   // Carga diferida: prefs locales + catálogos del servidor (públicos) +
   // directorio admin (solo con sesión; 401 silencioso en el form público).
+  // Ambas fuentes en paralelo para no sumar latencias en cascada.
   React.useEffect(() => {
     const id = window.setTimeout(async () => {
       setCfg(loadLocal());
       setReady(true);
-      try {
-        const cat = await getPublicCatalogs();
-        if (cat && cat.roles.length) {
-          setCfg((c) => ({ ...c, roles: cat.roles, assocs: cat.assocs.length ? cat.assocs : c.assocs }));
-          setServerOk(true);
-        }
-      } catch {
-        // sin conexión: se sigue con datos locales
-      }
-      try {
-        const dir = (await api("/api/admin/directory")) as {
+      const [cat, dir] = await Promise.allSettled([
+        getPublicCatalogs(),
+        api("/api/admin/directory") as Promise<{
           people: Person[];
           roles: RoleOpt[];
           assocs: AssocOpt[];
-        };
-        if (Array.isArray(dir.people)) setServerPeople(dir.people);
-        if (Array.isArray(dir.roles) && dir.roles.length) {
-          setCfg((c) => ({ ...c, roles: dir.roles, assocs: dir.assocs?.length ? dir.assocs : c.assocs }));
+        }>,
+      ]);
+      if (cat.status === "fulfilled" && cat.value && cat.value.roles.length) {
+        setCfg((c) => ({ ...c, roles: cat.value.roles, assocs: cat.value.assocs.length ? cat.value.assocs : c.assocs }));
+        setServerOk(true);
+      }
+      if (dir.status === "fulfilled") {
+        if (Array.isArray(dir.value.people)) setServerPeople(dir.value.people);
+        if (Array.isArray(dir.value.roles) && dir.value.roles.length) {
+          setCfg((c) => ({ ...c, roles: dir.value.roles, assocs: dir.value.assocs?.length ? dir.value.assocs : c.assocs }));
         }
         setServerOk(true);
-      } catch {
-        // 401 en formulario público o sin red: normal
       }
+      // Rechazos = 401 en formulario público o sin red: se sigue con datos locales.
     }, 0);
     return () => window.clearTimeout(id);
   }, []);
@@ -203,7 +201,9 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     [allPeople]
   );
 
-  const value: Ctx = {
+  // Memorizado: evita re-renderizar todo el admin en cada cambio del provider.
+  const value: Ctx = React.useMemo(
+    () => ({
     cfg,
     ready,
     serverOk,
@@ -359,7 +359,9 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
         return { ok: true, local: true };
       }
     },
-  };
+    }),
+    [cfg, ready, serverOk, activeRoles, activeAssocs, allPeople, membersOf]
+  );
 
   return <C.Provider value={value}>{children}</C.Provider>;
 }

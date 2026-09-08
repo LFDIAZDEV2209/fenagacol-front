@@ -2,7 +2,6 @@
 // header rosa con texto blanco, bandas alternadas, bordes sutiles,
 // autofiltros, fila congelada y pestañas rosa. Respeta filtros: el caller
 // pasa las filas ya filtradas.
-import ExcelJS from "exceljs";
 import type { Person } from "./mock-data";
 import { deptName, muniName, assocName } from "./mock-data";
 import { dateStamp, fmtDate } from "./format";
@@ -18,6 +17,9 @@ const LINE = "FFD9D2C2";
 const THIN = { style: "thin" as const, color: { argb: LINE } };
 
 export async function downloadExcel(baseName: string, sheets: Sheet[]) {
+  // Carga diferida: exceljs (~800KB) solo se descarga cuando el usuario exporta,
+  // no penaliza el bundle inicial del admin.
+  const { default: ExcelJS } = await import("exceljs");
   const wb = new ExcelJS.Workbook();
   wb.creator = "Tu Carné Gremial · Fenagacol";
   wb.created = new Date();

@@ -42,6 +42,7 @@ export default function Home() {
               src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=900&q=80&auto=format&fit=crop"
               alt="Paisaje rural colombiano"
               fill
+              sizes="(max-width:1024px) 100vw, 50vw"
               className="object-cover"
               priority
             />
@@ -68,7 +69,7 @@ export default function Home() {
             ].map(c=> (
               <div key={c.n} className="rounded-2xl bg-white border border-[#ece2d1] overflow-hidden shadow-sm">
                 <div className="relative h-32">
-                  <Image src={c.img} alt="" fill className="object-cover" />
+                  <Image src={c.img} alt="" fill sizes="(max-width:640px) 100vw, 33vw" className="object-cover" />
                   <span className="absolute top-3 left-3 w-8 h-8 rounded-full bg-[#732427] text-white grid place-items-center text-xs font-bold">{c.n}</span>
                 </div>
                 <div className="p-5">
