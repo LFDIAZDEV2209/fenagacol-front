@@ -32,7 +32,7 @@ export function PersonDetail({ person, onClose }: { person: Person | null; onClo
   return (
     <div className="animate-fade-in fixed inset-0 z-[90] grid place-items-center bg-black/45 p-4" onClick={onClose} role="dialog" aria-modal="true" aria-label={`Detalle de ${person.fullName}`}>
       <div className="animate-pop-in w-full max-w-[480px] overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-3 bg-[#BE123C] p-4 text-white">
+        <div className="flex items-center gap-3 bg-[#732427] p-4 text-white">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/15">
             <User size={20} />
           </span>
@@ -49,18 +49,18 @@ export function PersonDetail({ person, onClose }: { person: Person | null; onClo
             const Icon = r.icon;
             return (
               <div key={r.label} className="flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors hover:bg-[#FAFAF8]">
-                <Icon size={15} className="shrink-0 text-[#BE123C]" />
+                <Icon size={15} className="shrink-0 text-[#732427]" />
                 <span className="w-[130px] shrink-0 text-xs text-[#78716C]">{r.label}</span>
                 <span className={`flex-1 text-right text-[13px] font-medium text-[#1C1917] ${r.mono ? "font-mono" : ""}`}>{r.value}</span>
               </div>
             );
           })}
           <div className="flex items-start gap-3 rounded-lg px-2.5 py-2">
-            <Bird size={15} className="mt-0.5 shrink-0 text-[#BE123C]" />
+            <Bird size={15} className="mt-0.5 shrink-0 text-[#732427]" />
             <span className="w-[130px] shrink-0 text-xs text-[#78716C]">Roles</span>
             <span className="flex flex-1 flex-wrap justify-end gap-1.5">
               {person.roles.map((r) => (
-                <span key={r} className="inline-flex items-center gap-1 rounded-full border border-[#E7E2D9] bg-[#FFF1F2] px-2.5 py-1 text-xs font-semibold text-[#BE123C]">
+                <span key={r} className="inline-flex items-center gap-1 rounded-full border border-[#E7E2D9] bg-[#F8EDEF] px-2.5 py-1 text-xs font-semibold text-[#732427]">
                   <Users size={11} />
                   {r}
                 </span>

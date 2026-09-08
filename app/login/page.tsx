@@ -61,13 +61,13 @@ function LoginForm() {
         <div className="flex flex-col px-5 py-5 sm:px-8">
           <div className="flex items-center">
             <Link href="/" className="flex cursor-pointer items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#BE123C] text-xs font-black text-white shadow-[0_4px_14px_rgba(190,18,60,0.35)]">TG</span>
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#732427] text-xs font-black text-white shadow-[0_4px_14px_rgba(115,36,39,0.35)]">TG</span>
               <span className="leading-tight">
                 <span className="block font-display text-[15px] font-bold text-[#1C1917]">Tu Carné Gremial</span>
-                <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-[#BE123C]">Fenagacol</span>
+                <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-[#732427]">Fenagacol</span>
               </span>
             </Link>
-            <Link href="/registro" className="ml-auto cursor-pointer rounded-full border border-[#EDE9E1] px-3.5 py-1.5 text-[13px] font-semibold text-[#57534E] transition-all duration-200 hover:-translate-y-px hover:border-[#BE123C]/40 hover:text-[#BE123C]">
+            <Link href="/registro" className="ml-auto cursor-pointer rounded-full border border-[#EDE9E1] px-3.5 py-1.5 text-[13px] font-semibold text-[#57534E] transition-all duration-200 hover:-translate-y-px hover:border-[#732427]/40 hover:text-[#732427]">
               Ir al registro
             </Link>
           </div>
@@ -75,7 +75,7 @@ function LoginForm() {
           <div className="flex flex-1 items-center justify-center py-8">
             <Card className="animate-fade-up w-full max-w-[410px] border-[#EDE9E1] p-6 shadow-[0_16px_48px_rgba(28,25,23,0.08)] sm:p-7">
               <div className="flex items-center gap-3">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#BE123C] text-white shadow-[0_6px_18px_rgba(190,18,60,0.4)]">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#732427] text-white shadow-[0_6px_18px_rgba(115,36,39,0.4)]">
                   <Lock size={19} />
                 </span>
                 <div>
@@ -144,7 +144,7 @@ function LoginForm() {
                   const Icon = f.icon;
                   return (
                     <div key={f.label} className="flex flex-col items-center gap-1.5 rounded-lg bg-[#FAFAF8] px-1 py-2.5 text-center">
-                      <Icon size={16} className="text-[#BE123C]" />
+                      <Icon size={16} className="text-[#732427]" />
                       <span className="text-[11px] font-semibold leading-tight text-[#57534E]">{f.label}</span>
                     </div>
                   );
@@ -169,7 +169,7 @@ function LoginForm() {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#2A0710]/95 via-[#BE123C]/35 to-[#BE123C]/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#2A0710]/95 via-[#732427]/35 to-[#732427]/10" />
           {/* Wave de separación */}
           <svg className="absolute inset-y-0 -left-px z-10 h-full w-14" viewBox="0 0 56 800" preserveAspectRatio="none" aria-hidden="true">
             <path d="M56 0 C 18 220, 18 580, 56 800 L 56 0 Z" fill="#ffffff" />

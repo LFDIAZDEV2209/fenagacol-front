@@ -32,12 +32,12 @@ export function ExportButton({
       onClick={run}
       disabled={busy}
       title={hint ? `${label} — ${hint.toLowerCase()}` : label}
-      className={`group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#BE123C] shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98] disabled:cursor-wait disabled:opacity-80 disabled:hover:translate-y-0 ${className}`}
+      className={`group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#732427] shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98] disabled:cursor-wait disabled:opacity-80 disabled:hover:translate-y-0 ${className}`}
     >
       {busy ? <Loader2 size={15} className="animate-spin" /> : <FileSpreadsheet size={15} className="transition-transform duration-200 group-hover:scale-110" />}
       {busy ? "Generando..." : label}
       {hint && !busy && (
-        <span className="hidden rounded-full bg-[#FFF1F2] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#BE123C] sm:inline">
+        <span className="hidden rounded-full bg-[#F8EDEF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#732427] sm:inline">
           {hint}
         </span>
       )}
@@ -56,7 +56,7 @@ export function Button({
   size?: "sm" | "md" | "lg";
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-200 cursor-pointer hover:-translate-y-px active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BE123C] focus-visible:ring-offset-2";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-200 cursor-pointer hover:-translate-y-px active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#732427] focus-visible:ring-offset-2";
   const sizes = {
     sm: "h-8 px-3.5 text-[13px]",
     md: "h-10 px-4 text-sm",
@@ -64,12 +64,12 @@ export function Button({
   };
   const variants = {
     primary:
-      "bg-[#BE123C] text-white hover:bg-[#9F1239] active:bg-[#881337] shadow-[0_4px_14px_rgba(190,18,60,0.28)]",
+      "bg-gradient-to-br from-[#732427] to-[#481418] text-white hover:brightness-110 hover:shadow-[0_8px_22px_rgba(115,36,39,0.42)] active:brightness-95 shadow-[0_4px_14px_rgba(115,36,39,0.32)]",
     secondary:
       "bg-white text-[#1C1917] border border-[#E7E2D9] hover:bg-[#FAFAF8] hover:shadow-sm",
     ghost: "bg-transparent text-[#1C1917] hover:bg-[#F1EFEA]",
     outline:
-      "bg-white border-2 border-[#BE123C] text-[#BE123C] hover:bg-[#FFF1F2]",
+      "bg-white border-2 border-[#732427] text-[#732427] hover:bg-[#F8EDEF]",
   };
   return <button className={`${base} ${sizes[size]} ${variants[variant]} ${className}`} {...props} />;
 }
@@ -88,7 +88,7 @@ export function Input(props: React.InputHTMLAttributes<HTMLInputElement> & { err
   return (
     <div className="w-full">
       <input
-        className={`w-full rounded-xl border bg-white text-[#1C1917] outline-none transition-colors placeholder:text-[#A8A29E] focus:border-[#BE123C] focus:ring-4 focus:ring-[#BE123C]/10 ${compact ? "h-10 px-3 text-[13px]" : "h-12 px-4 text-[15px]"} ${error ? "border-red-400 bg-red-50/40 focus:border-red-500 focus:ring-red-100" : "border-[#E7E2D9]"} ${className}`}
+        className={`w-full rounded-xl border bg-white text-[#1C1917] outline-none transition-colors placeholder:text-[#A8A29E] focus:border-[#732427] focus:ring-4 focus:ring-[#732427]/10 ${compact ? "h-10 px-3 text-[13px]" : "h-12 px-4 text-[15px]"} ${error ? "border-red-400 bg-red-50/40 focus:border-red-500 focus:ring-red-100" : "border-[#E7E2D9]"} ${className}`}
         {...rest}
       />
       {error && <p className="mt-1.5 text-[13px] font-medium text-red-600">{error}</p>}
@@ -103,7 +103,7 @@ export function Label({ className = "", ...props }: React.LabelHTMLAttributes<HT
 export function Badge({ className = "", ...props }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFF1F2] text-[#BE123C] border border-[#F3D9E0] ${className}`}
+      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F8EDEF] text-[#732427] border border-[#E8CDD4] ${className}`}
       {...props}
     />
   );
@@ -148,7 +148,7 @@ export function Combobox({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setOpen((v) => !v)}
-        className={`flex h-12 w-full cursor-pointer items-center justify-between rounded-xl border bg-white px-3.5 text-left text-sm transition-all ${disabled ? "cursor-not-allowed bg-[#FAFAF8] text-[#A8A29E]" : "hover:border-[#BE123C]/50 hover:shadow-sm"} ${error ? "border-red-400 bg-red-50/30" : "border-[#E7E2D9]"} ${open ? "border-[#BE123C] ring-4 ring-[#BE123C]/10" : ""}`}
+        className={`flex h-12 w-full cursor-pointer items-center justify-between rounded-xl border bg-white px-3.5 text-left text-sm transition-all ${disabled ? "cursor-not-allowed bg-[#FAFAF8] text-[#A8A29E]" : "hover:border-[#732427]/50 hover:shadow-sm"} ${error ? "border-red-400 bg-red-50/30" : "border-[#E7E2D9]"} ${open ? "border-[#732427] ring-4 ring-[#732427]/10" : ""}`}
       >
         <span className={`truncate ${selected ? "text-[#1C1917]" : "text-[#A8A29E]"}`}>
           {selected ? selected.label : placeholder}
@@ -166,7 +166,7 @@ export function Combobox({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Escribe para buscar..."
-              className="h-9 w-full rounded-lg border border-[#E7E2D9] bg-white px-3 text-[13px] outline-none placeholder:text-[#A8A29E] focus:border-[#BE123C]"
+              className="h-9 w-full rounded-lg border border-[#E7E2D9] bg-white px-3 text-[13px] outline-none placeholder:text-[#A8A29E] focus:border-[#732427]"
             />
           </div>
           <div className="max-h-[220px] overflow-auto p-1.5">
@@ -182,10 +182,10 @@ export function Combobox({
                     setOpen(false);
                     setQuery("");
                   }}
-                  className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[13px] transition-colors hover:bg-[#FFF1F2] active:bg-[#F3D9E0]/50 ${value === o.value ? "bg-[#FFF1F2] font-semibold text-[#BE123C]" : "text-[#1C1917]"}`}
+                  className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[13px] transition-colors hover:bg-[#F8EDEF] active:bg-[#E8CDD4]/50 ${value === o.value ? "bg-[#F8EDEF] font-semibold text-[#732427]" : "text-[#1C1917]"}`}
                 >
                   <span className="truncate">{o.label}</span>
-                  {value === o.value && <span className="text-[#BE123C]">✓</span>}
+                  {value === o.value && <span className="text-[#732427]">✓</span>}
                 </button>
               ))
             )}
@@ -209,7 +209,7 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="animate-fade-up relative overflow-hidden rounded-xl bg-[#BE123C] p-4 text-white shadow-[0_10px_28px_rgba(190,18,60,0.28)] sm:p-5">
+    <div className="animate-fade-up relative overflow-hidden rounded-xl bg-gradient-to-br from-[#732427] to-[#481418] p-4 text-white shadow-[0_10px_28px_rgba(115,36,39,0.32)] sm:p-5">
       <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
       <div className="pointer-events-none absolute -bottom-16 -left-8 h-40 w-40 rounded-full bg-black/20 blur-2xl" />
       <div className="relative flex flex-wrap items-center gap-3.5">
@@ -230,8 +230,8 @@ export function PageHeader({
 export function Progress({ value, max = 4 }: { value: number; max?: number }) {
   const pct = (value / max) * 100;
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-[#F3D9E0]">
-      <div className="h-full rounded-full bg-[#BE123C] transition-all duration-500" style={{ width: `${pct}%` }} />
+    <div className="h-2 w-full overflow-hidden rounded-full bg-[#E8CDD4]">
+      <div className="h-full rounded-full bg-[#732427] transition-all duration-500" style={{ width: `${pct}%` }} />
     </div>
   );
 }

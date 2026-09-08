@@ -86,7 +86,7 @@ export function SharePanel({ url }: { url: string }) {
         <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#A8A29E]">Enlace público</p>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row">
           <code className="flex h-11 flex-1 items-center overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-[#E7E2D9] bg-[#FAFAF8] px-3 font-mono text-[13px] text-[#1C1917]">{url}</code>
-          <button onClick={copy} className={`${btn} bg-[#BE123C] text-white shadow-[0_4px_14px_rgba(190,18,60,0.3)] hover:bg-[#9F1239]`}>
+          <button onClick={copy} className={`${btn} bg-[#732427] text-white shadow-[0_4px_14px_rgba(115,36,39,0.3)] hover:bg-[#481418]`}>
             {copied ? <Check size={15} /> : <Link2 size={15} />}
             {copied ? "¡Copiado!" : "Copiar enlace"}
           </button>
@@ -127,7 +127,7 @@ export function SharePanel({ url }: { url: string }) {
             <QRCodeSVG value={url} size={180} level="M" fgColor="#1C1917" />
           </div>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-[13px] font-semibold text-[#1C1917]">
-            <QrCode size={14} className="text-[#BE123C]" />
+            <QrCode size={14} className="text-[#732427]" />
             Escanea para registrarte
           </p>
           <p className="mt-0.5 text-xs text-[#78716C]">Apunta la cámara del celular</p>

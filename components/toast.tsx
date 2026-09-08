@@ -33,7 +33,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           >
             {t.kind === "success" && <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-emerald-600" />}
             {t.kind === "error" && <AlertTriangle size={17} className="mt-0.5 shrink-0 text-red-600" />}
-            {t.kind === "info" && <Info size={17} className="mt-0.5 shrink-0 text-[#BE123C]" />}
+            {t.kind === "info" && <Info size={17} className="mt-0.5 shrink-0 text-[#732427]" />}
             <p className="text-[13px] font-medium leading-snug text-[#1C1917]">{t.message}</p>
           </div>
         ))}

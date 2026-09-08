@@ -10,11 +10,11 @@ export default function Home() {
         {/* hero */}
         <section className="mt-4 rounded-[24px] overflow-hidden bg-white border border-[#ece2d1] shadow-[0_16px_40px_rgba(28,26,23,0.08)] grid lg:grid-cols-[1.1fr_0.9fr]">
           <div className="p-7 sm:p-10 lg:p-12">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdf8ef] border border-[#ece2d1] text-xs font-semibold tracking-widest uppercase text-[#BE123C]">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdf8ef] border border-[#ece2d1] text-xs font-semibold tracking-widest uppercase text-[#732427]">
               Plataforma oficial · Fenagacol
             </span>
             <h1 className="mt-5 font-display text-[34px] sm:text-[44px] font-extrabold leading-[0.9] text-[#1c1a17]">
-              Tu Carné <span className="text-[#BE123C]">Gremial</span>
+              Tu Carné <span className="text-[#732427]">Gremial</span>
               <br />
               <span className="font-light text-[#7a6e5a] text-[26px] sm:text-[30px]">El poder de estar unidos.</span>
             </h1>
@@ -22,7 +22,7 @@ export default function Home() {
               Una plataforma sencilla para registrar y conocer a nuestra comunidad campesina y gallera de Colombia. Rápida, humana y hecha para el campo.
             </p>
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
-              <Link href="/registro" className="h-[52px] px-8 inline-flex items-center justify-center rounded-xl bg-[#BE123C] text-white font-semibold hover:bg-[#9F1239] shadow-[0_8px_20px_rgba(190,18,60,0.22)]">
+              <Link href="/registro" className="h-[52px] px-8 inline-flex items-center justify-center rounded-xl bg-[#732427] text-white font-semibold hover:bg-[#481418] shadow-[0_8px_20px_rgba(115,36,39,0.22)]">
                 Registrarme ahora
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" className="ml-2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
@@ -32,7 +32,7 @@ export default function Home() {
                 {[1,2,3].map(i=> (
                   <Image key={i} src={`https://i.pravatar.cc/100?img=${10+i}`} alt="" width={36} height={36} className="w-9 h-9 rounded-full border-2 border-white object-cover" />
                 ))}
-                <span className="w-9 h-9 rounded-full bg-[#BE123C] border-2 border-white grid place-items-center text-white text-xs font-bold">+12k</span>
+                <span className="w-9 h-9 rounded-full bg-[#732427] border-2 border-white grid place-items-center text-white text-xs font-bold">+12k</span>
               </div>
               <p className="text-xs leading-tight text-[#7a6e5a]"><span className="font-semibold text-[#1c1a17]">12.482 registrados</span><br/>en 184 municipios del país</p>
             </div>
@@ -48,7 +48,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-[#1c0a0d]/30 via-transparent to-transparent lg:bg-gradient-to-r lg:from-white lg:via-transparent lg:to-transparent" />
             {/* floating card */}
             <div className="absolute bottom-4 left-4 right-4 sm:left-6 sm:right-6 bg-white/95 backdrop-blur rounded-2xl border border-white/60 shadow-[0_12px_30px_rgba(28,26,23,0.12)] p-4 flex gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#fdf6e8] border border-[#ece2d1] grid place-items-center text-[#BE123C]">✓</div>
+              <div className="w-12 h-12 rounded-xl bg-[#fdf6e8] border border-[#ece2d1] grid place-items-center text-[#732427]">✓</div>
               <div className="flex-1">
                 <p className="text-sm font-bold text-[#1c1a17]">Módulo de Registro — 4 pasos</p>
                 <p className="text-xs text-[#7a6e5a] mt-0.5">Datos personales → Ubicación → Actividad → Asociación. 2 a 3 minutos.</p>
@@ -69,7 +69,7 @@ export default function Home() {
               <div key={c.n} className="rounded-2xl bg-white border border-[#ece2d1] overflow-hidden shadow-sm">
                 <div className="relative h-32">
                   <Image src={c.img} alt="" fill className="object-cover" />
-                  <span className="absolute top-3 left-3 w-8 h-8 rounded-full bg-[#BE123C] text-white grid place-items-center text-xs font-bold">{c.n}</span>
+                  <span className="absolute top-3 left-3 w-8 h-8 rounded-full bg-[#732427] text-white grid place-items-center text-xs font-bold">{c.n}</span>
                 </div>
                 <div className="p-5">
                   <p className="font-semibold text-[#1c1a17]">{c.t}</p>
@@ -80,12 +80,12 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mt-8 mb-12 rounded-2xl bg-[#BE123C] text-[#fff7e8] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <section className="mt-8 mb-12 rounded-2xl bg-[#732427] text-[#fff7e8] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <p className="font-display font-bold text-lg">¿Listo para registrarte?</p>
             <p className="text-sm text-white/80">Toma menos de 3 minutos. Solo necesitas tu cédula y tu celular.</p>
           </div>
-          <Link href="/registro" className="shrink-0 h-11 px-7 inline-flex items-center justify-center rounded-xl bg-white text-[#BE123C] font-semibold hover:bg-[#fff7e8]">
+          <Link href="/registro" className="shrink-0 h-11 px-7 inline-flex items-center justify-center rounded-xl bg-white text-[#732427] font-semibold hover:bg-[#fff7e8]">
             Ir al formulario
           </Link>
         </section>

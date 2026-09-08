@@ -9,11 +9,11 @@
   --muted-foreground: #78716c;
   --border: #e7e2d9;
   --input: #e7e2d9;
-  --primary: #be123c;
+  --primary: #732427;
   --primary-foreground: #ffffff;
-  --primary-hover: #9f1239;
-  --primary-deep: #6b1220;
-  --accent: #e11d48;
+  --primary-hover: #481418;
+  --primary-deep: #481418;
+  --accent: #a55262;
   --accent-foreground: #fff;
   --radius: 0.75rem;
 }
@@ -74,9 +74,9 @@ body {
   background: #a8a29e;
 }
 
-/* Focus ring rosa */
+/* Focus ring vino */
 *:focus-visible {
-  outline: 2px solid #be123c;
+  outline: 2px solid #732427;
   outline-offset: 2px;
 }
 

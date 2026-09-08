@@ -62,7 +62,7 @@ export default function ReportesPage() {
                 <Users size={12} />
                 Total del reporte
               </p>
-              <p className="tnum font-display mt-1.5 text-[40px] font-bold leading-none text-[#BE123C]">{fmtNum(sum.total)}</p>
+              <p className="tnum font-display mt-1.5 text-[40px] font-bold leading-none text-[#732427]">{fmtNum(sum.total)}</p>
               <div className="mx-auto mt-3 grid max-w-[260px] grid-cols-3 gap-2 text-center">
                 <div className="rounded-lg bg-[#FAFAF8] p-2">
                   <p className="tnum text-[15px] font-bold text-[#1C1917]">{sum.pctGalleros}%</p>
@@ -80,7 +80,7 @@ export default function ReportesPage() {
             </Card>
             <Card className="animate-fade-up stagger-2 p-4 lg:col-span-2">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-                <MapPin size={14} className="text-[#BE123C]" />
+                <MapPin size={14} className="text-[#732427]" />
                 Evolución (12 semanas)
               </h3>
               <div className="mt-2">
@@ -92,7 +92,7 @@ export default function ReportesPage() {
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="animate-fade-up stagger-3 p-4">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-                <MapPin size={14} className="text-[#BE123C]" />
+                <MapPin size={14} className="text-[#732427]" />
                 Por departamento y municipio
               </h3>
               <div className="mt-3">
@@ -110,7 +110,7 @@ export default function ReportesPage() {
             <div className="space-y-4">
               <Card className="animate-fade-up stagger-3 p-4">
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-                  <Users size={14} className="text-[#BE123C]" />
+                  <Users size={14} className="text-[#732427]" />
                   Por rol
                 </h3>
                 <div className="mt-3">
@@ -119,7 +119,7 @@ export default function ReportesPage() {
               </Card>
               <Card className="animate-fade-up stagger-4 p-4">
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-                  <Building2 size={14} className="text-[#BE123C]" />
+                  <Building2 size={14} className="text-[#732427]" />
                   Por asociación
                 </h3>
                 <div className="mt-3">
@@ -132,16 +132,16 @@ export default function ReportesPage() {
             </div>
           </div>
 
-          <Card className="animate-fade-up stagger-4 border-dashed border-[#F3D9E0] bg-[#FFF7F9] p-4">
+          <Card className="animate-fade-up stagger-4 border-dashed border-[#E8CDD4] bg-[#FAF4F5] p-4">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-[#BE123C] shadow-sm">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-[#732427] shadow-sm">
                 <FileSpreadsheet size={18} />
               </span>
               <div className="min-w-0 flex-1">
                 <h3 className="text-sm font-semibold text-[#1C1917]">Descarga el Excel del reporte</h3>
                 <p className="text-[13px] text-[#78716C]">4 hojas: registros, departamentos, municipios y roles — con los filtros aplicados.</p>
               </div>
-              <ExportButton onExport={exportReport} label="Exportar reporte" className="h-10 border border-[#F3D9E0]" />
+              <ExportButton onExport={exportReport} label="Exportar reporte" className="h-10 border border-[#E8CDD4]" />
             </div>
           </Card>
         </>

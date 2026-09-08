@@ -9,9 +9,9 @@ import { dateStamp, fmtDate } from "./format";
 
 export type Sheet = { name: string; rows: Record<string, string | number>[] };
 
-const ROSE = "FFBE123C";
-const ROSE_DARK = "FF9F1239";
-const ROSE_PALE = "FFFFF1F2";
+const ROSE = "FF732427";
+const ROSE_DARK = "FF481418";
+const ROSE_PALE = "FFF8EDEF";
 const INK = "FF1C1917";
 const WHITE = "FFFFFFFF";
 const LINE = "FFD9D2C2";

@@ -39,16 +39,16 @@ export function FiltersBar({
   ];
 
   const dateCls =
-    "h-10 w-full rounded-lg border border-[#D9D2C2] bg-white pl-9 pr-2.5 text-[13px] font-medium text-[#1C1917] outline-none transition-all focus:border-[#BE123C] focus:ring-4 focus:ring-[#BE123C]/15 hover:border-[#BE123C]/50 cursor-pointer [color-scheme:light]";
+    "h-10 w-full rounded-lg border border-[#D9D2C2] bg-white pl-9 pr-2.5 text-[13px] font-medium text-[#1C1917] outline-none transition-all focus:border-[#732427] focus:ring-4 focus:ring-[#732427]/15 hover:border-[#732427]/50 cursor-pointer [color-scheme:light]";
 
   return (
     <Card className="animate-fade-up stagger-1 relative z-30 border-[#E0DACA] bg-white p-3.5 shadow-[0_1px_3px_rgba(28,25,23,0.07)]">
       <div className="flex items-center justify-between gap-2">
         <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#57534E]">
-          <Filter size={13} className="text-[#BE123C]" />
+          <Filter size={13} className="text-[#732427]" />
           Filtros
           {count > 0 ? (
-            <span className="rounded-full bg-[#BE123C] px-2 py-0.5 text-[10px] font-bold text-white">{count} activos</span>
+            <span className="rounded-full bg-[#732427] px-2 py-0.5 text-[10px] font-bold text-white">{count} activos</span>
           ) : (
             <span className="font-medium normal-case tracking-normal text-[#A8A29E]">— sin aplicar</span>
           )}
@@ -56,7 +56,7 @@ export function FiltersBar({
         {count > 0 && (
           <button
             onClick={() => onChange({ q: "", from: "", to: "", departmentId: "", municipalityId: "", role: "", associationId: "" })}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#E7E2D9] bg-[#FAFAF8] px-3 py-1.5 text-xs font-semibold text-[#57534E] transition-all duration-200 hover:-translate-y-px hover:border-[#BE123C]/40 hover:text-[#BE123C] hover:shadow-sm"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#E7E2D9] bg-[#FAFAF8] px-3 py-1.5 text-xs font-semibold text-[#57534E] transition-all duration-200 hover:-translate-y-px hover:border-[#732427]/40 hover:text-[#732427] hover:shadow-sm"
           >
             <Eraser size={13} />
             Limpiar todo
@@ -126,10 +126,10 @@ export function FiltersBar({
               key={c.key}
               onClick={c.clear}
               title={`Quitar filtro ${c.tag}`}
-              className="group inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#F3D9E0] bg-[#FFF1F2] py-1 pl-2.5 pr-1.5 text-xs font-semibold text-[#9F1239] transition-all duration-200 hover:-translate-y-px hover:shadow-sm"
+              className="group inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#F3D9E0] bg-[#F8EDEF] py-1 pl-2.5 pr-1.5 text-xs font-semibold text-[#481418] transition-all duration-200 hover:-translate-y-px hover:shadow-sm"
             >
-              <span className="font-normal text-[#BE123C]/70">{c.tag}</span> {c.value}
-              <span className="grid h-4.5 w-4.5 place-items-center rounded-full bg-[#BE123C]/10 p-0.5 transition-colors group-hover:bg-[#BE123C] group-hover:text-white">
+              <span className="font-normal text-[#732427]/70">{c.tag}</span> {c.value}
+              <span className="grid h-4.5 w-4.5 place-items-center rounded-full bg-[#732427]/10 p-0.5 transition-colors group-hover:bg-[#732427] group-hover:text-white">
                 <X size={10} />
               </span>
             </button>

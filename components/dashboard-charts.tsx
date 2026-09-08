@@ -2,7 +2,7 @@
 
 // Gráficas SVG livianas (sin dependencias pesadas). Todas reciben datos ya
 // filtrados: responden a los filtros del admin.
-export const ROLE_COLORS = ["#BE123C", "#E11D48", "#F472A6", "#B4532A", "#D9A441", "#78716C", "#A8A29E"];
+export const ROLE_COLORS = ["#481418", "#732427", "#A55262", "#C99BA6", "#D9A441", "#78716C", "#A8A29E"];
 
 export function HBarList({ items }: { items: { name: string; value: number }[] }) {
   const max = Math.max(1, ...items.map((d) => d.value));
@@ -14,7 +14,7 @@ export function HBarList({ items }: { items: { name: string; value: number }[] }
           <span className="w-[104px] shrink-0 truncate text-[13px] font-medium text-[#292524]">{d.name}</span>
           <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-[#F1EFEA] transition-colors group-hover:bg-[#EDE9E1]">
             <div
-              className="animate-bar h-full rounded-full bg-gradient-to-r from-[#BE123C] to-[#F472A6] transition-all duration-300 group-hover:brightness-110"
+              className="animate-bar h-full rounded-full bg-gradient-to-r from-[#481418] via-[#732427] to-[#A55262] transition-all duration-300 group-hover:brightness-110"
               style={{ width: `${(d.value / max) * 100}%`, animationDelay: `${Math.min(i, 8) * 0.05}s` }}
             />
           </div>
@@ -44,15 +44,15 @@ export function TrendChart({ data }: { data: { label: string; value: number; key
         <p className="text-[13px] text-[#78716C]">
           <span className="tnum font-display text-xl font-bold text-[#1C1917]">{total.toLocaleString("es-CO")}</span> registros en 12 semanas
         </p>
-        <p className="tnum shrink-0 rounded-full bg-[#FFF1F2] px-2.5 py-1 text-[11px] font-bold text-[#BE123C]">
+        <p className="tnum shrink-0 rounded-full bg-[#FFF1F2] px-2.5 py-1 text-[11px] font-bold text-[#732427]">
           Promedio {avg.toFixed(1)}/sem
         </p>
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Tendencia de registros por semana">
         <defs>
           <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#BE123C" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#BE123C" stopOpacity="0.02" />
+            <stop offset="0%" stopColor="#732427" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#732427" stopOpacity="0.02" />
           </linearGradient>
         </defs>
         {[0.25, 0.5, 0.75, 1].map((f) => (
@@ -62,7 +62,7 @@ export function TrendChart({ data }: { data: { label: string; value: number; key
           <title>{`Promedio: ${avg.toFixed(1)} por semana`}</title>
         </line>
         <polygon points={area} fill="url(#trendFill)" />
-        <polyline points={pts} fill="none" stroke="#BE123C" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        <polyline points={pts} fill="none" stroke="#732427" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
         {data.map((d, i) =>
           i % 2 === 0 || i === n - 1 ? (
             <text
@@ -72,7 +72,7 @@ export function TrendChart({ data }: { data: { label: string; value: number; key
               textAnchor={i === 0 ? "start" : i === n - 1 ? "end" : "middle"}
               fontSize="10.5"
               fontWeight={d.value === max && max > 0 ? 700 : 500}
-              fill={d.value === max && max > 0 ? "#BE123C" : "#A8A29E"}
+              fill={d.value === max && max > 0 ? "#732427" : "#A8A29E"}
             >{d.label}</text>
           ) : null
         )}
@@ -82,8 +82,8 @@ export function TrendChart({ data }: { data: { label: string; value: number; key
             cx={x(i)}
             cy={y(d.value)}
             r={d.value === max && max > 0 ? 4.5 : 3}
-            fill={d.value === max && max > 0 ? "#BE123C" : "#fff"}
-            stroke="#BE123C"
+            fill={d.value === max && max > 0 ? "#732427" : "#fff"}
+            stroke="#732427"
             strokeWidth="2"
             className="cursor-pointer transition-transform duration-150 hover:scale-[1.7]"
             style={{ transformBox: "fill-box", transformOrigin: "center" }}
@@ -126,7 +126,7 @@ export function Donut({ items }: { items: { label: string; value: number }[] }) 
           <div
             key={r.label}
             title={`${r.label}: ${r.value} (${Math.round((r.value / total) * 100)}%)`}
-            className="flex cursor-default items-center gap-2 rounded-lg border border-[#EDE9E1] bg-[#FAFAF8] p-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#F3D9E0] hover:shadow-md"
+            className="flex cursor-default items-center gap-2 rounded-lg border border-[#EDE9E1] bg-[#FAFAF8] p-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#E8CDD4] hover:shadow-md"
           >
             <span className="h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-white" style={{ background: r.color }} />
             <div className="min-w-0">

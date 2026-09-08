@@ -72,7 +72,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     return (
       <div className="grid min-h-screen place-items-center bg-[#FAFAF8]">
         <div className="flex items-center gap-2.5 text-[13px] text-[#78716C]">
-          <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#BE123C]/20 border-t-[#BE123C]" />
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#732427]/20 border-t-[#732427]" />
           Cargando panel...
         </div>
       </div>
@@ -81,24 +81,26 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const current = TITLES[pathname] ?? "Panel";
   // Blanco flotante en reposo → rosa principal al hacer scroll (transición 500ms)
   const barCls = scrolled
-    ? "border-transparent bg-[#BE123C] text-white shadow-[0_14px_36px_rgba(190,18,60,0.42)]"
+    ? "border-transparent bg-gradient-to-r from-[#481418] via-[#732427] to-[#481418] text-white shadow-[0_14px_36px_rgba(115,36,39,0.45)]"
     : "border-[#EDE9E1] bg-white/90 text-[#1C1917] shadow-[0_2px_12px_rgba(28,25,23,0.06)] backdrop-blur";
   const crumbCls = scrolled ? "text-white/70" : "text-[#A8A29E]";
   const badgeCls = scrolled
     ? "border-white/25 bg-white/10 text-white"
-    : "border-[#F3D9E0] bg-[#FFF1F2] text-[#9F1239]";
+    : "border-[#E8CDD4] bg-[#F8EDEF] text-[#481418]";
   const dotCls = scrolled ? "bg-emerald-300" : "bg-emerald-500";
   const menuBtnCls = scrolled
     ? "border-white/25 bg-white/10 text-white"
-    : "border-[#F3D9E0] bg-[#FFF1F2] text-[#BE123C]";
+    : "border-[#E8CDD4] bg-[#F8EDEF] text-[#732427]";
 
   const navItem = (active: boolean) =>
-    `group flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all duration-200 hover:-translate-y-px ${
-      active ? "bg-[#FFF1F2] font-semibold text-[#BE123C] shadow-[inset_0_0_0_1px_#F3D9E0]" : "text-[#57534E] hover:bg-[#F7F6F3] hover:text-[#1C1917]"
+    `group relative flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all duration-200 hover:-translate-y-px ${
+      active
+        ? "bg-gradient-to-r from-[#732427] to-[#481418] font-bold text-white shadow-[0_8px_20px_rgba(115,36,39,0.45)]"
+        : "text-[#57534E] hover:bg-[#F7F6F3] hover:text-[#1C1917]"
     }`;
   const navIcon = (active: boolean) =>
     `grid h-7 w-7 shrink-0 place-items-center rounded-md transition-all duration-200 ${
-      active ? "bg-[#BE123C] text-white shadow-[0_3px_10px_rgba(190,18,60,0.4)]" : "bg-[#F1EFEA] text-[#78716C] group-hover:bg-[#E7E2D9] group-hover:text-[#44403C]"
+      active ? "bg-white/20 text-white" : "bg-[#F1EFEA] text-[#78716C] group-hover:bg-[#E7E2D9] group-hover:text-[#44403C]"
     }`;
 
   const sidebarBody = (
@@ -131,7 +133,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       </nav>
       <div className="border-t border-[#EDE9E1] p-3">
         <div className="flex items-center gap-2.5 rounded-lg border border-[#EDE9E1] bg-[#FAFAF8] p-2.5">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#BE123C] text-xs font-bold text-white">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#732427] text-xs font-bold text-white">
             {(user.email[0] ?? "A").toUpperCase()}
           </span>
           <div className="min-w-0 flex-1">
@@ -142,7 +144,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <button
             onClick={signOut}
             title="Cerrar la sesión de administrador"
-            className="mt-2.5 flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#BE123C] text-[13px] font-semibold text-white shadow-[0_4px_14px_rgba(190,18,60,0.32)] transition-all duration-200 hover:-translate-y-px hover:bg-[#9F1239] hover:shadow-[0_8px_20px_rgba(190,18,60,0.4)] active:translate-y-0 active:scale-[0.98]"
+            className="mt-2.5 flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#732427] to-[#481418] text-[13px] font-semibold text-white shadow-[0_4px_14px_rgba(115,36,39,0.35)] transition-all duration-200 hover:-translate-y-px hover:brightness-110 hover:shadow-[0_8px_20px_rgba(115,36,39,0.45)] active:translate-y-0 active:scale-[0.98]"
           >
             <LogOut size={15} />
             Cerrar sesión
@@ -165,7 +167,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           />
           <div className="min-w-0">
             <p className="truncate font-display text-[14px] font-bold leading-tight text-[#1C1917]">Tu Carné Gremial</p>
-            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#BE123C]">Admin · Fenagacol</p>
+            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#732427]">Admin · Fenagacol</p>
           </div>
         </div>
         {sidebarBody}
@@ -188,7 +190,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               </span>
               <Link
                 href="/dashboard/compartir"
-                className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg px-3.5 text-[13px] font-semibold transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98] ${scrolled ? "bg-white text-[#BE123C]" : "bg-[#BE123C] text-white shadow-[0_4px_14px_rgba(190,18,60,0.3)] hover:bg-[#9F1239]"}`}
+                className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg px-3.5 text-[13px] font-semibold transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98] ${scrolled ? "bg-white text-[#732427]" : "bg-gradient-to-r from-[#732427] to-[#481418] text-white shadow-[0_4px_14px_rgba(115,36,39,0.3)] hover:brightness-110"}`}
               >
                 <Share2 size={14} />
                 Compartir formulario
@@ -209,7 +211,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 <span className={`block text-[11px] ${scrolled ? "text-white/70" : "text-[#78716C]"}`}>{current}</span>
               </div>
             </div>
-            <Link href="/dashboard/compartir" className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-500 ${scrolled ? "bg-white text-[#BE123C]" : "bg-[#BE123C] text-white"}`}>
+            <Link href="/dashboard/compartir" className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-500 ${scrolled ? "bg-white text-[#732427]" : "bg-[#732427] text-white"}`}>
               <Share2 size={13} />
               Compartir
             </Link>

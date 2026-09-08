@@ -52,18 +52,18 @@ export default function AsociacionesPage() {
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {filtered.map((a, i) => (
-            <Card key={a.id} className={`animate-fade-up stagger-${(i % 4) + 1} group flex gap-3 p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(190,18,60,0.12)] ${!a.active ? "opacity-60" : ""}`}>
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-[#F3D9E0] bg-[#FFF1F2] text-[#BE123C] transition-transform duration-200 group-hover:scale-110">
+            <Card key={a.id} className={`animate-fade-up stagger-${(i % 4) + 1} group flex gap-3 p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(115,36,39,0.12)] ${!a.active ? "opacity-60" : ""}`}>
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-[#E8CDD4] bg-[#F8EDEF] text-[#732427] transition-transform duration-200 group-hover:scale-110">
                 <Building2 size={17} />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold leading-tight text-[#1C1917]">{a.name}</p>
                 <p className="mt-1 flex items-center gap-1 text-[13px] text-[#78716C]">
-                  <MapPin size={12} className="shrink-0 text-[#E11D48]" />
+                  <MapPin size={12} className="shrink-0 text-[#A55262]" />
                   {deptName(a.departmentId)} · {muniName(a.municipalityId)}
                 </p>
                 <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#E7E2D9] bg-[#F4F4F2] px-2 py-0.5 text-[11px] font-semibold text-[#BE123C]">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#E7E2D9] bg-[#F4F4F2] px-2 py-0.5 text-[11px] font-semibold text-[#732427]">
                     <Users size={11} />
                     {fmtNum(membersOf(a.id))} miembros
                   </span>
@@ -75,7 +75,7 @@ export default function AsociacionesPage() {
                       toggleAssoc(a.id);
                       push(a.active ? `“${a.name}” desactivada` : `“${a.name}” activada`, "info");
                     }}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#E7E2D9] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#44403C] transition-colors hover:border-[#BE123C]/40 hover:text-[#BE123C]"
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#E7E2D9] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#44403C] transition-colors hover:border-[#732427]/40 hover:text-[#732427]"
                   >
                     <Power size={11} />
                     {a.active ? "Desactivar" : "Activar"}
@@ -100,10 +100,10 @@ export default function AsociacionesPage() {
       <Card className="animate-fade-up stagger-2 overflow-hidden">
         <div className="flex items-center justify-between border-b border-[#F1EFEA] bg-[#FAFAF8]/60 p-3.5">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-            <Building2 size={14} className="text-[#BE123C]" />
+            <Building2 size={14} className="text-[#732427]" />
             Tabla de asociaciones
           </h3>
-          <Link href="/dashboard/configuracion" className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#E7E2D9] bg-white px-3 py-1.5 text-xs font-semibold text-[#44403C] transition-all duration-200 hover:-translate-y-px hover:text-[#BE123C] hover:shadow-sm">
+          <Link href="/dashboard/configuracion" className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#E7E2D9] bg-white px-3 py-1.5 text-xs font-semibold text-[#44403C] transition-all duration-200 hover:-translate-y-px hover:text-[#732427] hover:shadow-sm">
             <Pencil size={12} />
             Gestionar
           </Link>
@@ -111,7 +111,7 @@ export default function AsociacionesPage() {
         <div className="overflow-auto">
           <table className="w-full min-w-[620px] text-[13px]">
             <thead>
-              <tr className="bg-[#BE123C] text-left text-[11px] uppercase tracking-wider text-white/90">
+              <tr className="bg-[#732427] text-left text-[11px] uppercase tracking-wider text-white/90">
                 <th className="px-4 py-2.5 font-semibold">Asociación</th>
                 <th className="px-3 py-2.5 font-semibold">Departamento</th>
                 <th className="px-3 py-2.5 font-semibold">Municipio</th>
@@ -120,10 +120,10 @@ export default function AsociacionesPage() {
             </thead>
             <tbody className="divide-y divide-[#F4F4F2]">
               {filtered.map((a) => (
-                <tr key={a.id} className="transition-colors hover:bg-[#FFF7F9]">
+                <tr key={a.id} className="transition-colors hover:bg-[#FAF4F5]">
                   <td className="px-4 py-2.5 font-medium text-[#1C1917]">
                     <span className="inline-flex items-center gap-2">
-                      <Building2 size={13} className="shrink-0 text-[#E11D48]" />
+                      <Building2 size={13} className="shrink-0 text-[#A55262]" />
                       {a.name}
                     </span>
                   </td>

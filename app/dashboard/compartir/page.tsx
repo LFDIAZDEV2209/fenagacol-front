@@ -27,8 +27,8 @@ export default function CompartirPage() {
         <div className="h-40 animate-pulse rounded-xl bg-[#F1EFEA]" />
       )}
 
-      <Card className="animate-fade-up stagger-3 flex flex-wrap items-center gap-3 border-[#F3D9E0] bg-[#FFF7F9] p-4">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-[#BE123C] shadow-sm">
+      <Card className="animate-fade-up stagger-3 flex flex-wrap items-center gap-3 border-[#E8CDD4] bg-[#FAF4F5] p-4">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-[#732427] shadow-sm">
           <Eye size={18} />
         </span>
         <div className="min-w-0 flex-1">
@@ -37,7 +37,7 @@ export default function CompartirPage() {
         </div>
         <Link
           href="/dashboard/vista-previa"
-          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-[#BE123C] px-5 text-[13px] font-semibold text-white shadow-[0_4px_14px_rgba(190,18,60,0.3)] transition-all duration-200 hover:-translate-y-px hover:bg-[#9F1239] active:translate-y-0 active:scale-[0.98]"
+          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-r from-[#732427] to-[#481418] px-5 text-[13px] font-semibold text-white shadow-[0_4px_14px_rgba(115,36,39,0.3)] transition-all duration-200 hover:-translate-y-px hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
         >
           <Eye size={15} />
           Abrir vista previa

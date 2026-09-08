@@ -85,7 +85,7 @@ export default function DashboardHome() {
           const Icon = k.icon;
           if (k.hero) {
             return (
-              <div key={k.label} className={`animate-fade-up stagger-${i + 1} group relative overflow-hidden rounded-xl bg-[#BE123C] p-4 text-white shadow-[0_10px_28px_rgba(190,18,60,0.35)] transition-all duration-200 hover:-translate-y-1`}>
+              <div key={k.label} className={`animate-fade-up stagger-${i + 1} group relative overflow-hidden rounded-xl bg-gradient-to-br from-[#732427] to-[#481418] p-4 text-white shadow-[0_10px_28px_rgba(115,36,39,0.38)] transition-all duration-200 hover:-translate-y-1`}>
                 <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
                 <div className="relative flex items-start justify-between gap-2">
                   <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-white/75">{k.label}</p>
@@ -102,16 +102,16 @@ export default function DashboardHome() {
             );
           }
           return (
-            <Card key={k.label} className={`animate-fade-up stagger-${i + 1} group border-t-2 p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(190,18,60,0.1)] ${i === 1 ? "border-t-[#BE123C]" : i === 2 ? "border-t-[#E11D48]" : "border-t-[#D9A441]"}`}>
+            <Card key={k.label} className={`animate-fade-up stagger-${i + 1} group border-t-2 p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(115,36,39,0.1)] ${i === 1 ? "border-t-[#732427]" : i === 2 ? "border-t-[#A55262]" : "border-t-[#D9A441]"}`}>
               <div className="flex items-start justify-between gap-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#A8A29E]">{k.label}</p>
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#F3D9E0] bg-[#FFF1F2] text-[#BE123C] transition-transform duration-200 group-hover:scale-110">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#E8CDD4] bg-[#F8EDEF] text-[#732427] transition-transform duration-200 group-hover:scale-110">
                   <Icon size={15} />
                 </span>
               </div>
               <p className="tnum font-display mt-1.5 text-[26px] font-bold leading-none text-[#1C1917]">{fmtNum(k.value)}</p>
               <p className="mt-1.5 flex items-center gap-1 text-[11px] text-[#78716C]">
-                <Sparkles size={11} className="text-[#E11D48]" />
+                <Sparkles size={11} className="text-[#A55262]" />
                 {k.sub}
               </p>
             </Card>
@@ -121,7 +121,7 @@ export default function DashboardHome() {
 
       <Card className="animate-fade-up stagger-2 p-4">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-          <TrendingUp size={15} className="text-[#BE123C]" />
+          <TrendingUp size={15} className="text-[#732427]" />
           Evolución de registros
           <span className="ml-auto rounded-full border border-[#EDE9E1] bg-[#FAFAF8] px-2.5 py-1 text-[11px] font-medium text-[#78716C]">Últimas 12 semanas</span>
         </h3>
@@ -133,14 +133,14 @@ export default function DashboardHome() {
       <div className="grid gap-4 lg:grid-cols-5">
         <Card className="animate-fade-up stagger-3 p-4 lg:col-span-3">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-            <MapPin size={15} className="text-[#BE123C]" />
+            <MapPin size={15} className="text-[#732427]" />
             Top departamentos
           </h3>
           <div className="mt-3">
             <HBarList items={sum.byDept} />
           </div>
           <h3 className="mt-5 flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-            <MapPin size={15} className="text-[#BE123C]" />
+            <MapPin size={15} className="text-[#732427]" />
             Top municipios
           </h3>
           <div className="mt-3">
@@ -149,7 +149,7 @@ export default function DashboardHome() {
         </Card>
         <Card className="animate-fade-up stagger-4 flex flex-col p-4 lg:col-span-2">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-            <Users size={15} className="text-[#BE123C]" />
+            <Users size={15} className="text-[#732427]" />
             Distribución por rol
           </h3>
           <div className="flex flex-1 flex-col justify-center py-2">
@@ -161,10 +161,10 @@ export default function DashboardHome() {
       <Card className="animate-fade-up stagger-4 overflow-hidden">
         <div className="flex items-center justify-between p-4">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-            <CalendarDays size={15} className="text-[#BE123C]" />
+            <CalendarDays size={15} className="text-[#732427]" />
             Registros recientes
           </h3>
-          <Link href="/dashboard/registrados" className="inline-flex cursor-pointer items-center gap-1 text-[13px] font-semibold text-[#BE123C] transition-transform hover:translate-x-0.5">
+          <Link href="/dashboard/registrados" className="inline-flex cursor-pointer items-center gap-1 text-[13px] font-semibold text-[#732427] transition-transform hover:translate-x-0.5">
             Ver todos
             <ArrowRight size={14} />
           </Link>
@@ -187,12 +187,12 @@ export default function DashboardHome() {
                 </tr>
               ) : (
                 recent.map((p) => (
-                  <tr key={p.id} className="transition-colors hover:bg-[#FFF7F9]">
+                  <tr key={p.id} className="transition-colors hover:bg-[#FAF4F5]">
                     <td className="px-4 py-2.5 font-medium text-[#1C1917]">{p.fullName}</td>
                     <td className="px-3 py-2.5 text-[#44403C]">{deptName(p.departmentId)}</td>
                     <td className="px-3 py-2.5 text-[#44403C]">{muniName(p.municipalityId)}</td>
                     <td className="px-3 py-2.5">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-[#F3D9E0] bg-[#FFF1F2] px-2 py-0.5 text-[11px] font-semibold text-[#BE123C]">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-[#E8CDD4] bg-[#F8EDEF] px-2 py-0.5 text-[11px] font-semibold text-[#732427]">
                         <Bird size={10} />
                         {p.roles[0]}
                       </span>

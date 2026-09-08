@@ -18,7 +18,7 @@ export default function VistaPreviaPage() {
         </div>
         <Link
           href="/dashboard/compartir"
-          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#57534E] shadow-sm transition-all duration-200 hover:-translate-y-px hover:text-[#BE123C] hover:shadow"
+          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#57534E] shadow-sm transition-all duration-200 hover:-translate-y-px hover:text-[#732427] hover:shadow"
         >
           <ArrowLeft size={14} />
           Volver a Compartir

@@ -48,7 +48,7 @@ export default function RegistradosPage() {
   }
 
   const sortIcon = (key: SortKey) => (
-    <ArrowUpDown size={12} className={sort.key === key ? "text-[#BE123C]" : "text-[#D6D3D1]"} />
+    <ArrowUpDown size={12} className={sort.key === key ? "text-[#732427]" : "text-[#D6D3D1]"} />
   );
 
   return (
@@ -78,7 +78,7 @@ export default function RegistradosPage() {
       <Card className="animate-fade-up stagger-2 overflow-hidden">
         <div className="flex items-center justify-between border-b border-[#F1EFEA] px-4 py-2.5">
           <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#1C1917]">
-            <Filter size={13} className="text-[#BE123C]" />
+            <Filter size={13} className="text-[#732427]" />
             {fmtNum(filtered.length)} {filtered.length === 1 ? "persona encontrada" : "personas encontradas"}
           </p>
           <p className="hidden text-[11px] text-[#A8A29E] sm:block">Toca el encabezado para ordenar</p>
@@ -93,7 +93,7 @@ export default function RegistradosPage() {
           <div className="overflow-auto">
             <table className="w-full min-w-[880px] text-[13px]">
               <thead>
-                <tr className="bg-[#BE123C] text-left text-[11px] uppercase tracking-wider text-white/90">
+                <tr className="bg-[#732427] text-left text-[11px] uppercase tracking-wider text-white/90">
                   <th className="px-4 py-2.5 font-semibold">
                     <button onClick={() => toggleSort("name")} className="inline-flex cursor-pointer items-center gap-1.5 hover:text-white">
                       Nombre {sortIcon("name")}
@@ -128,14 +128,14 @@ export default function RegistradosPage() {
                   </tr>
                 ) : (
                   pageData.map((p) => (
-                    <tr key={p.id} className="transition-colors hover:bg-[#FFF7F9]">
+                    <tr key={p.id} className="transition-colors hover:bg-[#FAF4F5]">
                       <td className="px-4 py-2.5 font-medium text-[#1C1917]">{p.fullName}</td>
                       <td className="px-3 py-2.5 font-mono text-xs text-[#44403C]">{p.identity}</td>
                       <td className="px-3 py-2.5 text-[#44403C]">{p.phone}</td>
                       <td className="px-3 py-2.5 text-[#44403C]">{deptName(p.departmentId)}</td>
                       <td className="px-3 py-2.5 text-[#44403C]">{muniName(p.municipalityId)}</td>
                       <td className="px-3 py-2.5">
-                        <span className="inline-flex items-center gap-1 rounded-full border border-[#F3D9E0] bg-[#FFF1F2] px-2 py-0.5 text-[11px] font-semibold text-[#BE123C]">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-[#E8CDD4] bg-[#F8EDEF] px-2 py-0.5 text-[11px] font-semibold text-[#732427]">
                           <Bird size={10} />
                           {p.roles[0]}
                           {p.roles.length > 1 ? ` +${p.roles.length - 1}` : ""}
@@ -146,7 +146,7 @@ export default function RegistradosPage() {
                       <td className="px-4 py-2.5">
                         <button
                           onClick={() => setSelected(p)}
-                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#E7E2D9] bg-white px-3 py-1.5 text-xs font-semibold transition-all duration-200 hover:-translate-y-px hover:border-[#BE123C]/40 hover:text-[#BE123C] hover:shadow-sm active:translate-y-0"
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#E7E2D9] bg-white px-3 py-1.5 text-xs font-semibold transition-all duration-200 hover:-translate-y-px hover:border-[#732427]/40 hover:text-[#732427] hover:shadow-sm active:translate-y-0"
                         >
                           <Eye size={13} />
                           Ver
@@ -167,7 +167,7 @@ export default function RegistradosPage() {
               <ChevronLeft size={14} />
               Anterior
             </button>
-            <button disabled={page === totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-full bg-[#BE123C] px-3.5 text-[13px] font-medium text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#9F1239] hover:shadow-md disabled:opacity-40 disabled:hover:translate-y-0">
+            <button disabled={page === totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-full bg-[#732427] px-3.5 text-[13px] font-medium text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#481418] hover:shadow-md disabled:opacity-40 disabled:hover:translate-y-0">
               Siguiente
               <ChevronRight size={14} />
             </button>

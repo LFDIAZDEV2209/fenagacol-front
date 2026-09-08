@@ -34,7 +34,7 @@ const initial: FormData = {
 };
 
 function FieldIcon({ children }: { children: React.ReactNode }) {
-  return <span className="mr-1.5 inline-flex items-center gap-1.5 align-middle"><span className="text-[#BE123C]">{children}</span></span>;
+  return <span className="mr-1.5 inline-flex items-center gap-1.5 align-middle"><span className="text-[#732427]">{children}</span></span>;
 }
 
 // preview=true: recorrido visual completo SIN persistir ningún registro.
@@ -134,7 +134,7 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
   if (!ready) {
     return (
       <div className="space-y-3">
-        <div className="h-2 animate-pulse rounded-full bg-[#F3D9E0]" />
+        <div className="h-2 animate-pulse rounded-full bg-[#E8CDD4]" />
         <div className="h-64 animate-pulse rounded-2xl bg-[#F4F4F2]" />
       </div>
     );
@@ -151,7 +151,7 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
             Vista previa — este registro no se guardó
           </p>
         )}
-        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-[#BE123C] text-white">
+        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-[#732427] text-white">
           <Check size={26} strokeWidth={2.5} />
         </div>
         <h2 className="font-display text-2xl font-bold leading-tight text-[#1c1a17]">¡Registro completado!</h2>
@@ -192,7 +192,7 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
 
       <Card className="mt-4 p-5 sm:p-6">
         <div key={step} className="animate-fade-up flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#F3D9E0] bg-[#FFF1F2] text-[#BE123C]">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#E8CDD4] bg-[#F8EDEF] text-[#732427]">
             {step === 1 ? <User size={18} /> : step === 2 ? <MapPin size={18} /> : step === 3 ? <Briefcase size={18} /> : <Building2 size={18} />}
           </span>
           <div>
@@ -205,15 +205,15 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="fullName"><FieldIcon><User size={13} /></FieldIcon>Nombres y apellidos <span className="text-[#BE123C]">*</span></Label>
+                <Label htmlFor="fullName"><FieldIcon><User size={13} /></FieldIcon>Nombres y apellidos <span className="text-[#732427]">*</span></Label>
                 <Input id="fullName" placeholder="Ej: Carlos Andrés Epiayú" value={data.fullName} onChange={(e) => setData({ ...data, fullName: e.target.value })} error={errors.fullName} autoComplete="name" />
               </div>
               <div>
-                <Label htmlFor="identity"><FieldIcon><Hash size={13} /></FieldIcon>Número de identidad <span className="text-[#BE123C]">*</span></Label>
+                <Label htmlFor="identity"><FieldIcon><Hash size={13} /></FieldIcon>Número de identidad <span className="text-[#732427]">*</span></Label>
                 <Input id="identity" placeholder="Ej: 1112345678" inputMode="numeric" value={data.identity} onChange={(e) => setData({ ...data, identity: e.target.value.replace(/\D/g, "") })} error={errors.identity} />
               </div>
               <div>
-                <Label htmlFor="phone"><FieldIcon><Phone size={13} /></FieldIcon>Número de teléfono <span className="text-[#BE123C]">*</span></Label>
+                <Label htmlFor="phone"><FieldIcon><Phone size={13} /></FieldIcon>Número de teléfono <span className="text-[#732427]">*</span></Label>
                 <Input id="phone" placeholder="Ej: 3001234567" inputMode="tel" value={data.phone} onChange={(e) => setData({ ...data, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} error={errors.phone} />
                 <p className="mt-1.5 text-xs text-[#9a8d78]">Te contactaremos solo para temas del registro.</p>
               </div>
@@ -227,12 +227,12 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
           {step === 2 && (
             <div className="space-y-4">
               <div className="flex items-center gap-2 rounded-xl border border-[#ece2d1] bg-[#fdf8ef] p-3 text-sm text-[#7a6e5a]">
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#e8ddd0] bg-white text-[#BE123C]">1</span>
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#e8ddd0] bg-white text-[#732427]">1</span>
                 El municipio depende del departamento que elijas
                 <span className="ml-auto hidden text-xs sm:inline">Departamento → Municipio</span>
               </div>
               <Combobox
-                label={<span className="inline-flex items-center gap-1.5"><MapPin size={13} className="text-[#BE123C]" />Departamento *</span>}
+                label={<span className="inline-flex items-center gap-1.5"><MapPin size={13} className="text-[#732427]" />Departamento *</span>}
                 placeholder="Selecciona tu departamento"
                 options={deptos.map((d) => ({ value: d.id, label: d.name }))}
                 value={data.departmentId}
@@ -240,7 +240,7 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
                 error={errors.departmentId}
               />
               <Combobox
-                label={<span className="inline-flex items-center gap-1.5"><MapPin size={13} className="text-[#BE123C]" />Municipio *</span>}
+                label={<span className="inline-flex items-center gap-1.5"><MapPin size={13} className="text-[#732427]" />Municipio *</span>}
                 placeholder={data.departmentId ? "Selecciona tu municipio" : "Primero elige departamento"}
                 options={munis.map((m) => ({ value: m.id, label: m.name }))}
                 value={data.municipalityId}
@@ -254,7 +254,7 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
 
           {step === 3 && (
             <div className="space-y-4">
-              <p className="flex items-center gap-1.5 text-sm font-semibold text-[#1c1a17]"><Briefcase size={14} className="text-[#BE123C]" />Selecciona tu rol <span className="text-[#BE123C]">*</span></p>
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-[#1c1a17]"><Briefcase size={14} className="text-[#732427]" />Selecciona tu rol <span className="text-[#732427]">*</span></p>
               <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {activeRoles.map((role) => {
                   const active = data.roles.includes(role.label);
@@ -263,9 +263,9 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
                       key={role.id}
                       type="button"
                       onClick={() => setData((d) => ({ ...d, roles: active ? d.roles.filter((r) => r !== role.label) : [...d.roles, role.label] }))}
-                      className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 p-3.5 text-left transition-all duration-200 hover:-translate-y-px ${active ? "border-[#BE123C] bg-[#FFF1F2] shadow-sm" : "border-[#e8ddd0] bg-white hover:border-[#F3A8BB] hover:bg-[#FFF7F9]"}`}
+                      className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 p-3.5 text-left transition-all duration-200 hover:-translate-y-px ${active ? "border-[#732427] bg-[#F8EDEF] shadow-sm" : "border-[#e8ddd0] bg-white hover:border-[#D8A7B1] hover:bg-[#FAF4F5]"}`}
                     >
-                      <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border-2 ${active ? "border-[#BE123C] bg-[#BE123C] text-white" : "border-[#d6c7b3] bg-white"}`}>
+                      <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border-2 ${active ? "border-[#732427] bg-[#732427] text-white" : "border-[#d6c7b3] bg-white"}`}>
                         {active && <Check size={12} strokeWidth={3} />}
                       </span>
                       <span className="text-[15px] font-medium text-[#1c1a17]">{role.label}</span>
@@ -277,7 +277,7 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
               {errors.roles && <p className="mt-2 text-[13px] font-medium text-red-600">{errors.roles}</p>}
               {otherSelected && (
                 <div className="animate-fade-up rounded-xl border border-[#ece2d1] bg-[#fdf8ef] p-4">
-                  <Label htmlFor="otroDetalle"><FieldIcon><Briefcase size={13} /></FieldIcon>¿Cuál? <span className="text-[#BE123C]">*</span></Label>
+                  <Label htmlFor="otroDetalle"><FieldIcon><Briefcase size={13} /></FieldIcon>¿Cuál? <span className="text-[#732427]">*</span></Label>
                   <Input id="otroDetalle" placeholder="Ej: Veterinario, juez de gallera..." value={data.otroDetalle} onChange={(e) => setData({ ...data, otroDetalle: e.target.value })} error={errors.otroDetalle} />
                 </div>
               )}
@@ -295,10 +295,10 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
                     key={opt.id}
                     type="button"
                     onClick={() => setData((d) => ({ ...d, pertenece: opt.id as "si" | "no", associationId: opt.id === "no" ? "" : d.associationId }))}
-                    className={`cursor-pointer rounded-xl border-2 p-4 text-left transition-all duration-200 hover:-translate-y-px ${data.pertenece === opt.id ? "border-[#BE123C] bg-[#BE123C] text-white shadow-[0_8px_20px_rgba(190,18,60,0.28)]" : "border-[#e8ddd0] bg-white hover:border-[#F3A8BB]"}`}
+                    className={`cursor-pointer rounded-xl border-2 p-4 text-left transition-all duration-200 hover:-translate-y-px ${data.pertenece === opt.id ? "border-[#732427] bg-[#732427] text-white shadow-[0_8px_20px_rgba(115,36,39,0.28)]" : "border-[#e8ddd0] bg-white hover:border-[#D8A7B1]"}`}
                   >
                     <p className={`text-[16px] font-bold ${data.pertenece === opt.id ? "text-white" : "text-[#1c1a17]"}`}>
-                      <span className="mr-2 inline-flex h-5 w-5 place-items-center justify-center rounded-full border-2 align-middle text-[10px]" style={{ borderColor: data.pertenece === opt.id ? "white" : "#d6c7b3", background: data.pertenece === opt.id ? "white" : "transparent", color: data.pertenece === opt.id ? "#BE123C" : "transparent" }}>✓</span>
+                      <span className="mr-2 inline-flex h-5 w-5 place-items-center justify-center rounded-full border-2 align-middle text-[10px]" style={{ borderColor: data.pertenece === opt.id ? "white" : "#d6c7b3", background: data.pertenece === opt.id ? "white" : "transparent", color: data.pertenece === opt.id ? "#732427" : "transparent" }}>✓</span>
                       {opt.label}
                     </p>
                     <p className={`mt-1 text-xs ${data.pertenece === opt.id ? "text-white/80" : "text-[#7a6e5a]"}`}>{opt.desc}</p>
@@ -310,7 +310,7 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
               {data.pertenece === "si" && (
                 <div className="animate-fade-up rounded-xl border border-[#ece2d1] bg-[#fdf8ef] p-4">
                   <Combobox
-                    label={<span className="inline-flex items-center gap-1.5"><Building2 size={13} className="text-[#BE123C]" />¿Cuál asociación? *</span>}
+                    label={<span className="inline-flex items-center gap-1.5"><Building2 size={13} className="text-[#732427]" />¿Cuál asociación? *</span>}
                     placeholder="Busca tu asociación"
                     options={activeAssocs.map((a) => ({ value: a.id, label: a.name }))}
                     value={data.associationId}
@@ -322,7 +322,7 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
               )}
 
               <div className="flex gap-3 rounded-xl border border-[#e8ddd0] bg-[#f0e8d5] p-3.5">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#e8ddd0] bg-white text-[#BE123C]"><ListChecks size={15} /></div>
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#e8ddd0] bg-white text-[#732427]"><ListChecks size={15} /></div>
                 <div>
                   <p className="text-sm font-semibold text-[#1c1a17]">Revisa tus datos antes de enviar.</p>
                   <p className="mt-0.5 text-sm text-[#7a6e5a]">{data.fullName || "—"} · {DEPARTMENTS.find((d) => d.id === data.departmentId)?.name || "Departamento"} · {data.roles.join(", ") || "Rol"}</p>

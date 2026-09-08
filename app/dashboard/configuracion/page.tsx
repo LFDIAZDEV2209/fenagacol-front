@@ -15,7 +15,7 @@ function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; labe
       role="switch"
       aria-checked={on}
       aria-label={label}
-      className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${on ? "bg-[#BE123C]" : "bg-[#D6D3D1]"}`}
+      className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${on ? "bg-[#732427]" : "bg-[#D6D3D1]"}`}
     >
       <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${on ? "left-[22px]" : "left-0.5"}`} />
     </button>
@@ -23,7 +23,7 @@ function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; labe
 }
 
 const selectCls =
-  "h-9 w-full cursor-pointer rounded-lg border border-[#E7E2D9] bg-white px-2.5 text-[13px] text-[#1C1917] outline-none focus:border-[#BE123C]";
+  "h-9 w-full cursor-pointer rounded-lg border border-[#E7E2D9] bg-white px-2.5 text-[13px] text-[#1C1917] outline-none focus:border-[#732427]";
 
 export default function ConfigPage() {
   const [tab, setTab] = React.useState<Tab>("roles");
@@ -50,7 +50,7 @@ export default function ConfigPage() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-semibold transition-all duration-200 ${tab === t.id ? "bg-[#BE123C] text-white shadow-[0_4px_12px_rgba(190,18,60,0.3)]" : "text-[#78716C] hover:bg-[#F4F4F2] hover:text-[#1C1917]"}`}
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-semibold transition-all duration-200 ${tab === t.id ? "bg-[#732427] text-white shadow-[0_4px_12px_rgba(115,36,39,0.3)]" : "text-[#78716C] hover:bg-[#F4F4F2] hover:text-[#1C1917]"}`}
             >
               <Icon size={14} />
               {t.label}
@@ -85,7 +85,7 @@ function RolesTab() {
         <Input compact placeholder="Nuevo rol... (ej: Juez de gallera)" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && draft.trim()) { addRole(draft); setDraft(""); push(`Rol “${draft.trim()}” creado`); } }} />
         <button
           onClick={() => { if (!draft.trim()) return; addRole(draft); push(`Rol “${draft.trim()}” creado`); setDraft(""); }}
-          className="inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-[#BE123C] px-4 text-[13px] font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#9F1239] active:translate-y-0"
+          className="inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-[#732427] px-4 text-[13px] font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#481418] active:translate-y-0"
         >
           <Plus size={15} />
           Agregar
@@ -105,9 +105,9 @@ function RolesTab() {
                     if (e.key === "Enter") { renameRole(r.id, editVal); push("Rol actualizado"); setEditing(null); }
                     if (e.key === "Escape") setEditing(null);
                   }}
-                  className="h-9 flex-1 rounded-lg border border-[#BE123C] px-2.5 text-[13px] outline-none"
+                  className="h-9 flex-1 rounded-lg border border-[#732427] px-2.5 text-[13px] outline-none"
                 />
-                <button onClick={() => { renameRole(r.id, editVal); push("Rol actualizado"); setEditing(null); }} aria-label="Guardar" className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg bg-[#BE123C] text-white">
+                <button onClick={() => { renameRole(r.id, editVal); push("Rol actualizado"); setEditing(null); }} aria-label="Guardar" className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg bg-[#732427] text-white">
                   <Check size={15} />
                 </button>
                 <button onClick={() => setEditing(null)} aria-label="Cancelar" className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-[#E7E2D9] text-[#78716C]">
@@ -119,12 +119,12 @@ function RolesTab() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[13px] font-semibold text-[#1C1917]">
                     {r.label}
-                    {r.isOther && <span className="ml-2 rounded-full bg-[#FFF1F2] px-2 py-0.5 text-[10px] font-bold text-[#BE123C]">PIDE DETALLE</span>}
+                    {r.isOther && <span className="ml-2 rounded-full bg-[#F8EDEF] px-2 py-0.5 text-[10px] font-bold text-[#732427]">PIDE DETALLE</span>}
                   </p>
                   <p className="text-[11px] text-[#A8A29E]">{usage(r.label)} registros lo usan</p>
                 </div>
                 {!r.active && <span className="rounded-full bg-[#F1EFEA] px-2 py-0.5 text-[11px] font-semibold text-[#78716C]">Oculto</span>}
-                <button onClick={() => { setEditing(r.id); setEditVal(r.label); }} aria-label={`Renombrar ${r.label}`} className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-[#E7E2D9] text-[#78716C] transition-colors hover:border-[#BE123C]/40 hover:text-[#BE123C]">
+                <button onClick={() => { setEditing(r.id); setEditVal(r.label); }} aria-label={`Renombrar ${r.label}`} className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-[#E7E2D9] text-[#78716C] transition-colors hover:border-[#732427]/40 hover:text-[#732427]">
                   <Pencil size={14} />
                 </button>
                 <button
@@ -178,7 +178,7 @@ function AsocsTab() {
               push(`Asociación “${name.trim()}” creada`);
               setName(""); setDept(""); setMuni("");
             }}
-            className="inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#BE123C] px-4 text-[13px] font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#9F1239]"
+            className="inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#732427] px-4 text-[13px] font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#481418]"
           >
             <Plus size={15} />
             Crear
@@ -190,7 +190,7 @@ function AsocsTab() {
         <div className="overflow-auto">
           <table className="w-full min-w-[720px] text-[13px]">
             <thead>
-              <tr className="bg-[#BE123C] text-left text-[11px] uppercase tracking-wider text-white/90">
+              <tr className="bg-[#732427] text-left text-[11px] uppercase tracking-wider text-white/90">
                 <th className="px-4 py-2.5 font-semibold">Nombre</th>
                 <th className="px-3 py-2.5 font-semibold">Departamento</th>
                 <th className="px-3 py-2.5 font-semibold">Municipio</th>
@@ -202,14 +202,14 @@ function AsocsTab() {
               {cfg.assocs.map((a) => {
                 const ed = editDept[a.id] ?? a.departmentId;
                 return (
-                  <tr key={a.id} className={`transition-colors hover:bg-[#FFF7F9] ${!a.active ? "opacity-55" : ""}`}>
+                  <tr key={a.id} className={`transition-colors hover:bg-[#FAF4F5] ${!a.active ? "opacity-55" : ""}`}>
                     <td className="px-4 py-2">
                       <input
                         defaultValue={a.name}
                         key={`${a.id}-${a.name}`}
                         onBlur={(e) => { if (e.target.value.trim() && e.target.value !== a.name) { updateAssoc(a.id, { name: e.target.value.trim() }); push("Nombre actualizado"); } }}
                         onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
-                        className="h-9 w-full rounded-lg border border-transparent bg-transparent px-2 text-[13px] font-medium text-[#1C1917] outline-none transition-colors hover:border-[#E7E2D9] focus:border-[#BE123C] focus:bg-white"
+                        className="h-9 w-full rounded-lg border border-transparent bg-transparent px-2 text-[13px] font-medium text-[#1C1917] outline-none transition-colors hover:border-[#E7E2D9] focus:border-[#732427] focus:bg-white"
                       />
                     </td>
                     <td className="px-3 py-2">
@@ -324,7 +324,7 @@ function FormTab() {
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           onClick={() => { setTexts(draft); push("Textos del formulario guardados"); }}
-          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-[#BE123C] px-5 text-[13px] font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#9F1239]"
+          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-[#732427] px-5 text-[13px] font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#481418]"
         >
           <Save size={15} />
           Guardar cambios
