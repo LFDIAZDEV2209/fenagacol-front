@@ -170,10 +170,39 @@ function LoginForm() {
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#2A0710]/95 via-[#732427]/35 to-[#732427]/10" />
-          {/* Wave vertical suave entre el formulario y la imagen */}
-          <svg className="absolute inset-y-0 -left-px z-[5] h-full w-[76px]" viewBox="0 0 72 800" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M72 0 C50 200 50 300 56 400 C62 500 52 640 40 800 L0 800 L0 0 Z" fill="#ffffff" />
-          </svg>
+          {/* Wave en capas: sombra suave + filo vino + cuerpo blanco */}
+          <div className="absolute inset-y-0 -left-px z-[5] h-full w-[120px]" aria-hidden="true">
+            <svg className="h-full w-full" viewBox="0 0 120 800" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="loginWaveEdge" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#732427" stopOpacity="0" />
+                  <stop offset="100%" stopColor="#A55262" stopOpacity="0.65" />
+                </linearGradient>
+                <filter id="loginWaveSoft" x="-30%" y="-5%" width="160%" height="110%">
+                  <feGaussianBlur stdDeviation="10" />
+                </filter>
+              </defs>
+              {/* sombra que levanta el borde sobre la imagen */}
+              <path
+                d="M120 0 C78 180 78 260 88 400 C98 540 70 660 44 800"
+                fill="none"
+                stroke="#2A0710"
+                strokeWidth="16"
+                opacity="0.28"
+                filter="url(#loginWaveSoft)"
+                transform="translate(12,0)"
+              />
+              {/* cuerpo blanco de la ola */}
+              <path d="M120 0 C78 180 78 260 88 400 C98 540 70 660 44 800 L0 800 L0 0 Z" fill="#ffffff" />
+              {/* filo vino sobre la curva */}
+              <path
+                d="M120 0 C78 180 78 260 88 400 C98 540 70 660 44 800"
+                fill="none"
+                stroke="url(#loginWaveEdge)"
+                strokeWidth="2.5"
+              />
+            </svg>
+          </div>
 
           <div className="absolute inset-x-0 top-8 z-10 flex flex-wrap justify-center gap-2.5 px-8">
             <span className="animate-fade-up stagger-1 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/12 px-3.5 py-2 text-xs font-semibold text-white backdrop-blur-md">
