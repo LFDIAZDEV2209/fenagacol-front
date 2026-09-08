@@ -147,12 +147,12 @@ export default function DashboardHome() {
             <HBarList items={sum.byMuni.slice(0, 5)} />
           </div>
         </Card>
-        <Card className="animate-fade-up stagger-4 p-4 lg:col-span-2">
+        <Card className="animate-fade-up stagger-4 flex flex-col p-4 lg:col-span-2">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
             <Users size={15} className="text-[#BE123C]" />
             Distribución por rol
           </h3>
-          <div className="mt-3">
+          <div className="flex flex-1 flex-col justify-center py-2">
             <Donut items={sum.byRole} />
           </div>
         </Card>

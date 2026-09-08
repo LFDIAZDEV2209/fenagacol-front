@@ -114,14 +114,16 @@ a[aria-disabled="true"] {
   50% { opacity: 0.55; transform: scale(0.85); }
 }
 
+/* backwards (no both): al terminar no se retiene transform, así los
+   dropdowns/combos siempre pintan por encima de las cards siguientes. */
 .animate-fade-up {
-  animation: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 .animate-fade-in {
-  animation: fade-in 0.35s ease both;
+  animation: fade-in 0.35s ease backwards;
 }
 .animate-pop-in {
-  animation: pop-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: pop-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 .animate-bar {
   animation: bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;

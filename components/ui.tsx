@@ -160,7 +160,7 @@ export function Combobox({
       </button>
       {error && <p className="mt-1.5 text-[13px] font-medium text-red-600">{error}</p>}
       {open && (
-        <div className="animate-pop-in absolute z-40 mt-1.5 w-full overflow-hidden rounded-xl border border-[#E7E2D9] bg-white shadow-[0_16px_40px_rgba(28,25,23,0.14)]">
+        <div className="animate-pop-in absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-[#E7E2D9] bg-white shadow-[0_16px_40px_rgba(28,25,23,0.16)]">
           <div className="border-b border-[#F1EFEA] bg-[#FAFAF8] p-2">
             <input
               autoFocus

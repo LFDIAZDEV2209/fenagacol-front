@@ -42,7 +42,7 @@ export function FiltersBar({
     "h-10 w-full rounded-lg border border-[#D9D2C2] bg-white pl-9 pr-2.5 text-[13px] font-medium text-[#1C1917] outline-none transition-all focus:border-[#BE123C] focus:ring-4 focus:ring-[#BE123C]/15 hover:border-[#BE123C]/50 cursor-pointer [color-scheme:light]";
 
   return (
-    <Card className="animate-fade-up stagger-1 border-[#E0DACA] bg-white p-3.5 shadow-[0_1px_3px_rgba(28,25,23,0.07)]">
+    <Card className="animate-fade-up stagger-1 relative z-30 border-[#E0DACA] bg-white p-3.5 shadow-[0_1px_3px_rgba(28,25,23,0.07)]">
       <div className="flex items-center justify-between gap-2">
         <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#57534E]">
           <Filter size={13} className="text-[#BE123C]" />
@@ -69,14 +69,14 @@ export function FiltersBar({
           <span className="mb-1.5 block text-[13px] font-semibold text-[#292524]">Desde</span>
           <span className="relative block">
             <CalendarDays size={15} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[#A8A29E]" />
-            <input type="date" value={filters.from} max={filters.to || undefined} onChange={(e) => set({ from: e.target.value })} className={dateCls} />
+            <input type="date" lang="es-CO" value={filters.from} max={filters.to || undefined} onChange={(e) => set({ from: e.target.value })} className={dateCls} />
           </span>
         </label>
         <label className="block">
           <span className="mb-1.5 block text-[13px] font-semibold text-[#292524]">Hasta</span>
           <span className="relative block">
             <CalendarDays size={15} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[#A8A29E]" />
-            <input type="date" value={filters.to} min={filters.from || undefined} onChange={(e) => set({ to: e.target.value })} className={dateCls} />
+            <input type="date" lang="es-CO" value={filters.to} min={filters.from || undefined} onChange={(e) => set({ to: e.target.value })} className={dateCls} />
           </span>
         </label>
         <div className="[&>div>button]:h-10 [&>div>button]:border-[#D9D2C2] [&>div>button]:text-[13px] [&>div>button]:font-medium [&_label]:text-[#292524]">

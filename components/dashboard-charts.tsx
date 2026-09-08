@@ -27,8 +27,8 @@ export function HBarList({ items }: { items: { name: string; value: number }[] }
 
 export function TrendChart({ data }: { data: { label: string; value: number; key: string }[] }) {
   const W = 600;
-  const H = 168;
-  const PAD = { l: 8, r: 8, t: 12, b: 24 };
+  const H = 172;
+  const PAD = { l: 10, r: 26, t: 18, b: 26 };
   const max = Math.max(1, ...data.map((d) => d.value));
   const n = data.length;
   const avg = data.reduce((a, b) => a + b.value, 0) / Math.max(1, n);
@@ -65,7 +65,15 @@ export function TrendChart({ data }: { data: { label: string; value: number; key
         <polyline points={pts} fill="none" stroke="#BE123C" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
         {data.map((d, i) =>
           i % 2 === 0 || i === n - 1 ? (
-            <text key={d.key} x={x(i)} y={H - 8} textAnchor="middle" fontSize="10.5" fontWeight={d.value === max && max > 0 ? 700 : 500} fill={d.value === max && max > 0 ? "#BE123C" : "#A8A29E"}>{d.label}</text>
+            <text
+              key={d.key}
+              x={i === 0 ? PAD.l - 4 : i === n - 1 ? W - PAD.r + 18 : x(i)}
+              y={H - 8}
+              textAnchor={i === 0 ? "start" : i === n - 1 ? "end" : "middle"}
+              fontSize="10.5"
+              fontWeight={d.value === max && max > 0 ? 700 : 500}
+              fill={d.value === max && max > 0 ? "#BE123C" : "#A8A29E"}
+            >{d.label}</text>
           ) : null
         )}
         {data.map((d, i) => (

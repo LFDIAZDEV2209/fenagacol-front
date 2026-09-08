@@ -79,9 +79,18 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     );
 
   const current = TITLES[pathname] ?? "Panel";
-  const topbarCls = scrolled
-    ? "bg-[#8E0F2E]/95 shadow-[0_10px_36px_rgba(142,15,46,0.42)] backdrop-blur-md"
-    : "bg-[#BE123C] shadow-[0_4px_20px_rgba(190,18,60,0.28)]";
+  // Blanco flotante en reposo → rosa principal al hacer scroll (transición 500ms)
+  const barCls = scrolled
+    ? "border-transparent bg-[#BE123C] text-white shadow-[0_14px_36px_rgba(190,18,60,0.42)]"
+    : "border-[#EDE9E1] bg-white/90 text-[#1C1917] shadow-[0_2px_12px_rgba(28,25,23,0.06)] backdrop-blur";
+  const crumbCls = scrolled ? "text-white/70" : "text-[#A8A29E]";
+  const badgeCls = scrolled
+    ? "border-white/25 bg-white/10 text-white"
+    : "border-[#F3D9E0] bg-[#FFF1F2] text-[#9F1239]";
+  const dotCls = scrolled ? "bg-emerald-300" : "bg-emerald-500";
+  const menuBtnCls = scrolled
+    ? "border-white/25 bg-white/10 text-white"
+    : "border-[#F3D9E0] bg-[#FFF1F2] text-[#BE123C]";
 
   const navItem = (active: boolean) =>
     `group flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all duration-200 hover:-translate-y-px ${
@@ -130,13 +139,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <p className="mt-1 truncate text-[11px] text-[#78716C]">{user.email}</p>
           </div>
         </div>
-        <button
-          onClick={signOut}
-          className="mt-2.5 flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#E7E2D9] bg-white text-[13px] font-semibold text-[#57534E] transition-all duration-200 hover:-translate-y-px hover:border-[#BE123C]/40 hover:bg-[#FFF1F2] hover:text-[#BE123C] active:translate-y-0 active:scale-[0.98]"
-        >
-          <LogOut size={14} />
-          Cerrar sesión
-        </button>
+          <button
+            onClick={signOut}
+            title="Cerrar la sesión de administrador"
+            className="mt-2.5 flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#BE123C] text-[13px] font-semibold text-white shadow-[0_4px_14px_rgba(190,18,60,0.32)] transition-all duration-200 hover:-translate-y-px hover:bg-[#9F1239] hover:shadow-[0_8px_20px_rgba(190,18,60,0.4)] active:translate-y-0 active:scale-[0.98]"
+          >
+            <LogOut size={15} />
+            Cerrar sesión
+          </button>
       </div>
     </>
   );
@@ -163,46 +173,48 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
       {/* main */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* topbar desktop con efecto scroll */}
-        <header className={`sticky top-0 z-30 hidden text-white transition-all duration-300 lg:block ${topbarCls}`}>
-          <div className="flex h-16 items-center gap-3 px-6">
-            <div className="flex items-center gap-1.5 text-[13px] text-white/70">
+        {/* topbar desktop flotante: blanco en reposo, rosa al hacer scroll */}
+        <div className="sticky top-0 z-30 hidden px-6 pt-3 lg:block">
+          <header className={`flex h-14 items-center gap-3 rounded-2xl border px-4 transition-all duration-500 ${barCls}`}>
+            <div className={`flex items-center gap-1.5 text-[13px] ${crumbCls}`}>
               <span>Panel</span>
               <ChevronRight size={13} />
-              <span className="font-semibold text-white">{current}</span>
+              <span className={`font-semibold ${scrolled ? "text-white" : "text-[#1C1917]"}`}>{current}</span>
             </div>
             <div className="ml-auto flex items-center gap-2.5">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-medium">
-                <span className="animate-pulse-dot h-2 w-2 rounded-full bg-emerald-400" />
+              <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-500 ${badgeCls}`}>
+                <span className={`animate-pulse-dot h-2 w-2 rounded-full ${dotCls}`} />
                 Datos actualizados hoy
               </span>
               <Link
                 href="/dashboard/compartir"
-                className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#BE123C] transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
+                className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg px-3.5 text-[13px] font-semibold transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98] ${scrolled ? "bg-white text-[#BE123C]" : "bg-[#BE123C] text-white shadow-[0_4px_14px_rgba(190,18,60,0.3)] hover:bg-[#9F1239]"}`}
               >
                 <Share2 size={14} />
                 Compartir formulario
               </Link>
             </div>
-          </div>
-        </header>
+          </header>
+        </div>
 
-        {/* topbar mobile con efecto scroll */}
-        <header className={`sticky top-0 z-30 flex h-14 items-center justify-between px-3.5 text-white transition-all duration-300 lg:hidden ${topbarCls}`}>
-          <div className="flex items-center gap-2.5">
-            <button onClick={() => setOpen((v) => !v)} aria-label="Abrir menú" className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-white/25 bg-white/10 transition-transform active:scale-95">
-              <Menu size={17} />
-            </button>
-            <div className="leading-tight">
-              <span className="block font-display text-[14px] font-bold">Tu Carné Gremial</span>
-              <span className="block text-[11px] text-white/70">{current}</span>
+        {/* topbar mobile flotante con efecto scroll */}
+        <div className="sticky top-0 z-30 px-3 pt-2.5 lg:hidden">
+          <header className={`flex h-14 items-center justify-between rounded-2xl border px-3 transition-all duration-500 ${barCls}`}>
+            <div className="flex items-center gap-2.5">
+              <button onClick={() => setOpen((v) => !v)} aria-label="Abrir menú" className={`grid h-9 w-9 cursor-pointer place-items-center rounded-lg border transition-all duration-500 active:scale-95 ${menuBtnCls}`}>
+                <Menu size={17} />
+              </button>
+              <div className="leading-tight">
+                <span className={`block font-display text-[14px] font-bold ${scrolled ? "text-white" : "text-[#1C1917]"}`}>Tu Carné Gremial</span>
+                <span className={`block text-[11px] ${scrolled ? "text-white/70" : "text-[#78716C]"}`}>{current}</span>
+              </div>
             </div>
-          </div>
-          <Link href="/dashboard/compartir" className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#BE123C]">
-            <Share2 size={13} />
-            Compartir
-          </Link>
-        </header>
+            <Link href="/dashboard/compartir" className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-500 ${scrolled ? "bg-white text-[#BE123C]" : "bg-[#BE123C] text-white"}`}>
+              <Share2 size={13} />
+              Compartir
+            </Link>
+          </header>
+        </div>
 
         {/* drawer mobile — blanco */}
         {open && (
