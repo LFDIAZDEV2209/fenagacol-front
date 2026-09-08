@@ -1,81 +1,131 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { Button, Card, Input, Label } from "@/components/ui";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { AlertTriangle, Eye, EyeOff, Lock, LogIn } from "lucide-react";
+import { Button, Card, Input, Label } from "@/components/ui";
+import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
+  return (
+    <React.Suspense fallback={<div className="grid min-h-screen place-items-center text-sm text-[#78716C]">Cargando...</div>}>
+      <LoginForm />
+    </React.Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = React.useState("admin@fenagacol.co");
-  const [password, setPassword] = React.useState("admin123");
+  const params = useSearchParams();
+  const { user, loading: authLoading, login } = useAuth();
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [show, setShow] = React.useState(false);
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!authLoading && user) router.replace(params.get("next") ?? "/dashboard");
+  }, [authLoading, user, router, params]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (!email || !password) { setError("Completa correo y contraseña"); return; }
     setLoading(true);
-    await new Promise(r=> setTimeout(r, 700));
-    // mock: cualquier combo con @ pasa, para demo acepta admin
-    if (email.includes("@") && password.length >= 4) {
-      localStorage.setItem("fenagacol_admin", JSON.stringify({ email, name: "Administrador" }));
-      router.push("/dashboard");
-    } else {
-      setError("Credenciales no válidas — usa admin@fenagacol.co / admin123");
-    }
+    const err = await login(email, password);
     setLoading(false);
+    if (err) {
+      setError(err);
+      return;
+    }
+    router.replace(params.get("next") ?? "/dashboard");
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f3e8] flex">
-      <div className="flex-1 flex flex-col">
-        <div className="h-[64px] flex items-center px-6 border-b border-[#ece2d1] bg-white">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#6b1220] grid place-items-center text-white font-black text-xs">TG</div>
-            <span className="font-display font-bold text-[#1c1a17]">Tu Carné Gremial</span>
+    <div className="flex min-h-screen bg-[#FAFAF8]">
+      <div className="flex flex-1 flex-col">
+        <div className="flex h-14 items-center border-b border-[#EDE9E1] bg-white px-5">
+          <Link href="/" className="flex cursor-pointer items-center gap-2.5">
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#BE123C] text-[11px] font-black text-white">TG</div>
+            <span className="font-display text-[15px] font-bold text-[#1C1917]">Tu Carné Gremial</span>
           </Link>
-          <Link href="/registro" className="ml-auto text-sm font-medium text-[#6b1220] hover:underline">Ir al registro</Link>
+          <Link href="/registro" className="ml-auto cursor-pointer text-[13px] font-semibold text-[#BE123C] hover:underline">
+            Ir al registro
+          </Link>
         </div>
 
-        <div className="flex-1 grid lg:grid-cols-2">
-          <div className="flex items-center justify-center p-6 sm:p-10">
-            <Card className="w-full max-w-[420px] p-7 sm:p-8">
-              <div className="w-12 h-12 rounded-2xl bg-[#fdf8ef] border border-[#ece2d1] grid place-items-center text-[#6b1220] mb-4">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        <div className="grid flex-1 lg:grid-cols-2">
+          <div className="flex items-center justify-center p-5 sm:p-8">
+            <Card className="animate-fade-up w-full max-w-[400px] p-6 sm:p-7">
+              <div className="mb-3 grid h-11 w-11 place-items-center rounded-xl border border-[#F3D9E0] bg-[#FFF1F2] text-[#BE123C]">
+                <Lock size={20} />
               </div>
-              <h1 className="font-display text-2xl font-bold text-[#1c1a17]">Ingresar al panel</h1>
-              <p className="text-sm text-[#7a6e5a] mt-1.5">Solo personal autorizado. Usa tus credenciales de administrador.</p>
+              <h1 className="font-display text-[22px] font-bold text-[#1C1917]">Ingresar al panel</h1>
+              <p className="mt-1 text-[13px] text-[#78716C]">Solo personal autorizado del gremio.</p>
 
-              <form onSubmit={submit} className="mt-7 space-y-4">
+              <form onSubmit={submit} className="mt-6 space-y-3.5">
                 <div>
-                  <Label>Correo electrónico</Label>
-                  <Input value={email} onChange={e=> setEmail(e.target.value)} placeholder="admin@fenagacol.co" type="email" />
+                  <Label htmlFor="email">Correo electrónico</Label>
+                  <Input
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@fenagacol.co"
+                    type="email"
+                    autoComplete="username"
+                    className="h-11"
+                  />
                 </div>
                 <div>
-                  <Label>Contraseña</Label>
-                  <Input value={password} onChange={e=> setPassword(e.target.value)} placeholder="••••••••" type="password" />
+                  <Label htmlFor="password">Contraseña</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      type={show ? "text" : "password"}
+                      autoComplete="current-password"
+                      className="h-11 pr-11"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShow((v) => !v)}
+                      aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      className="absolute right-2.5 top-1/2 grid h-7 w-7 -translate-y-1/2 cursor-pointer place-items-center rounded-lg text-[#A8A29E] transition-colors hover:bg-[#F1EFEA] hover:text-[#1C1917]"
+                    >
+                      {show ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
-                {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</p>}
-                <Button type="submit" className="w-full" disabled={loading}>{loading ? "Ingresando..." : "Entrar al dashboard"}</Button>
-                <p className="text-xs text-center text-[#9a8d78]">Demo: <span className="font-mono bg-[#fdf8ef] px-1.5 py-0.5 rounded border">admin@fenagacol.co / admin123</span></p>
+                {error && (
+                  <p className="animate-pop-in flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] font-medium text-red-700">
+                    <AlertTriangle size={15} className="mt-0.5 shrink-0" />
+                    {error}
+                  </p>
+                )}
+                <Button type="submit" className="h-11 w-full text-[15px]" disabled={loading || authLoading}>
+                  <LogIn size={16} />
+                  {loading ? "Verificando..." : "Entrar al dashboard"}
+                </Button>
               </form>
 
-              <div className="mt-6 pt-6 border-t border-[#f0e8d5] flex items-center justify-between text-xs text-[#9a8d78]">
-                <span>¿Olvidaste tu contraseña?</span>
-                <a className="font-semibold text-[#6b1220] hover:underline" href="#">Recuperar</a>
-              </div>
+              <p className="mt-5 border-t border-[#F1EFEA] pt-4 text-center text-xs leading-relaxed text-[#A8A29E]">
+                Sesión protegida con cookie segura.
+                <br />
+                ¿Sin acceso? Contacta al administrador del sistema.
+              </p>
             </Card>
           </div>
 
-          <div className="hidden lg:block relative bg-[#1c0a0d] overflow-hidden">
-            <Image src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=900&q=80&auto=format&fit=crop" alt="Campo" fill className="object-cover opacity-70" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1c0a0d] via-[#6b1220]/30 to-transparent" />
-            <div className="absolute bottom-0 p-10 text-white">
-              <p className="text-xs font-semibold tracking-widest uppercase opacity-60">Panel administrativo</p>
-              <h2 className="font-display text-[28px] font-bold leading-tight mt-2">Datos claros para<br/>decisiones del gremio.</h2>
-              <p className="text-sm text-white/70 mt-3 max-w-[36ch]">Consulta registros por departamento, municipio, rol y asociación. Exporta y genera reportes.</p>
+          <div className="relative hidden overflow-hidden bg-[#1C0A0E] lg:block">
+            <Image src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=900&q=80&auto=format&fit=crop" alt="Campo colombiano" fill className="object-cover opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1C0A0E] via-[#BE123C]/25 to-transparent" />
+            <div className="absolute bottom-0 p-9 text-white">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-60">Panel administrativo</p>
+              <h2 className="font-display mt-2 text-[26px] font-bold leading-tight">Datos claros para<br />decisiones del gremio.</h2>
+              <p className="mt-2.5 max-w-[38ch] text-[13px] text-white/70">Filtra por departamento, municipio, rol y asociación. Exporta a Excel y comparte el formulario.</p>
             </div>
           </div>
         </div>

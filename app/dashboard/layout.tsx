@@ -7,18 +7,24 @@ import {
   Users,
   Building2,
   BarChart3,
+  Share2,
+  Settings,
   LogOut,
   Menu,
   X,
   ClipboardList,
   ChevronRight,
 } from "lucide-react";
+import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { useToast } from "@/components/toast";
 
 const NAV = [
   { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
   { href: "/dashboard/registrados", label: "Registrados", icon: Users },
   { href: "/dashboard/asociaciones", label: "Asociaciones", icon: Building2 },
   { href: "/dashboard/reportes", label: "Reportes", icon: BarChart3 },
+  { href: "/dashboard/compartir", label: "Compartir", icon: Share2 },
+  { href: "/dashboard/configuracion", label: "Configuración", icon: Settings },
 ];
 
 const TITLES: Record<string, string> = {
@@ -26,25 +32,40 @@ const TITLES: Record<string, string> = {
   "/dashboard/registrados": "Registrados",
   "/dashboard/asociaciones": "Asociaciones",
   "/dashboard/reportes": "Reportes",
+  "/dashboard/compartir": "Compartir formulario",
+  "/dashboard/configuracion": "Configuración",
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthProvider>
+      <Shell>{children}</Shell>
+    </AuthProvider>
+  );
+}
+
+function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, loading, logout } = useAuth();
+  const { push } = useToast();
   const [open, setOpen] = React.useState(false);
-  const [ready, setReady] = React.useState(false);
 
   React.useEffect(() => {
-    const v = localStorage.getItem("fenagacol_admin");
-    if (!v) router.replace("/login");
-    else setReady(true);
-  }, [router]);
+    if (!loading && !user) router.replace("/login");
+  }, [loading, user, router]);
 
-  if (!ready)
+  async function signOut() {
+    await logout();
+    push("Sesión cerrada correctamente", "info");
+    router.replace("/login");
+  }
+
+  if (loading || !user)
     return (
-      <div className="min-h-screen bg-[#f8f3e8] grid place-items-center">
-        <div className="flex items-center gap-3 text-sm text-[#7a6e5a]">
-          <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#6b1220]/20 border-t-[#6b1220]" />
+      <div className="grid min-h-screen place-items-center bg-[#FAFAF8]">
+        <div className="flex items-center gap-2.5 text-[13px] text-[#78716C]">
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#BE123C]/20 border-t-[#BE123C]" />
           Cargando panel...
         </div>
       </div>
@@ -53,18 +74,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const current = TITLES[pathname] ?? "Panel";
 
   return (
-    <div className="min-h-screen bg-[#f5efe2] flex">
+    <div className="flex min-h-screen bg-[#F4F4F2]">
       {/* sidebar desktop */}
-      <aside className="hidden lg:flex w-[264px] shrink-0 bg-[#0f0a0c] text-[#f5efe2] flex-col sticky top-0 h-screen">
-        <div className="h-[68px] px-5 flex items-center gap-3 border-b border-white/10">
-          <div className="w-10 h-10 rounded-xl bg-[#6b1220] border border-white/15 grid place-items-center font-black text-xs text-white shadow-[0_4px_14px_rgba(107,18,32,0.5)]">TG</div>
+      <aside className="sticky top-0 hidden h-screen w-[248px] shrink-0 flex-col bg-[#14090D] text-[#F5F3F0] lg:flex">
+        <div className="flex h-16 items-center gap-2.5 border-b border-white/10 px-4">
+          <div className="grid h-9 w-9 place-items-center rounded-lg bg-[#BE123C] text-[11px] font-black text-white shadow-[0_4px_14px_rgba(190,18,60,0.5)]">TG</div>
           <div>
-            <p className="font-display font-bold text-[15px] leading-none">Tu Carné Gremial</p>
-            <p className="mt-1 text-[10px] font-semibold tracking-[0.18em] uppercase text-white/50">Admin · Fenagacol</p>
+            <p className="font-display text-[14px] font-bold leading-none">Tu Carné Gremial</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/50">Admin · Fenagacol</p>
           </div>
         </div>
-        <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-          <p className="px-3 pt-2 pb-1 text-[10px] font-semibold tracking-[0.18em] uppercase text-white/40">Gestión</p>
+        <nav className="flex-1 space-y-1 overflow-y-auto p-2.5">
+          <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Gestión</p>
           {NAV.map((n) => {
             const active = pathname === n.href;
             const Icon = n.icon;
@@ -72,106 +93,105 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link
                 key={n.href}
                 href={n.href}
-                className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all duration-200 hover:-translate-y-px ${active ? "bg-[#6b1220] text-white shadow-[0_6px_18px_rgba(107,18,32,0.45)]" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
+                className={`group flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all duration-200 hover:-translate-y-px ${active ? "bg-[#BE123C] text-white shadow-[0_6px_18px_rgba(190,18,60,0.45)]" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
               >
-                <span className={`grid h-8 w-8 place-items-center rounded-lg transition-colors ${active ? "bg-white/15" : "bg-white/10 group-hover:bg-white/15"}`}>
-                  <Icon size={16} strokeWidth={2.2} />
+                <span className={`grid h-7 w-7 place-items-center rounded-md transition-colors ${active ? "bg-white/15" : "bg-white/10 group-hover:bg-white/15"}`}>
+                  <Icon size={15} strokeWidth={2.2} />
                 </span>
                 {n.label}
-                {active && <ChevronRight size={15} className="ml-auto opacity-70" />}
+                {active && <ChevronRight size={14} className="ml-auto opacity-70" />}
               </Link>
             );
           })}
-          <p className="px-3 pt-4 pb-1 text-[10px] font-semibold tracking-[0.18em] uppercase text-white/40">Accesos</p>
+          <p className="px-2.5 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Accesos</p>
           <Link
             href="/registro"
-            className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 cursor-pointer transition-all duration-200 hover:-translate-y-px hover:bg-white/10 hover:text-white"
+            className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-white/70 transition-all duration-200 hover:-translate-y-px hover:bg-white/10 hover:text-white"
           >
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 group-hover:bg-white/15">
-              <ClipboardList size={16} strokeWidth={2.2} />
+            <span className="grid h-7 w-7 place-items-center rounded-md bg-white/10 group-hover:bg-white/15">
+              <ClipboardList size={15} strokeWidth={2.2} />
             </span>
-            Ver formulario público
+            Formulario público
           </Link>
         </nav>
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center gap-3 rounded-xl bg-white/5 border border-white/10 p-3">
-            <img src="https://i.pravatar.cc/100?img=15" alt="Administrador" className="w-9 h-9 rounded-full object-cover ring-2 ring-[#6b1220]" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold leading-none">Administrador</p>
-              <p className="mt-1 text-xs opacity-60 truncate">admin@fenagacol.co</p>
+        <div className="border-t border-white/10 p-3">
+          <div className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/5 p-2.5">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#BE123C] text-xs font-bold text-white">
+              {(user.email[0] ?? "A").toUpperCase()}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold leading-none">Administrador</p>
+              <p className="mt-1 truncate text-[11px] opacity-60">{user.email}</p>
             </div>
           </div>
           <button
-            onClick={() => {
-              localStorage.removeItem("fenagacol_admin");
-              router.push("/login");
-            }}
-            className="mt-3 flex w-full h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-white/10 text-sm font-medium transition-all duration-200 hover:-translate-y-px hover:bg-[#6b1220] active:translate-y-0 active:scale-[0.98]"
+            onClick={signOut}
+            className="mt-2.5 flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-white/10 text-[13px] font-medium transition-all duration-200 hover:-translate-y-px hover:bg-[#BE123C] active:translate-y-0 active:scale-[0.98]"
           >
-            <LogOut size={15} />
+            <LogOut size={14} />
             Cerrar sesión
           </button>
         </div>
       </aside>
 
       {/* main */}
-      <div className="flex-1 min-w-0 flex flex-col">
-        {/* top bar desktop con color principal */}
-        <header className="hidden lg:block sticky top-0 z-30 bg-[#6b1220] text-[#fff7e8] shadow-[0_4px_20px_rgba(107,18,32,0.3)]">
-          <div className="flex h-[68px] items-center gap-4 px-8">
-            <div className="flex items-center gap-2 text-[13px] text-white/70">
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* top bar con color principal */}
+        <header className="sticky top-0 z-30 hidden bg-[#BE123C] text-white shadow-[0_4px_20px_rgba(190,18,60,0.3)] lg:block">
+          <div className="flex h-16 items-center gap-3 px-6">
+            <div className="flex items-center gap-1.5 text-[13px] text-white/70">
               <span>Panel</span>
               <ChevronRight size={13} />
               <span className="font-semibold text-white">{current}</span>
             </div>
-            <div className="ml-auto flex items-center gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/12 border border-white/20 px-3 py-1.5 text-xs font-medium">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse-dot" />
+            <div className="ml-auto flex items-center gap-2.5">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-medium">
+                <span className="animate-pulse-dot h-2 w-2 rounded-full bg-emerald-400" />
                 Datos actualizados hoy
               </span>
               <Link
-                href="/registro"
-                className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-[#6b1220] transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
+                href="/dashboard/compartir"
+                className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#BE123C] transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
               >
-                <ClipboardList size={15} />
-                Ver registro
+                <Share2 size={14} />
+                Compartir formulario
               </Link>
             </div>
           </div>
         </header>
 
         {/* top bar mobile */}
-        <header className="lg:hidden h-[56px] bg-[#6b1220] text-[#fff7e8] flex items-center justify-between px-4 sticky top-0 z-30 shadow-[0_4px_16px_rgba(107,18,32,0.3)]">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setOpen((v) => !v)} aria-label="Abrir menú" className="grid h-9 w-9 cursor-pointer place-items-center rounded-xl bg-white/12 border border-white/20 transition-transform active:scale-95">
-              <Menu size={18} />
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-[#BE123C] px-3.5 text-white shadow-[0_4px_16px_rgba(190,18,60,0.3)] lg:hidden">
+          <div className="flex items-center gap-2.5">
+            <button onClick={() => setOpen((v) => !v)} aria-label="Abrir menú" className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-white/25 bg-white/10 transition-transform active:scale-95">
+              <Menu size={17} />
             </button>
             <div className="leading-tight">
-              <span className="block font-display text-[15px] font-bold">Tu Carné Gremial</span>
+              <span className="block font-display text-[14px] font-bold">Tu Carné Gremial</span>
               <span className="block text-[11px] text-white/70">{current}</span>
             </div>
           </div>
-          <Link href="/registro" className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#6b1220]">
-            <ClipboardList size={13} />
-            Registro
+          <Link href="/dashboard/compartir" className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#BE123C]">
+            <Share2 size={13} />
+            Compartir
           </Link>
         </header>
 
         {/* drawer */}
         {open && (
-          <div className="lg:hidden fixed inset-0 z-40 animate-fade-in">
+          <div className="animate-fade-in fixed inset-0 z-40 lg:hidden">
             <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
-            <div className="absolute left-0 top-0 bottom-0 w-[288px] bg-[#0f0a0c] text-[#f5efe2] p-4 animate-fade-up overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2.5">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#6b1220] text-xs font-black text-white">TG</div>
-                  <span className="font-display font-bold">Navegación</span>
+            <div className="animate-fade-up absolute bottom-0 left-0 top-0 w-[272px] overflow-y-auto bg-[#14090D] p-3.5 text-[#F5F3F0]">
+              <div className="mb-5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#BE123C] text-[11px] font-black text-white">TG</div>
+                  <span className="font-display text-[14px] font-bold">Navegación</span>
                 </div>
                 <button onClick={() => setOpen(false)} aria-label="Cerrar menú" className="grid h-8 w-8 cursor-pointer place-items-center rounded-full bg-white/10 transition-transform active:scale-95">
-                  <X size={16} />
+                  <X size={15} />
                 </button>
               </div>
-              <nav className="space-y-2">
+              <nav className="space-y-1.5">
                 {NAV.map((n) => {
                   const Icon = n.icon;
                   return (
@@ -179,29 +199,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       key={n.href}
                       href={n.href}
                       onClick={() => setOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium cursor-pointer transition-colors ${pathname === n.href ? "bg-[#6b1220] text-white" : "bg-white/5 text-white/80 hover:bg-white/10"}`}
+                      className={`flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-[13px] font-medium transition-colors ${pathname === n.href ? "bg-[#BE123C] text-white" : "bg-white/5 text-white/80 hover:bg-white/10"}`}
                     >
-                      <Icon size={17} />
+                      <Icon size={16} />
                       {n.label}
                     </Link>
                   );
                 })}
               </nav>
               <button
-                onClick={() => {
-                  localStorage.removeItem("fenagacol_admin");
-                  router.push("/login");
-                }}
-                className="mt-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-white/10 py-3 text-sm font-medium"
+                onClick={signOut}
+                className="mt-5 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-white/10 py-2.5 text-[13px] font-medium"
               >
-                <LogOut size={15} />
+                <LogOut size={14} />
                 Cerrar sesión
               </button>
             </div>
           </div>
         )}
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-3.5 sm:p-5 lg:p-6">{children}</main>
       </div>
     </div>
   );

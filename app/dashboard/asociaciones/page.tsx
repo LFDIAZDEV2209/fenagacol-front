@@ -1,98 +1,141 @@
 "use client";
 import * as React from "react";
+import { Building2, Search, MapPin, Users, Inbox, Download, Power, Pencil } from "lucide-react";
+import Link from "next/link";
 import { Card, Input, PageHeader } from "@/components/ui";
-import { ASSOCIATIONS, deptName, muniName } from "@/lib/mock-data";
-import { Building2, Search, MapPin, Users, Inbox } from "lucide-react";
+import { useConfig } from "@/lib/config-store";
+import { deptName, muniName } from "@/lib/mock-data";
+import { downloadExcel, assocRows } from "@/lib/export-excel";
+import { useToast } from "@/components/toast";
+import { fmtNum } from "@/lib/format";
 
 export default function AsociacionesPage() {
+  const { cfg, ready, toggleAssoc } = useConfig();
+  const { push } = useToast();
   const [q, setQ] = React.useState("");
-  const filtered = React.useMemo(() => ASSOCIATIONS.filter((a) => !q || a.name.toLowerCase().includes(q.toLowerCase())), [q]);
+
+  const filtered = React.useMemo(
+    () => cfg.assocs.filter((a) => !q || a.name.toLowerCase().includes(q.toLowerCase())),
+    [cfg.assocs, q]
+  );
+  const totalMembers = filtered.reduce((a, b) => a + (b.members ?? 0), 0);
+
+  function exportAll() {
+    downloadExcel("asociaciones", [{ name: "Asociaciones", rows: assocRows(filtered) }]);
+    push(`Excel descargado con ${fmtNum(filtered.length)} asociaciones`);
+  }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PageHeader
-        icon={<Building2 size={22} />}
+        icon={<Building2 size={20} />}
         title="Asociaciones"
-        subtitle={`Listado gremial por territorio. Total: ${ASSOCIATIONS.length} asociaciones.`}
+        subtitle={`${fmtNum(cfg.assocs.length)} asociaciones · ${fmtNum(totalMembers)} miembros en la selección.`}
         actions={
-          <span className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[#6b1220]">
-            <Users size={15} />
-            {filtered.length} encontradas
-          </span>
+          <button
+            onClick={exportAll}
+            className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#BE123C] transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
+          >
+            <Download size={14} />
+            Exportar Excel
+          </button>
         }
       />
 
-      <Card className="animate-fade-up stagger-1 p-4">
+      <Card className="animate-fade-up stagger-1 p-3.5">
         <div className="relative">
-          <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#9a8d78]" />
-          <Input placeholder="Buscar asociación... (prueba “Guajira” o “Caribe”)" value={q} onChange={(e) => setQ(e.target.value)} className="pl-11" />
+          <Search size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#A8A29E]" />
+          <Input compact placeholder="Buscar asociación... (prueba “Guajira” o “Caribe”)" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
         </div>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {filtered.map((a, i) => (
-          <Card key={a.id} className={`animate-fade-up stagger-${(i % 4) + 1} group flex gap-4 p-5 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(107,18,32,0.12)]`}>
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#ece2d1] bg-[#fdf6e8] text-[#6b1220] transition-transform duration-200 group-hover:scale-110">
-              <Building2 size={19} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[#1c1a17] leading-tight">{a.name}</p>
-              <p className="mt-1 flex items-center gap-1.5 text-sm text-[#7a6e5a]">
-                <MapPin size={13} className="shrink-0 text-[#b4532a]" />
-                {deptName(a.departmentId)} · {muniName(a.municipalityId)}
-              </p>
-              <div className="mt-3 flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f0e8d5] border border-[#e8ddd0] text-xs font-semibold text-[#6b1220]">
-                  <Users size={12} />
-                  {a.members.toLocaleString("es-CO")} miembros
-                </span>
-                <span className="text-xs text-[#9a8d78]">ID {a.id}</span>
+      {!ready ? (
+        <div className="grid gap-3 md:grid-cols-2">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-28 animate-pulse rounded-xl bg-[#F1EFEA]" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-3 md:grid-cols-2">
+          {filtered.map((a, i) => (
+            <Card key={a.id} className={`animate-fade-up stagger-${(i % 4) + 1} group flex gap-3 p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(190,18,60,0.12)] ${!a.active ? "opacity-60" : ""}`}>
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-[#F3D9E0] bg-[#FFF1F2] text-[#BE123C] transition-transform duration-200 group-hover:scale-110">
+                <Building2 size={17} />
               </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold leading-tight text-[#1C1917]">{a.name}</p>
+                <p className="mt-1 flex items-center gap-1 text-[13px] text-[#78716C]">
+                  <MapPin size={12} className="shrink-0 text-[#E11D48]" />
+                  {deptName(a.departmentId)} · {muniName(a.municipalityId)}
+                </p>
+                <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#E7E2D9] bg-[#F4F4F2] px-2 py-0.5 text-[11px] font-semibold text-[#BE123C]">
+                    <Users size={11} />
+                    {fmtNum(a.members ?? 0)} miembros
+                  </span>
+                  {!a.active && (
+                    <span className="rounded-full bg-[#F1EFEA] px-2 py-0.5 text-[11px] font-semibold text-[#78716C]">Inactiva</span>
+                  )}
+                  <button
+                    onClick={() => {
+                      toggleAssoc(a.id);
+                      push(a.active ? `“${a.name}” desactivada` : `“${a.name}” activada`, "info");
+                    }}
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#E7E2D9] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#44403C] transition-colors hover:border-[#BE123C]/40 hover:text-[#BE123C]"
+                  >
+                    <Power size={11} />
+                    {a.active ? "Desactivar" : "Activar"}
+                  </button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
-      {filtered.length === 0 && (
-        <Card className="animate-pop-in p-12 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-[#ece2d1] bg-[#fdf8ef] text-[#9a8d78]">
-            <Inbox size={22} />
+      {ready && filtered.length === 0 && (
+        <Card className="animate-pop-in p-10 text-center">
+          <div className="mx-auto grid h-11 w-11 place-items-center rounded-xl border border-[#EDE9E1] bg-[#FAFAF8] text-[#A8A29E]">
+            <Inbox size={20} />
           </div>
-          <p className="mt-3 font-semibold text-[#1c1a17]">Sin resultados</p>
-          <p className="text-sm text-[#7a6e5a]">Prueba con “Guajira” o “Caribe”.</p>
+          <p className="mt-2.5 text-sm font-semibold text-[#1C1917]">Sin resultados</p>
+          <p className="mt-1 text-[13px] text-[#78716C]">Prueba con “Guajira” o “Caribe”.</p>
         </Card>
       )}
 
       <Card className="animate-fade-up stagger-2 overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[#ece2d1] bg-[#fdf8ef]/60 p-5">
-          <h3 className="flex items-center gap-2 font-semibold text-[#1c1a17]">
-            <Building2 size={16} className="text-[#6b1220]" />
+        <div className="flex items-center justify-between border-b border-[#F1EFEA] bg-[#FAFAF8]/60 p-3.5">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
+            <Building2 size={14} className="text-[#BE123C]" />
             Tabla de asociaciones
           </h3>
-          <span className="rounded-full border border-[#ece2d1] bg-white px-2.5 py-1 text-xs font-medium text-[#7a6e5a]">Total {ASSOCIATIONS.length}</span>
+          <Link href="/dashboard/configuracion" className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#E7E2D9] bg-white px-3 py-1.5 text-xs font-semibold text-[#44403C] transition-all duration-200 hover:-translate-y-px hover:text-[#BE123C] hover:shadow-sm">
+            <Pencil size={12} />
+            Gestionar
+          </Link>
         </div>
         <div className="overflow-auto">
-          <table className="w-full text-sm min-w-[640px]">
-            <thead className="bg-[#6b1220] text-xs tracking-widest uppercase text-white/85">
-              <tr>
-                <th className="text-left font-semibold px-5 py-3">Asociación</th>
-                <th className="text-left font-semibold px-3 py-3">Departamento</th>
-                <th className="text-left font-semibold px-3 py-3">Municipio</th>
-                <th className="text-right font-semibold px-5 py-3">Miembros</th>
+          <table className="w-full min-w-[620px] text-[13px]">
+            <thead>
+              <tr className="bg-[#BE123C] text-left text-[11px] uppercase tracking-wider text-white/90">
+                <th className="px-4 py-2.5 font-semibold">Asociación</th>
+                <th className="px-3 py-2.5 font-semibold">Departamento</th>
+                <th className="px-3 py-2.5 font-semibold">Municipio</th>
+                <th className="px-4 py-2.5 text-right font-semibold">Miembros</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f0e8d5]">
+            <tbody className="divide-y divide-[#F4F4F2]">
               {filtered.map((a) => (
-                <tr key={a.id} className="transition-colors hover:bg-[#fdf6e8]/70">
-                  <td className="px-5 py-3 font-medium text-[#1c1a17]">
+                <tr key={a.id} className="transition-colors hover:bg-[#FFF7F9]">
+                  <td className="px-4 py-2.5 font-medium text-[#1C1917]">
                     <span className="inline-flex items-center gap-2">
-                      <Building2 size={14} className="text-[#b4532a]" />
+                      <Building2 size={13} className="shrink-0 text-[#E11D48]" />
                       {a.name}
                     </span>
                   </td>
-                  <td className="px-3 py-3">{deptName(a.departmentId)}</td>
-                  <td className="px-3 py-3">{muniName(a.municipalityId)}</td>
-                  <td className="px-5 py-3 text-right font-semibold">{a.members.toLocaleString("es-CO")}</td>
+                  <td className="px-3 py-2.5 text-[#44403C]">{deptName(a.departmentId)}</td>
+                  <td className="px-3 py-2.5 text-[#44403C]">{muniName(a.municipalityId)}</td>
+                  <td className="px-4 py-2.5 text-right font-semibold text-[#1C1917]">{fmtNum(a.members ?? 0)}</td>
                 </tr>
               ))}
             </tbody>
