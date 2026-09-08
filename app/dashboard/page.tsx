@@ -17,16 +17,16 @@ import {
 import { Card, PageHeader, ExportButton } from "@/components/ui";
 import { Donut, HBarList, TrendChart } from "@/components/dashboard-charts";
 import { FiltersBar } from "@/components/filters-bar";
-import { useConfig } from "@/lib/config-store";
+import { resolveAssocName, useConfig } from "@/lib/config-store";
 import { emptyFilters, type Filters } from "@/lib/filters";
-import { deptName, muniName, assocName } from "@/lib/mock-data";
+import { deptName, muniName } from "@/lib/mock-data";
 import { downloadExcel, personRows } from "@/lib/export-excel";
 import { fetchExportRows, usePeopleQuery, useSummaryQuery } from "@/lib/server-data";
 import { useToast } from "@/components/toast";
 import { fmtNum, fmtPct } from "@/lib/format";
 
 export default function DashboardHome() {
-  const { activeRoles, ready } = useConfig();
+  const { activeRoles, cfg, ready } = useConfig();
   const { push } = useToast();
   const [filters, setFilters] = React.useState<Filters>(emptyFilters);
 
@@ -42,7 +42,7 @@ export default function DashboardHome() {
   async function exportAll() {
     const rows = await fetchExportRows(filters);
     await downloadExcel("resumen_registros", [
-      { name: "Registros filtrados", rows: personRows(rows) },
+      { name: "Registros filtrados", rows: personRows(rows, cfg.assocs) },
       {
         name: "Por departamento",
         rows: (summary?.byDept ?? []).map((d) => ({ Departamento: d.name, Registros: d.value })),
@@ -223,7 +223,7 @@ export default function DashboardHome() {
                         {p.roles[0]}
                       </span>
                     </td>
-                    <td className="max-w-[170px] truncate px-3 py-2.5 text-[#78716C]">{assocName(p.associationId)}</td>
+                    <td className="max-w-[170px] truncate px-3 py-2.5 text-[#78716C]" title={resolveAssocName(p.associationId, cfg.assocs)}>{resolveAssocName(p.associationId, cfg.assocs)}</td>
                   </tr>
                 ))
               )}

@@ -37,7 +37,7 @@ type RpcSummary = {
   by_dept: { id: string; value: number }[];
   by_muni: { id: string; value: number }[];
   by_role: { label: string; value: number }[];
-  by_assoc: { id: string; value: number }[];
+  by_assoc: { id: string | null; value: number }[];
   weekly: { week: string; value: number }[];
 };
 

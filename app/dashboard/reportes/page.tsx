@@ -12,7 +12,7 @@ import { useToast } from "@/components/toast";
 import { fmtNum } from "@/lib/format";
 
 export default function ReportesPage() {
-  const { activeRoles, activeAssocs, ready } = useConfig();
+  const { activeRoles, activeAssocs, cfg, ready } = useConfig();
   const { push } = useToast();
   const [filters, setFilters] = React.useState<Filters>(emptyFilters);
   const { summary: s, loading, error, reload } = useSummaryQuery(filters);
@@ -20,7 +20,7 @@ export default function ReportesPage() {
   async function exportReport() {
     const rows = await fetchExportRows(filters);
     await downloadExcel("reporte_registros", [
-      { name: "Registros", rows: personRows(rows) },
+      { name: "Registros", rows: personRows(rows, cfg.assocs) },
       { name: "Por departamento", rows: (s?.byDept ?? []).map((d) => ({ Departamento: d.name, Registros: d.value })) },
       { name: "Por municipio", rows: (s?.byMuni ?? []).map((m) => ({ Municipio: m.name, Registros: m.value })) },
       { name: "Por rol", rows: (s?.byRole ?? []).map((r) => ({ Rol: r.label, Registros: r.value, Porcentaje: `${r.pct}%` })) },
@@ -56,7 +56,7 @@ export default function ReportesPage() {
       ) : s && (
         <>
           <div className="grid gap-4 lg:grid-cols-3">
-            <Card className="animate-fade-up stagger-2 p-5 text-center lg:col-span-1">
+            <Card className="animate-fade-up stagger-2 flex flex-col justify-center p-5 text-center lg:col-span-1">
               <p className="flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#A8A29E]">
                 <Users size={12} />
                 Total del reporte
@@ -124,7 +124,7 @@ export default function ReportesPage() {
                 <div className="mt-3">
                   <HBarList
                     items={s.byAssoc.map((a) => ({
-                      name: activeAssocs.find((x) => x.id === a.id)?.name ?? a.id,
+                      name: a.id ? (activeAssocs.find((x) => x.id === a.id)?.name ?? a.id) : "Sin asociación",
                       value: a.value,
                     }))}
                   />

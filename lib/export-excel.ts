@@ -3,7 +3,8 @@
 // autofiltros, fila congelada y pestañas rosa. Respeta filtros: el caller
 // pasa las filas ya filtradas.
 import type { Person } from "./mock-data";
-import { deptName, muniName, assocName } from "./mock-data";
+import { deptName, muniName } from "./mock-data";
+import { resolveAssocName, type AssocOpt } from "./config-store";
 import { dateStamp, fmtDate } from "./format";
 
 export type Sheet = { name: string; rows: Record<string, string | number>[] };
@@ -86,7 +87,7 @@ export async function downloadExcel(baseName: string, sheets: Sheet[]) {
   window.setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
 
-export function personRows(people: Person[]) {
+export function personRows(people: Person[], assocs: AssocOpt[] = []) {
   return people.map((p) => ({
     Nombre: p.fullName,
     Identidad: p.identity,
@@ -95,7 +96,7 @@ export function personRows(people: Person[]) {
     Departamento: deptName(p.departmentId),
     Municipio: muniName(p.municipalityId),
     Roles: p.roles.join(", "),
-    Asociación: assocName(p.associationId),
+    Asociación: resolveAssocName(p.associationId, assocs),
     Fecha: fmtDate(p.createdAt),
   }));
 }

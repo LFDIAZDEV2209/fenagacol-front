@@ -6,7 +6,8 @@ import { FiltersBar } from "@/components/filters-bar";
 import { PersonDetail } from "@/components/person-detail";
 import { useConfig } from "@/lib/config-store";
 import { emptyFilters, type Filters } from "@/lib/filters";
-import { deptName, muniName, assocName, type Person } from "@/lib/mock-data";
+import { deptName, muniName, type Person } from "@/lib/mock-data";
+import { resolveAssocName } from "@/lib/config-store";
 import { downloadExcel, personRows } from "@/lib/export-excel";
 import { fetchExportRows, useDebouncedValue, usePeopleQuery } from "@/lib/server-data";
 import { useToast } from "@/components/toast";
@@ -15,7 +16,7 @@ import { fmtDate, fmtNum } from "@/lib/format";
 const PAGE_SIZE = 10;
 
 export default function RegistradosPage() {
-  const { activeRoles } = useConfig();
+  const { activeRoles, cfg } = useConfig();
   const { push } = useToast();
   const [filters, setFilters] = React.useState<Filters>(emptyFilters);
   const [page, setPage] = React.useState(1);
@@ -47,7 +48,7 @@ export default function RegistradosPage() {
 
   async function exportFiltered() {
     const rows = await fetchExportRows(serverFilters);
-    await downloadExcel("registros", [{ name: "Registros", rows: personRows(rows) }]);
+    await downloadExcel("registros", [{ name: "Registros", rows: personRows(rows, cfg.assocs) }]);
     push(`Excel descargado con ${fmtNum(rows.length)} registros`);
   }
 
@@ -157,7 +158,7 @@ export default function RegistradosPage() {
                           {p.roles.length > 1 ? ` +${p.roles.length - 1}` : ""}
                         </span>
                       </td>
-                      <td className="max-w-[150px] truncate px-3 py-2.5 text-[#78716C]">{assocName(p.associationId)}</td>
+                      <td className="max-w-[150px] truncate px-3 py-2.5 text-[#78716C]" title={resolveAssocName(p.associationId, cfg.assocs)}>{resolveAssocName(p.associationId, cfg.assocs)}</td>
                       <td className="whitespace-nowrap px-3 py-2.5 text-[#78716C]">{fmtDate(p.createdAt)}</td>
                       <td className="px-4 py-2.5">
                         <button

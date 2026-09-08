@@ -2,10 +2,12 @@
 import * as React from "react";
 import { X, User, Hash, Phone, Mail, MapPin, Users, Building2, CalendarDays, Bird } from "lucide-react";
 import type { Person } from "@/lib/mock-data";
-import { deptName, muniName, assocName } from "@/lib/mock-data";
+import { deptName, muniName } from "@/lib/mock-data";
+import { resolveAssocName, useConfig } from "@/lib/config-store";
 import { fmtDate } from "@/lib/format";
 
 export function PersonDetail({ person, onClose }: { person: Person | null; onClose: () => void }) {
+  const { cfg } = useConfig();
   React.useEffect(() => {
     if (!person) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -25,7 +27,7 @@ export function PersonDetail({ person, onClose }: { person: Person | null; onClo
     { icon: Mail, label: "Correo", value: person.email ?? "—" },
     { icon: MapPin, label: "Departamento", value: deptName(person.departmentId) },
     { icon: MapPin, label: "Municipio", value: muniName(person.municipalityId) },
-    { icon: Building2, label: "Asociación", value: assocName(person.associationId) },
+    { icon: Building2, label: "Asociación", value: resolveAssocName(person.associationId, cfg.assocs) },
     { icon: CalendarDays, label: "Fecha de registro", value: fmtDate(person.createdAt) },
   ];
 

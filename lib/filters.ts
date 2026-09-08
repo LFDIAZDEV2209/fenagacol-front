@@ -51,7 +51,7 @@ export type Summary = {
   byDept: { name: string; value: number }[];
   byMuni: { name: string; value: number }[];
   byRole: { label: string; value: number; pct: number }[];
-  byAssoc: { id: string; value: number }[];
+  byAssoc: { id: string | null; value: number }[];
   trend: { label: string; value: number; key: string }[];
 };
 

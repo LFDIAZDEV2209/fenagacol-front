@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { ASSOCIATIONS, PEOPLE, ROLES, type Person } from "./mock-data";
+import { ASSOCIATIONS, PEOPLE, ROLES, assocName as staticAssocName, type Person } from "./mock-data";
 import { todayISO } from "./format";
 import { createRegistration, getPublicCatalogs } from "./supabase/queries";
 
@@ -39,6 +39,14 @@ type Stored = {
   texts: FormTexts;
   people: Person[];
 };
+
+// Nombre de asociación resolviendo SIEMPRE contra la lista dinámica
+// (incluye creadas/desactivadas por el admin). La lista estática solo es
+// último recurso para registros viejos sin catálogo cargado.
+export function resolveAssocName(id: string | undefined, assocs: AssocOpt[]): string {
+  if (!id) return "Sin asociación";
+  return assocs.find((a) => a.id === id)?.name ?? staticAssocName(id);
+}
 
 const KEY = "fenagacol_cfg_v1";
 const slug = (s: string) =>
