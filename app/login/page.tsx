@@ -61,7 +61,7 @@ function LoginForm() {
         <div className="flex flex-col px-5 py-5 sm:px-8">
           <div className="flex items-center">
             <Link href="/" className="flex cursor-pointer items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#732427] text-xs font-black text-white shadow-[0_4px_14px_rgba(115,36,39,0.35)]">TG</span>
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#732427] text-xs font-extrabold text-white shadow-[0_4px_14px_rgba(115,36,39,0.35)]">TG</span>
               <span className="leading-tight">
                 <span className="block font-display text-[15px] font-bold text-[#1C1917]">Tu Carné Gremial</span>
                 <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-[#732427]">Fenagacol</span>
