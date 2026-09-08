@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/toast";
 import { ConfigProvider } from "@/lib/config-store";
+import { AuthProvider } from "@/lib/auth-context";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -22,7 +23,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="es" className={`${manrope.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-white">
         <ToastProvider>
-          <ConfigProvider>{children}</ConfigProvider>
+          <ConfigProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ConfigProvider>
         </ToastProvider>
       </body>
     </html>

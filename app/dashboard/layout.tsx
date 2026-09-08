@@ -15,7 +15,7 @@ import {
   ClipboardList,
   ChevronRight,
 } from "lucide-react";
-import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/toast";
 
 const NAV = [
@@ -36,15 +36,7 @@ const TITLES: Record<string, string> = {
   "/dashboard/configuracion": "Configuración",
 };
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthProvider>
-      <Shell>{children}</Shell>
-    </AuthProvider>
-  );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
+export default function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, logout } = useAuth();
