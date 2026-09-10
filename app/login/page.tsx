@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button, Card, Input, Label } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
+import bannerLogin from "@/public/img/banner-principal-2.jpg";
 
 export default function LoginPage() {
   return (
@@ -163,12 +164,13 @@ function LoginForm() {
         {/* Columna visual con wave elegante en la separación */}
         <div className="relative hidden min-h-screen w-full overflow-hidden bg-[#3D0A17] lg:block">
           <Image
-            src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&q=80&auto=format&fit=crop"
+            src={bannerLogin}
             alt="Atardecer sobre el campo colombiano"
             fill
             sizes="(max-width:1024px) 0vw, 55vw"
             className="object-cover"
             priority
+            placeholder="blur"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#2A0710]/95 via-[#732427]/35 to-[#732427]/10" />
           {/* Wave en capas: sombra suave + filo vino + cuerpo blanco */}

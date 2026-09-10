@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/toast";
+import logoMini from "@/public/img/banner-principal.jpg";
 
 const NAV = [
   { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
@@ -159,7 +160,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <aside className="sticky top-0 hidden h-screen w-[248px] shrink-0 flex-col border-r border-[#E7E2D9] bg-white lg:flex">
         <div className="flex h-16 items-center gap-2.5 border-b border-[#F1EFEA] px-4">
           <Image
-            src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=96&q=70&auto=format&fit=crop"
+            src={logoMini}
             alt="Campo colombiano"
             width={40}
             height={40}
@@ -225,13 +226,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <div className="animate-fade-up absolute bottom-0 left-0 top-0 flex w-[272px] flex-col overflow-y-auto border-r border-[#E7E2D9] bg-white">
               <div className="flex items-center justify-between border-b border-[#F1EFEA] p-3.5">
                 <div className="flex items-center gap-2">
-                  <Image
-                    src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=96&q=70&auto=format&fit=crop"
-                    alt="Campo colombiano"
-                    width={36}
-                    height={36}
-                    className="h-9 w-9 rounded-xl object-cover ring-1 ring-black/10"
-                  />
+                    <Image
+                      src={logoMini}
+                      alt="Campo colombiano"
+                      width={36}
+                      height={36}
+                      className="h-9 w-9 rounded-xl object-cover ring-1 ring-black/10"
+                    />
                   <span className="font-display text-[14px] font-bold text-[#1C1917]">Tu Carné Gremial</span>
                 </div>
                 <button onClick={() => setOpen(false)} aria-label="Cerrar menú" className="grid h-8 w-8 cursor-pointer place-items-center rounded-full bg-[#F4F4F2] text-[#57534E] transition-transform active:scale-95">

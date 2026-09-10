@@ -1,6 +1,10 @@
 import { SiteHeader } from "@/components/site-header";
 import Image from "next/image";
 import Link from "next/link";
+import bannerPrincipal from "@/public/img/banner-principal.jpg";
+import imgEnlace from "@/public/img/enlace.jpg";
+import imgRegistro from "@/public/img/registro.jpg";
+import imgGremio from "@/public/img/gremio.jpg";
 
 export default function Home() {
   return (
@@ -39,12 +43,13 @@ export default function Home() {
           </div>
           <div className="relative h-[280px] lg:h-auto min-h-[380px] bg-[#fdf8ef]">
             <Image
-              src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=900&q=80&auto=format&fit=crop"
+              src={bannerPrincipal}
               alt="Paisaje rural colombiano"
               fill
               sizes="(max-width:1024px) 100vw, 50vw"
               className="object-cover"
               priority
+              placeholder="blur"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1c0a0d]/30 via-transparent to-transparent lg:bg-gradient-to-r lg:from-white lg:via-transparent lg:to-transparent" />
             {/* floating card */}
@@ -63,13 +68,13 @@ export default function Home() {
           <h2 className="font-display text-xl font-bold text-[#1c1a17]">¿Cómo funciona?</h2>
           <div className="mt-4 grid sm:grid-cols-3 gap-4">
             {[
-              { n:"01", t:"Recibes el enlace", d:"Te llega por WhatsApp o por tu asociación.", img:"https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&q=80&auto=format&fit=crop" },
-              { n:"02", t:"Te registras en 3 minutos", d:"Formulario grande, claro y sin complicaciones.", img:"https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=600&q=80&auto=format&fit=crop" },
-              { n:"03", t:"Haces parte del gremio", d:"Tu carné y tu asociación quedan registrados.", img:"https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80&auto=format&fit=crop" },
+              { n:"01", t:"Recibes el enlace", d:"Te llega por WhatsApp o por tu asociación.", img:imgEnlace },
+              { n:"02", t:"Te registras en 3 minutos", d:"Formulario grande, claro y sin complicaciones.", img:imgRegistro },
+              { n:"03", t:"Haces parte del gremio", d:"Tu carné y tu asociación quedan registrados.", img:imgGremio },
             ].map(c=> (
               <div key={c.n} className="rounded-2xl bg-white border border-[#ece2d1] overflow-hidden shadow-sm">
                 <div className="relative h-32">
-                  <Image src={c.img} alt="" fill sizes="(max-width:640px) 100vw, 33vw" className="object-cover" />
+                  <Image src={c.img} alt="" fill sizes="(max-width:640px) 100vw, 33vw" className="object-cover" placeholder="blur" />
                   <span className="absolute top-3 left-3 w-8 h-8 rounded-full bg-[#732427] text-white grid place-items-center text-xs font-bold">{c.n}</span>
                 </div>
                 <div className="p-5">

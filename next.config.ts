@@ -7,12 +7,9 @@ const nextConfig: NextConfig = {
     root: path.join(process.cwd()),
   },
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "plus.unsplash.com" },
-      { protocol: "https", hostname: "picsum.photos" },
-      { protocol: "https", hostname: "i.pravatar.cc" },
-    ],
+    // Solo avatares de prueba del hero (i.pravatar.cc). Las fotos del sitio
+    // son locales en public/img/ via static import — no agregar hosts nuevos.
+    remotePatterns: [{ protocol: "https", hostname: "i.pravatar.cc" }],
   },
 };
 

@@ -1,6 +1,8 @@
 import { RegistroForm } from "@/components/registro-form";
 import { SiteHeader } from "@/components/site-header";
 import Image from "next/image";
+import bannerRegistro from "@/public/img/banner-registro.jpg";
+import bannerComunidad from "@/public/img/banner-comunidad-registros.jpg";
 
 export default function RegistroPage() {
   return (
@@ -15,12 +17,13 @@ export default function RegistroPage() {
             <div className="rounded-2xl overflow-hidden border border-[#ece2d1] shadow-[0_8px_30px_rgba(28,26,23,0.08)] bg-white">
               <div className="relative h-[148px] sm:h-[164px]">
                 <Image
-                  src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&q=80&auto=format&fit=crop"
+                  src={bannerRegistro}
                   alt="Campo colombiano — comunidad rural"
                   fill
                   sizes="100vw"
                   className="object-cover"
                   priority
+                  placeholder="blur"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#1a0a0d]/85 via-[#4a0f1f]/55 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
@@ -32,19 +35,6 @@ export default function RegistroPage() {
                     <span className="text-[#f5d6a0]">El Poder de Estar Unidos.</span>
                   </h1>
                   <p className="mt-2 text-sm text-white/85 max-w-[36ch]">Una plataforma sencilla para registrar y conocer a nuestra comunidad campesina y gallera.</p>
-                </div>
-                {/* hombre con gallo sutil a la derecha — segunda imagen superpuesta */}
-                <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-[42%]">
-                  <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#4a0f1f]/10" />
-                  <Image
-                    src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=600&q=80&auto=format&fit=crop"
-                    alt="Productor rural"
-                    fill
-                    sizes="(max-width:1024px) 100vw, 35vw"
-                    className="object-cover [object-position:center_30%] opacity-[0.92]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent opacity-60" />
-                  <div className="absolute inset-0 bg-[#4a0f1f]/10 mix-blend-multiply" />
                 </div>
                 <div className="absolute top-0 left-0 right-0 h-1 bg-[#732427]" />
               </div>
@@ -60,11 +50,12 @@ export default function RegistroPage() {
             <div className="rounded-2xl overflow-hidden bg-white border border-[#ece2d1] shadow-[0_8px_30px_rgba(28,26,23,0.06)]">
               <div className="relative h-[220px] sm:h-[260px]">
                 <Image
-                  src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=800&q=80&auto=format&fit=crop"
+                  src={bannerComunidad}
                   alt="Comunidad campesina"
                   fill
                   sizes="(max-width:1024px) 100vw, 35vw"
                   className="object-cover"
+                  placeholder="blur"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1c0a0d]/70 via-transparent to-transparent" />
                 <div className="absolute bottom-0 p-5 text-white">
