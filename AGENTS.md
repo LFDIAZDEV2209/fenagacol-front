@@ -42,6 +42,7 @@ Next 16.3 / React 19 / Tailwind 4 / Supabase. Public mobile-first `/registro` (4
 ## Domain invariants (DIVIPOLA + dynamic catalogs)
 
 - Department `id` = 2-digit DIVIPOLA; municipality `id` = 5-digit with `departmentId` FK. Filter `MUNICIPALITIES` by `departmentId` — never hardcode dept→muni maps in components.
+- Territorio canónico: `lib/divipola.json` (DANE dic-2025, 33/1104, generado) + wrapper `lib/divipola.ts`; espejo DB en `public.departments`/`municipalities` (migración + `node supabase/seed-divipola.mjs`). Regenerar JSON+DB juntos; nunca editar nombres a mano.
 - Roles/associations are admin-editable server data, not constants. Match roles by label (case-insensitive); resolve assoc names via `resolveAssocName(id, assocs)` in `lib/config-store.tsx`, never the static list directly.
 - Search sanitization + filter clamping live in `app/api/admin/_lib.ts` (`cleanSearch`, `parseFilters`, pageSize ≤ 100, export cap 20k rows) — extend there, don't reimplement per route.
 
