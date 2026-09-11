@@ -19,27 +19,39 @@ export type Person = {
 
 export const ROLES = ["Gallero", "Cuidador", "Comerciante", "Entusiasta", "Criador", "Otro"] as const;
 
+// Catálogo vigente (territorio provisional 11/11001 — completar en Configuración).
+// Espejo del seed en DB; si difieren, manda el servidor.
 export const ASSOCIATIONS: Association[] = [
-  { id: "a1", name: "Asociación de Galleros de La Guajira", departmentId: "44", municipalityId: "44001", members: 420 },
-  { id: "a2", name: "Asogalleros del Caribe", departmentId: "08", municipalityId: "08001", members: 380 },
-  { id: "a3", name: "Fenagacol - Seccional Antioquia", departmentId: "05", municipalityId: "05001", members: 610 },
-  { id: "a4", name: "Gremio Gallístico del Atlántico", departmentId: "08", municipalityId: "08606", members: 210 },
-  { id: "a5", name: "Asociación Campesina del Cesar", departmentId: "20", municipalityId: "20001", members: 305 },
-  { id: "a6", name: "Asoguajira - Maicao", departmentId: "44", municipalityId: "44430", members: 270 },
-  { id: "a7", name: "Criadores de Santander", departmentId: "68", municipalityId: "68001", members: 190 },
-  { id: "a8", name: "Colectivo Gallero de Córdoba", departmentId: "23", municipalityId: "23001", members: 340 },
-  { id: "a9", name: "Asociación Vallecaucana de Galleros", departmentId: "76", municipalityId: "76001", members: 455 },
-  { id: "a10", name: "Gremio Rural de Bolívar", departmentId: "13", municipalityId: "13001", members: 260 },
-  { id: "a11", name: "Asociación de Cuidadores del Magdalena", departmentId: "47", municipalityId: "47001", members: 145 },
-  { id: "a12", name: "Federación Campesina Huilense", departmentId: "41", municipalityId: "41001", members: 220 },
-  { id: "a13", name: "Asogalleros de Uribia", departmentId: "44", municipalityId: "44847", members: 180 },
-  { id: "a14", name: "Comerciantes Gallísticos de Cúcuta", departmentId: "54", municipalityId: "54001", members: 165 },
-  { id: "a15", name: "Entusiastas del Tolima", departmentId: "73", municipalityId: "73001", members: 130 },
-  { id: "a16", name: "Asociación de Criadores de Meta", departmentId: "50", municipalityId: "50001", members: 95 },
-  { id: "a17", name: "Gremio Gallero de Sucre", departmentId: "70", municipalityId: "70001", members: 175 },
-  { id: "a18", name: "Asociación Rural de La Guajira Sur", departmentId: "44", municipalityId: "44650", members: 310 },
-  { id: "a19", name: "Asocaldas", departmentId: "17", municipalityId: "17001", members: 110 },
-  { id: "a20", name: "Asociación Nariñense de Galleros", departmentId: "52", municipalityId: "52001", members: 80 },
+  { id: "asocgalf", name: "ASOCGALF", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogain", name: "ASOGAIN", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogatlan", name: "ASOGATLAN", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogasins", name: "ASOGASINS", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogacb", name: "ASOGACB", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogacor", name: "ASOGACOR", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogallmet", name: "ASOGALLMET", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogallospitalito", name: "ASOGALLOS PITALITO", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogalco", name: "ASOGALCO", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogahuila", name: "ASOGAHUILA", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogacauca", name: "ASOGACAUCA", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogacundi", name: "ASOGACUNDI", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogacbol", name: "ASOGACBOL", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asocoljueces", name: "ASOCOLJUECES", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asocojuvial", name: "ASOCOJUVIAL", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogamelgar", name: "ASOGAMELGAR", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogamac", name: "ASOGAMAC", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogoss", name: "ASOGOSS", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "gallcor", name: "GALLCOR", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogademom", name: "ASOGADEMOM", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogasum", name: "ASOGASUM", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogaap", name: "ASOGAAP", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogamayo", name: "ASOGAMAYO", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogalltauremena", name: "ASOGALLTAUREMENA", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogasur", name: "ASOGASUR", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogaquilla", name: "ASOGAQUILLA", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogacol", name: "ASOGACOL", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogsdemon", name: "ASOGSDEMON", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogadisrio", name: "ASOGADISRIO", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asoencria", name: "ASOENCRÍA", departmentId: "11", municipalityId: "11001", members: 0 },
 ];
 
 // Personas mock — 92 registros variados para tablas y KPIs
@@ -131,7 +143,7 @@ for (let i = 0; i < 18; i++) {
     departmentId: "44",
     municipalityId: m.id,
     roles: [pick(["Gallero", "Criador", "Cuidador"])],
-    associationId: pick(["a1", "a6", "a13", "a18"]),
+    associationId: pick(["asocgalf", "asogain", "asogatlan", "asogasins"]),
     createdAt: randomDate(30),
   });
 }
