@@ -1,9 +1,9 @@
 "use client";
 import * as React from "react";
 import { Settings, Tags, Building2, MapPin, Type, Plus, Pencil, Trash2, Check, X, RotateCcw, Save } from "lucide-react";
-import { Card, Input, Label, PageHeader } from "@/components/ui";
+import { Card, Input, Label, PageHeader, SortTh } from "@/components/ui";
 import { useConfig, type FormTexts } from "@/lib/config-store";
-import { DEPARTMENTS, getMunicipalitiesByDept } from "@/lib/mock-data";
+import { DEPARTMENTS, deptName, getMunicipalitiesByDept, muniName } from "@/lib/mock-data";
 import { useToast } from "@/components/toast";
 
 type Tab = "roles" | "asocs" | "territorio" | "form";
@@ -74,7 +74,15 @@ function RolesTab() {
   const [editing, setEditing] = React.useState<string | null>(null);
   const [editVal, setEditVal] = React.useState("");
 
-  const usage = (label: string) => allPeople.filter((p) => p.roles.includes(label)).length;
+  const usage = React.useCallback((label: string) => allPeople.filter((p) => p.roles.includes(label)).length, [allPeople]);
+  const [sort, setSort] = React.useState<{ key: "name" | "usage"; dir: "asc" | "desc" }>({ key: "name", dir: "asc" });
+
+  const sorted = React.useMemo(() => {
+    const dir = sort.dir === "asc" ? 1 : -1;
+    return cfg.roles.slice().sort((a, b) =>
+      sort.key === "usage" ? (usage(a.label) - usage(b.label)) * dir : a.label.localeCompare(b.label, "es", { sensitivity: "base" }) * dir
+    );
+  }, [cfg.roles, sort, usage]);
 
   return (
     <Card className="animate-fade-up stagger-2 p-4">
@@ -93,7 +101,19 @@ function RolesTab() {
       </div>
 
       <div className="mt-3 divide-y divide-[#F4F4F2] rounded-xl border border-[#EDE9E1]">
-        {cfg.roles.map((r) => (
+        <div className="flex items-center gap-1.5 bg-[#FAFAF8]/60 px-3.5 py-2">
+          <span className="mr-auto text-[11px] font-semibold uppercase tracking-wider text-[#A8A29E]">Ordenar:</span>
+          {(["name", "usage"] as const).map((k) => (
+            <button
+              key={k}
+              onClick={() => setSort((s) => (s.key === k ? { key: k, dir: s.dir === "asc" ? "desc" : "asc" } : { key: k, dir: "asc" }))}
+              className={`cursor-pointer rounded-full px-2.5 py-1 text-[12px] font-semibold transition-colors ${sort.key === k ? "bg-[#732427] text-white" : "text-[#78716C] hover:text-[#1C1917]"}`}
+            >
+              {k === "name" ? "Nombre" : "Uso"} {sort.key === k && (sort.dir === "asc" ? "↑" : "↓")}
+            </button>
+          ))}
+        </div>
+        {sorted.map((r) => (
           <div key={r.id} className="flex items-center gap-3 px-3.5 py-2.5">
             {editing === r.id ? (
               <>
@@ -154,8 +174,27 @@ function AsocsTab() {
   const [dept, setDept] = React.useState("");
   const [muni, setMuni] = React.useState("");
   const [editDept, setEditDept] = React.useState<Record<string, string>>({});
+  const [aq, setAq] = React.useState("");
+  const [asort, setAsort] = React.useState<{ key: "name" | "dept" | "muni" | "members"; dir: "asc" | "desc" }>({ key: "name", dir: "asc" });
 
   const munisFor = (deptId: string) => (deptId ? getMunicipalitiesByDept(deptId) : []);
+
+  const rows = React.useMemo(() => {
+    const dir = asort.dir === "asc" ? 1 : -1;
+    return cfg.assocs
+      .filter((a) => !aq || a.name.toLowerCase().includes(aq.toLowerCase()))
+      .slice()
+      .sort((a, b) => {
+        if (asort.key === "members") return ((a.members ?? 0) - (b.members ?? 0)) * dir;
+        const av = asort.key === "dept" ? deptName(a.departmentId) : asort.key === "muni" ? muniName(a.municipalityId) : a.name;
+        const bv = asort.key === "dept" ? deptName(b.departmentId) : asort.key === "muni" ? muniName(b.municipalityId) : b.name;
+        return av.localeCompare(bv, "es", { sensitivity: "base" }) * dir;
+      });
+  }, [cfg.assocs, aq, asort]);
+
+  function toggleAsort(key: typeof asort.key) {
+    setAsort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
+  }
 
   return (
     <div className="space-y-3">
@@ -187,19 +226,22 @@ function AsocsTab() {
       </Card>
 
       <Card className="animate-fade-up stagger-3 overflow-hidden">
+        <div className="border-b border-[#F1EFEA] p-3">
+          <Input compact placeholder="Buscar asociación por nombre..." value={aq} onChange={(e) => setAq(e.target.value)} />
+        </div>
         <div className="overflow-auto">
           <table className="w-full min-w-[720px] text-[13px]">
             <thead>
               <tr className="bg-[#732427] text-left text-[11px] uppercase tracking-wider text-white/90">
-                <th className="px-4 py-2.5 font-semibold">Nombre</th>
-                <th className="px-3 py-2.5 font-semibold">Departamento</th>
-                <th className="px-3 py-2.5 font-semibold">Municipio</th>
-                <th className="px-3 py-2.5 text-right font-semibold">Miembros</th>
+                <SortTh label="Nombre" className="px-4 py-2.5" active={asort.key === "name"} dir={asort.dir} onToggle={() => toggleAsort("name")} />
+                <SortTh label="Departamento" active={asort.key === "dept"} dir={asort.dir} onToggle={() => toggleAsort("dept")} />
+                <SortTh label="Municipio" active={asort.key === "muni"} dir={asort.dir} onToggle={() => toggleAsort("muni")} />
+                <SortTh label="Miembros" className="px-3 py-2.5 text-right" active={asort.key === "members"} dir={asort.dir} onToggle={() => toggleAsort("members")} />
                 <th className="px-4 py-2.5 text-right font-semibold">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F4F4F2]">
-              {cfg.assocs.map((a) => {
+              {rows.map((a) => {
                 const ed = editDept[a.id] ?? a.departmentId;
                 return (
                   <tr key={a.id} className={`transition-colors hover:bg-[#FAF4F5] ${!a.active ? "opacity-55" : ""}`}>

@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { FileSpreadsheet, Loader2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, FileSpreadsheet, Loader2 } from "lucide-react";
 
 // Botón de exportación con estado de carga y pista de alcance.
 // onExport genera el archivo (síncrono); el toast de éxito lo pone el caller.
@@ -193,6 +193,40 @@ export function Combobox({
         </div>
       )}
     </div>
+  );
+}
+
+// Encabezado de tabla ordenable: click alterna asc/desc. aria-sort para lector de pantalla.
+export function SortTh({
+  label,
+  active,
+  dir,
+  onToggle,
+  className = "px-3 py-2.5",
+  title,
+}: {
+  label: string;
+  active: boolean;
+  dir: "asc" | "desc";
+  onToggle: () => void;
+  className?: string;
+  title?: string;
+}) {
+  return (
+    <th aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"} className={`font-semibold ${className}`}>
+      <button
+        onClick={onToggle}
+        title={title ?? `Ordenar por ${label.toLowerCase()}`}
+        className="inline-flex cursor-pointer items-center gap-1.5 hover:text-white"
+      >
+        {label}
+        {active ? (
+          dir === "asc" ? <ArrowUp size={12} className="text-white" /> : <ArrowDown size={12} className="text-white" />
+        ) : (
+          <ArrowUpDown size={12} className="text-white/40" />
+        )}
+      </button>
+    </th>
   );
 }
 

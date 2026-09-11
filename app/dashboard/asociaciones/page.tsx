@@ -1,8 +1,8 @@
 "use client";
 import * as React from "react";
-import { Building2, Search, MapPin, Users, Inbox, Power, Pencil } from "lucide-react";
+import { Building2, Search, MapPin, Users, Inbox, Power, Pencil, ArrowUp, ArrowDown } from "lucide-react";
 import Link from "next/link";
-import { Card, Input, PageHeader, ExportButton } from "@/components/ui";
+import { Card, Input, PageHeader, ExportButton, SortTh } from "@/components/ui";
 import { useConfig } from "@/lib/config-store";
 import { deptName, muniName } from "@/lib/mock-data";
 import { emptyFilters } from "@/lib/filters";
@@ -15,19 +15,46 @@ export default function AsociacionesPage() {
   const { cfg, ready, toggleAssoc, membersOf } = useConfig();
   const { push } = useToast();
   const [q, setQ] = React.useState("");
+  const [status, setStatus] = React.useState<"all" | "active" | "inactive">("all");
+  const [sort, setSort] = React.useState<{ key: "name" | "members" | "dept" | "muni"; dir: "asc" | "desc" }>({ key: "name", dir: "asc" });
   // Miembros reales por asociación (servidor); fallback a conteo local sin red.
   const { summary } = useSummaryQuery(emptyFilters);
   const serverMembers = React.useMemo(
     () => new Map((summary?.byAssoc ?? []).map((a) => [a.id, a.value])),
     [summary]
   );
-  const members = (id: string) => serverMembers.get(id) ?? membersOf(id);
+  const members = React.useCallback((id: string) => serverMembers.get(id) ?? membersOf(id), [serverMembers, membersOf]);
 
-  const filtered = React.useMemo(
-    () => cfg.assocs.filter((a) => !q || a.name.toLowerCase().includes(q.toLowerCase())),
-    [cfg.assocs, q]
-  );
+  const filtered = React.useMemo(() => {
+    const dir = sort.dir === "asc" ? 1 : -1;
+    return cfg.assocs
+      .filter((a) => (status === "all" ? true : status === "active" ? a.active : !a.active))
+      .filter((a) => !q || a.name.toLowerCase().includes(q.toLowerCase()))
+      .slice()
+      .sort((a, b) => {
+        if (sort.key === "members") return (members(a.id) - members(b.id)) * dir;
+        const av = sort.key === "dept" ? deptName(a.departmentId) : sort.key === "muni" ? muniName(a.municipalityId) : a.name;
+        const bv = sort.key === "dept" ? deptName(b.departmentId) : sort.key === "muni" ? muniName(b.municipalityId) : b.name;
+        return av.localeCompare(bv, "es", { sensitivity: "base" }) * dir;
+      });
+  }, [cfg.assocs, q, status, sort, members]);
   const totalMembers = filtered.reduce((a, b) => a + members(b.id), 0);
+
+  function toggleSort(key: typeof sort.key) {
+    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
+  }
+
+  const sortOpts: { key: typeof sort.key; label: string }[] = [
+    { key: "name", label: "Nombre" },
+    { key: "members", label: "Miembros" },
+    { key: "dept", label: "Depto" },
+    { key: "muni", label: "Mpio" },
+  ];
+  const statusOpts: { key: typeof status; label: string }[] = [
+    { key: "all", label: "Todas" },
+    { key: "active", label: "Activas" },
+    { key: "inactive", label: "Inactivas" },
+  ];
 
   async function exportAll() {
     await downloadExcel("asociaciones", [
@@ -45,10 +72,40 @@ export default function AsociacionesPage() {
         actions={<ExportButton onExport={exportAll} />}
       />
 
-      <Card className="animate-fade-up stagger-1 p-3.5">
+      <Card className="animate-fade-up stagger-1 space-y-3 p-3.5">
         <div className="relative">
           <Search size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#A8A29E]" />
           <Input compact placeholder="Buscar asociación... (prueba “Guajira” o “Caribe”)" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex gap-1 rounded-full border border-[#E7E2D9] bg-[#FAFAF8] p-1">
+            {statusOpts.map((o) => (
+              <button
+                key={o.key}
+                onClick={() => setStatus(o.key)}
+                className={`cursor-pointer rounded-full px-3 py-1 text-[12px] font-semibold transition-colors ${status === o.key ? "bg-[#732427] text-white shadow-sm" : "text-[#78716C] hover:text-[#1C1917]"}`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <span className="ml-auto hidden text-[11px] font-semibold uppercase tracking-wider text-[#A8A29E] sm:inline">Ordenar:</span>
+          <div className="flex flex-wrap gap-1.5">
+            {sortOpts.map((o) => {
+              const on = sort.key === o.key;
+              return (
+                <button
+                  key={o.key}
+                  onClick={() => toggleSort(o.key)}
+                  title={`Ordenar por ${o.label.toLowerCase()}`}
+                  className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-[12px] font-semibold transition-colors ${on ? "border-[#732427]/40 bg-[#F8EDEF] text-[#732427]" : "border-[#E7E2D9] bg-white text-[#78716C] hover:text-[#1C1917]"}`}
+                >
+                  {o.label}
+                  {on && (sort.dir === "asc" ? <ArrowUp size={11} /> : <ArrowDown size={11} />)}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </Card>
 
@@ -121,10 +178,10 @@ export default function AsociacionesPage() {
           <table className="w-full min-w-[620px] text-[13px]">
             <thead>
               <tr className="bg-[#732427] text-left text-[11px] uppercase tracking-wider text-white/90">
-                <th className="px-4 py-2.5 font-semibold">Asociación</th>
-                <th className="px-3 py-2.5 font-semibold">Departamento</th>
-                <th className="px-3 py-2.5 font-semibold">Municipio</th>
-                <th className="px-4 py-2.5 text-right font-semibold">Miembros</th>
+                <SortTh label="Asociación" className="px-4 py-2.5" active={sort.key === "name"} dir={sort.dir} onToggle={() => toggleSort("name")} />
+                <SortTh label="Departamento" active={sort.key === "dept"} dir={sort.dir} onToggle={() => toggleSort("dept")} />
+                <SortTh label="Municipio" active={sort.key === "muni"} dir={sort.dir} onToggle={() => toggleSort("muni")} />
+                <SortTh label="Miembros" className="px-4 py-2.5 text-right" active={sort.key === "members"} dir={sort.dir} onToggle={() => toggleSort("members")} />
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F4F4F2]">

@@ -22,7 +22,9 @@ export async function GET(req: Request) {
       if (!roleId) return NextResponse.json({ people: [], total: 0, page: f.page, pageSize: f.pageSize });
     }
 
-    const select = roleId ? "*, person_roles!inner(role_id)" : "*, person_roles(role_id)";
+    const select = roleId
+      ? "*, person_roles!inner(role_id), departments(name), municipalities(name), associations(name)"
+      : "*, person_roles(role_id), departments(name), municipalities(name), associations(name)";
     let query = sb.from("people").select(select, { count: "exact" });
 
     if (f.q) {
@@ -35,9 +37,19 @@ export async function GET(req: Request) {
     if (f.associationId) query = query.eq("association_id", f.associationId);
     if (roleId) query = query.eq("person_roles.role_id", roleId);
 
-    query = query.order(f.sortKey === "name" ? "full_name" : "created_at", {
-      ascending: f.sortDir === "asc",
-    });
+    // Orden por columna: directas en people; nombres vía embed (`order=tabla(col).dir`,
+    // que ordena el padre — `referencedTable` solo ordenaría dentro del embed).
+    // Rol no ordena (multivalor por persona, sin orden bien definido).
+    const asc = f.sortDir === "asc";
+    if (f.sortKey === "dept") query = query.order("departments(name)", { ascending: asc });
+    else if (f.sortKey === "muni") query = query.order("municipalities(name)", { ascending: asc });
+    else if (f.sortKey === "assoc") query = query.order("associations(name)", { ascending: asc });
+    else {
+      query = query.order(
+        f.sortKey === "name" ? "full_name" : f.sortKey === "identity" ? "identity_number" : f.sortKey === "phone" ? "phone" : "created_at",
+        { ascending: asc }
+      );
+    }
     const lo = (f.page - 1) * f.pageSize;
     query = query.range(lo, lo + f.pageSize - 1);
 

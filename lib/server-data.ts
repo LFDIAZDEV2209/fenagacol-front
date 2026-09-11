@@ -94,7 +94,7 @@ export function usePeopleQuery(opts: {
   filters: Filters;
   page: number;
   pageSize: number;
-  sortKey: "name" | "date";
+  sortKey: "name" | "identity" | "phone" | "dept" | "muni" | "assoc" | "date";
   sortDir: "asc" | "desc";
 }) {
   const { filters, page, pageSize, sortKey, sortDir } = opts;

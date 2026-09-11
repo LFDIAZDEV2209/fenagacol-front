@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
-import { Users, Search, Filter, Eye, ChevronLeft, ChevronRight, Bird, Inbox, ArrowUpDown, AlertTriangle, RotateCw } from "lucide-react";
-import { Card, Input, PageHeader, ExportButton } from "@/components/ui";
+import { Users, Search, Filter, Eye, ChevronLeft, ChevronRight, Bird, Inbox, AlertTriangle, RotateCw } from "lucide-react";
+import { Card, Input, PageHeader, ExportButton, SortTh } from "@/components/ui";
 import { FiltersBar } from "@/components/filters-bar";
 import { PersonDetail } from "@/components/person-detail";
 import { useConfig } from "@/lib/config-store";
@@ -15,12 +15,14 @@ import { fmtDate, fmtNum } from "@/lib/format";
 
 const PAGE_SIZE = 10;
 
+type SortKey = "name" | "identity" | "phone" | "dept" | "muni" | "assoc" | "date";
+
 export default function RegistradosPage() {
   const { activeRoles, cfg } = useConfig();
   const { push } = useToast();
   const [filters, setFilters] = React.useState<Filters>(emptyFilters);
   const [page, setPage] = React.useState(1);
-  const [sort, setSort] = React.useState<{ key: "name" | "date"; dir: "asc" | "desc" }>({ key: "date", dir: "desc" });
+  const [sort, setSort] = React.useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "date", dir: "desc" });
   const [selected, setSelected] = React.useState<Person | null>(null);
 
   // Búsqueda con debounce; el resto de filtros dispara de inmediato (con abort).
@@ -41,8 +43,8 @@ export default function RegistradosPage() {
     setPage(1);
   }
 
-  function toggleSort(key: "name" | "date") {
-    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: key === "name" ? "asc" : "desc" }));
+  function toggleSort(key: SortKey) {
+    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: key === "date" ? "desc" : "asc" }));
     setPage(1);
   }
 
@@ -51,10 +53,6 @@ export default function RegistradosPage() {
     await downloadExcel("registros", [{ name: "Registros", rows: personRows(rows, cfg.assocs) }]);
     push(`Excel descargado con ${fmtNum(rows.length)} registros`);
   }
-
-  const sortIcon = (key: "name" | "date") => (
-    <ArrowUpDown size={12} className={sort.key === key ? "text-white" : "text-white/40"} />
-  );
 
   return (
     <div className="space-y-4">
@@ -111,22 +109,14 @@ export default function RegistradosPage() {
             <table className="w-full min-w-[880px] text-[13px]">
               <thead>
                 <tr className="bg-[#732427] text-left text-[11px] uppercase tracking-wider text-white/90">
-                  <th className="px-4 py-2.5 font-semibold">
-                    <button onClick={() => toggleSort("name")} className="inline-flex cursor-pointer items-center gap-1.5 hover:text-white">
-                      Nombre {sortIcon("name")}
-                    </button>
-                  </th>
-                  <th className="px-3 py-2.5 font-semibold">Identidad</th>
-                  <th className="px-3 py-2.5 font-semibold">Teléfono</th>
-                  <th className="px-3 py-2.5 font-semibold">Departamento</th>
-                  <th className="px-3 py-2.5 font-semibold">Municipio</th>
-                  <th className="px-3 py-2.5 font-semibold">Rol</th>
-                  <th className="px-3 py-2.5 font-semibold">Asociación</th>
-                  <th className="px-3 py-2.5 font-semibold">
-                    <button onClick={() => toggleSort("date")} className="inline-flex cursor-pointer items-center gap-1.5 hover:text-white">
-                      Fecha {sortIcon("date")}
-                    </button>
-                  </th>
+                  <SortTh label="Nombre" className="px-4 py-2.5" active={sort.key === "name"} dir={sort.dir} onToggle={() => toggleSort("name")} />
+                  <SortTh label="Identidad" active={sort.key === "identity"} dir={sort.dir} onToggle={() => toggleSort("identity")} />
+                  <SortTh label="Teléfono" active={sort.key === "phone"} dir={sort.dir} onToggle={() => toggleSort("phone")} />
+                  <SortTh label="Departamento" active={sort.key === "dept"} dir={sort.dir} onToggle={() => toggleSort("dept")} />
+                  <SortTh label="Municipio" active={sort.key === "muni"} dir={sort.dir} onToggle={() => toggleSort("muni")} />
+                  <th className="px-3 py-2.5 font-semibold" title="Una persona puede tener varios roles: sin orden definido">Rol</th>
+                  <SortTh label="Asociación" active={sort.key === "assoc"} dir={sort.dir} onToggle={() => toggleSort("assoc")} />
+                  <SortTh label="Fecha" active={sort.key === "date"} dir={sort.dir} onToggle={() => toggleSort("date")} />
                   <th className="px-4 py-2.5"></th>
                 </tr>
               </thead>

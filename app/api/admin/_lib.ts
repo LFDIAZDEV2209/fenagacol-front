@@ -19,7 +19,7 @@ export type AdminFilters = {
   municipalityId: string;
   role: string; // label visible
   associationId: string;
-  sortKey: "name" | "date";
+  sortKey: "name" | "identity" | "phone" | "dept" | "muni" | "assoc" | "date";
   sortDir: "asc" | "desc";
   page: number;
   pageSize: number;
@@ -34,7 +34,11 @@ export function cleanSearch(raw: string | null): string {
 }
 
 export function parseFilters(sp: URLSearchParams): AdminFilters {
-  const sortKey = sp.get("sort") === "name" ? "name" : "date";
+  const rawSort = sp.get("sort");
+  const sortKey: AdminFilters["sortKey"] =
+    rawSort === "name" || rawSort === "identity" || rawSort === "phone" || rawSort === "dept" || rawSort === "muni" || rawSort === "assoc"
+      ? rawSort
+      : "date";
   const sortDir = sp.get("dir") === "asc" ? "asc" : "desc";
   return {
     q: cleanSearch(sp.get("q")),
