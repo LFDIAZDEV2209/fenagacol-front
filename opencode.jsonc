@@ -2,18 +2,17 @@
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["AGENTS.md"],
   "mcp": {
-    // Supabase MCP — hosted remoto con OAuth automático (Dynamic Client Registration)
-    // Flujo: opencode mcp auth supabase -> abre browser -> selecciona org/proyecto
-    // Docs: https://supabase.com/docs/guides/getting-started/mcp
-    "supabase": {
-      "type": "remote",
-      "url": "https://mcp.supabase.com/mcp?project_ref=ffsgompvfrgmlksvyuqc&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching",
-      "enabled": true
-    },
-    "vercel": {
-      "type": "remote",
-      "url": "https://mcp.vercel.com",
-      "enabled": true
+    // MCPs remotos (OAuth). Supabase fijado al proyecto ffsgompvfrgmlksvyuqc.
+    // Login: /mcps en la interfaz de OpenCode -> seleccionar servidor -> iniciar sesión.
+    "servers": {
+      "supabase": {
+        "type": "remote",
+        "url": "https://mcp.supabase.com/mcp?project_ref=ffsgompvfrgmlksvyuqc&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
+      },
+      "vercel": {
+        "type": "remote",
+        "url": "https://mcp.vercel.com"
+      }
     }
   },
   "permission": {
