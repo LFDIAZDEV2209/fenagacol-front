@@ -1,13 +1,17 @@
 // Generador DIVIPOLA -> lib/divipola.json (fuente: datos.gov.co gdxc-w37w, DANE).
 // Uso: node supabase/gen-divipola.mjs
-// No-destructivo: conserva por código los nombres históricos de la UI ya presentes
-// en el JSON; agrega únicamente las entidades que falten (p. ej. los 18 ANCAP) en
-// Title Case ES. Luego ejecutar `node supabase/seed-divipola.mjs` para la DB.
+// Sync no-destructivo por código: agrega entidades que falten y CORRIGE los
+// nombres desalineados contra el oficial (conserva abreviaciones históricas de
+// la UI cuando el nombre local es palabra del oficial, p. ej. Bogotá, Cali).
+// Luego ejecutar `node supabase/seed-divipola.mjs` para la DB.
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const URL_DATASET = "https://www.datos.gov.co/resource/gdxc-w37w.json?$limit=50000";
 const jsonPath = fileURLToPath(new URL("../lib/divipola.json", import.meta.url));
+
+const norm = (s) => String(s).normalize("NFC").trim().toLowerCase().replace(/\s+/g, " ");
+const normWord = (s) => norm(s).replace(/[,.]/g, "");
 
 const titleCaseEs = (s) =>
   s
@@ -20,6 +24,10 @@ const titleCaseEs = (s) =>
       return lower.charAt(0).toUpperCase() + lower.slice(1);
     })
     .join(" ");
+
+// Abreviación legítima: el nombre local aparece como palabra entera del oficial
+// (sin puntuación). Evita sobreescribir decisiones históricas de UI (Bogotá, Cali, Cartagena, Cúcuta).
+const esAbreviacion = (local, oficial) => normWord(oficial).split(" ").includes(normWord(local));
 
 const oficial = await fetch(URL_DATASET, { headers: { Accept: "application/json" } }).then((r) => {
   if (!r.ok) throw new Error(`HTTP ${r.status} descargando DIVIPOLA`);
@@ -34,23 +42,34 @@ const muniCodes = new Set(munis.map((m) => m.code));
 const deptCodes = new Set(depts.map((d) => d.code));
 
 let addedMunis = 0;
-let addedDepts = 0;
+let fixedNames = 0;
 const added = [];
+const fixed = [];
 for (const row of oficial) {
   const code = String(row.cod_mpio).trim();
   const dcode = String(row.cod_dpto).trim();
-  const name = String(row.nom_mpio).normalize("NFC");
+  const name = String(row.nom_mpio).normalize("NFC").trim();
   if (!/^\d{5}$/.test(code) || !/^\d{2}$/.test(dcode)) continue;
-  if (!muniCodes.has(code)) {
-    munis.push({ code, departmentCode: dcode, name: titleCaseEs(name) });
-    muniCodes.add(code);
-    addedMunis++;
-    added.push(`${code} ${titleCaseEs(name)}`);
+
+  const existente = munis.find((m) => m.code === code);
+  if (existente) {
+    if (!esAbreviacion(existente.name, name)) {
+      const nuevo = titleCaseEs(name);
+      if (norm(existente.name) !== norm(nuevo)) {
+        fixed.push(`${code}: ${existente.name} -> ${nuevo}`);
+        existente.name = nuevo;
+        fixedNames++;
+      }
+    }
+    continue;
   }
+  munis.push({ code, departmentCode: dcode, name: titleCaseEs(name) });
+  muniCodes.add(code);
+  addedMunis++;
+  added.push(`${code} ${titleCaseEs(name)}`);
   if (!deptCodes.has(dcode)) {
-    depts.push({ code: dcode, name: titleCaseEs(String(row.dpto).normalize("NFC")) });
+    depts.push({ code: dcode, name: titleCaseEs(String(row.dpto).normalize("NFC").trim()) });
     deptCodes.add(dcode);
-    addedDepts++;
   }
 }
 
@@ -65,11 +84,18 @@ if (faltanDepts.length || faltanMunis.length) {
   throw new Error(`Inconsistencia tras el merge. Depts faltantes: ${faltanDepts} — Munis faltantes: ${faltanMunis}`);
 }
 
-if (addedMunis || addedDepts) {
+if (addedMunis || fixedNames) {
   writeFileSync(jsonPath, JSON.stringify({ departments: depts, municipalities: munis }, null, 2) + "\n");
-  console.log(`Agregados: ${addedDepts} departamentos, ${addedMunis} municipios/ANCAP`);
-  console.log(added.map((a) => "  + " + a).join("\n"));
+  if (addedMunis) {
+    console.log(`Agregados: ${addedMunis} municipios/ANCAP`);
+    console.log(added.map((a) => "  + " + a).join("\n"));
+  }
+  if (fixedNames) {
+    console.log(`Nombres corregidos contra oficial: ${fixedNames}`);
+    console.log(fixed.map((a) => "  ~ " + a).join("\n"));
+  }
 } else {
   console.log("Sin cambios: el JSON ya cubre todas las entidades del dataset oficial.");
 }
 console.log(`DIVIPOLA OK: ${depts.length} departamentos, ${munis.length} municipios`);
+

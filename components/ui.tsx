@@ -130,7 +130,9 @@ export function Combobox({
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const ref = React.useRef<HTMLDivElement>(null);
-  const filtered = options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()));
+  // Búsqueda sin acentos: "repelon" encuentra "Repelón", "cucuta" -> "Cúcuta", etc.
+  const fold = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const filtered = options.filter((o) => fold(o.label).includes(fold(query)));
   const selected = options.find((o) => o.value === value);
 
   React.useEffect(() => {
