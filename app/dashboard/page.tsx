@@ -223,7 +223,7 @@ export default function DashboardHome() {
                         {p.roles[0]}
                       </span>
                     </td>
-                    <td className="max-w-[170px] truncate px-3 py-2.5 text-[#78716C]" title={resolveAssocName(p.associationId, cfg.assocs)}>{resolveAssocName(p.associationId, cfg.assocs)}</td>
+                    <td className="max-w-[170px] truncate px-3 py-2.5 text-[#78716C]" title={resolveAssocName(p.associationId, cfg.assocs)}>{resolveAssocName(p.associationId, cfg.assocs)}{p.otherAssocName ? ` (+ ${p.otherAssocName})` : ""}</td>
                   </tr>
                 ))
               )}

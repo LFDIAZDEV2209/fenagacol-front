@@ -148,7 +148,7 @@ export default function RegistradosPage() {
                           {p.roles.length > 1 ? ` +${p.roles.length - 1}` : ""}
                         </span>
                       </td>
-                      <td className="max-w-[150px] truncate px-3 py-2.5 text-[#78716C]" title={resolveAssocName(p.associationId, cfg.assocs)}>{resolveAssocName(p.associationId, cfg.assocs)}</td>
+                      <td className="max-w-[150px] truncate px-3 py-2.5 text-[#78716C]" title={resolveAssocName(p.associationId, cfg.assocs)}>{resolveAssocName(p.associationId, cfg.assocs)}{p.otherAssocName ? ` (+ ${p.otherAssocName})` : ""}</td>
                       <td className="whitespace-nowrap px-3 py-2.5 text-[#78716C]">{fmtDate(p.createdAt)}</td>
                       <td className="px-4 py-2.5">
                         <button
