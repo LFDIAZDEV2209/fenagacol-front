@@ -52,6 +52,9 @@ export async function GET(req: Request) {
         municipalityId: p.municipality_id,
         roles,
         associationId: p.association_id ?? undefined,
+        gallerosUnidos: p.galleros_unidos === true,
+        otherAssocName: p.other_assoc_name ?? undefined,
+        otherAssocContact: p.other_assoc_contact ?? undefined,
         createdAt: String(p.created_at).slice(0, 10),
       };
     });

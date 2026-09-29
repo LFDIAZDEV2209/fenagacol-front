@@ -18,6 +18,9 @@ type FormData = {
   otroDetalle: string;
   pertenece: "" | "si" | "no";
   associationId: string;
+  gallerosUnidos: boolean;
+  otherAssocName: string;
+  otherAssocContact: string;
 };
 
 const initial: FormData = {
@@ -31,6 +34,9 @@ const initial: FormData = {
   otroDetalle: "",
   pertenece: "",
   associationId: "",
+  gallerosUnidos: false,
+  otherAssocName: "",
+  otherAssocContact: "",
 };
 
 function FieldIcon({ children }: { children: React.ReactNode }) {
@@ -77,7 +83,16 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
     }
     if (s === 4) {
       if (!data.pertenece) e.pertenece = "Selecciona Sí o No";
-      if (data.pertenece === "si" && !data.associationId) e.associationId = "Selecciona tu asociación";
+      // Si pertenece: elige del listado O escribe la otra asociación (con contacto).
+      const otraNombre = data.otherAssocName.trim();
+      const otraContacto = data.otherAssocContact.trim();
+      if (data.pertenece === "si") {
+        if (!data.associationId && !otraNombre) {
+          e.associationId = "Selecciona tu asociación o escribe cuál es";
+        }
+        if (otraNombre && !otraContacto) e.otherAssocContact = "Escribe un contacto para la otra asociación";
+        if (!data.associationId && otraNombre && otraNombre.length < 4) e.otherAssocName = "Escribe el nombre de la asociación";
+      }
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -115,6 +130,9 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
       roles: data.roles,
       otherDetail: otherSelected ? data.otroDetalle.trim() : undefined,
       associationId: data.pertenece === "si" ? data.associationId : undefined,
+      gallerosUnidos: data.gallerosUnidos,
+      otherAssocName: data.pertenece === "si" ? data.otherAssocName.trim() || undefined : undefined,
+      otherAssocContact: data.pertenece === "si" ? data.otherAssocContact.trim() || undefined : undefined,
     });
     setSending(false);
     if (!res.ok && res.code === "DUPLICATE_IDENTITY") {
@@ -162,7 +180,9 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
             <p><span className="text-[#7a6e5a]">Nombre:</span> <span className="font-semibold text-[#1c1a17]">{data.fullName}</span></p>
             <p><span className="text-[#7a6e5a]">Ubicación:</span> <span className="font-medium">{deptLabel} — {muniLabel}</span></p>
             <p><span className="text-[#7a6e5a]">Roles:</span> <span className="font-medium">{data.roles.join(", ")}{otherSelected ? ` (${data.otroDetalle})` : ""}</span></p>
-            {data.pertenece === "si" && <p><span className="text-[#7a6e5a]">Asociación:</span> <span className="font-medium">{activeAssocs.find(a => a.id === data.associationId)?.name}</span></p>}
+            {data.gallerosUnidos && <p><span className="text-[#7a6e5a]">Galleros Unidos de Colombia:</span> <span className="font-medium">Sí</span></p>}
+            {data.pertenece === "si" && <p><span className="text-[#7a6e5a]">Asociación:</span> <span className="font-medium">{activeAssocs.find(a => a.id === data.associationId)?.name ?? data.otherAssocName.trim()}</span></p>}
+            {data.pertenece === "si" && data.otherAssocContact.trim() && <p><span className="text-[#7a6e5a]">Contacto asociación:</span> <span className="font-medium">{data.otherAssocContact.trim()}</span></p>}
           </div>
         </div>
         <p className="mt-3.5 text-sm text-[#7a6e5a]">Tu información ha sido registrada correctamente.</p>
@@ -286,6 +306,22 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
 
           {step === 4 && (
             <div className="space-y-4">
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={data.gallerosUnidos}
+                onClick={() => setData((d) => ({ ...d, gallerosUnidos: !d.gallerosUnidos }))}
+                className={`flex w-full cursor-pointer items-start gap-3 rounded-xl border-2 p-4 text-left transition-all duration-200 hover:-translate-y-px ${data.gallerosUnidos ? "border-[#732427] bg-[#F8EDEF] shadow-sm" : "border-[#e8ddd0] bg-white hover:border-[#D8A7B1] hover:bg-[#FAF4F5]"}`}
+              >
+                <span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 ${data.gallerosUnidos ? "border-[#732427] bg-[#732427] text-white" : "border-[#d6c7b3] bg-white"}`}>
+                  {data.gallerosUnidos && <Check size={14} strokeWidth={3} />}
+                </span>
+                <span>
+                  <span className="block text-[15px] font-bold text-[#1c1a17]">Galleros Unidos de Colombia</span>
+                  <span className="mt-0.5 block text-xs text-[#7a6e5a]">Marca esta casilla si haces parte del movimiento nacional de galleros.</span>
+                </span>
+              </button>
+
               <div className="grid grid-cols-2 gap-2.5">
                 {[
                   { id: "si", label: "Sí", desc: "Hago parte de una" },
@@ -308,16 +344,28 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
               {errors.pertenece && <p className="text-[13px] font-medium text-red-600">{errors.pertenece}</p>}
 
               {data.pertenece === "si" && (
-                <div className="animate-fade-up rounded-xl border border-[#ece2d1] bg-[#fdf8ef] p-4">
+                <div className="animate-fade-up space-y-3 rounded-xl border border-[#ece2d1] bg-[#fdf8ef] p-4">
                   <Combobox
-                    label={<span className="inline-flex items-center gap-1.5"><Building2 size={13} className="text-[#732427]" />¿Cuál asociación? *</span>}
+                    label={<span className="inline-flex items-center gap-1.5"><Building2 size={13} className="text-[#732427]" />¿Cuál asociación? <span className="text-[#9a8d78] font-normal">(elige del listado)</span></span>}
                     placeholder="Busca tu asociación"
                     options={activeAssocs.map((a) => ({ value: a.id, label: a.name }))}
                     value={data.associationId}
                     onChange={(v) => setData((d) => ({ ...d, associationId: v }))}
                     error={errors.associationId}
                   />
-                  <p className="mt-2 text-xs text-[#9a8d78]">Si no aparece, podrás actualizarlo después con el administrador.</p>
+                  <div className="border-t border-[#ece2d1] pt-3">
+                    <p className="mb-2.5 text-[13px] font-semibold text-[#1c1a17]">¿No aparece en el listado? Cuéntanos cuál es</p>
+                    <div className="space-y-2.5">
+                      <div>
+                        <Label htmlFor="otherAssocName"><FieldIcon><Building2 size={13} /></FieldIcon>Nombre de la otra asociación</Label>
+                        <Input id="otherAssocName" placeholder="Ej: Asogal Tolima" value={data.otherAssocName} onChange={(e) => setData({ ...data, otherAssocName: e.target.value })} error={errors.otherAssocName} />
+                      </div>
+                      <div>
+                        <Label htmlFor="otherAssocContact"><FieldIcon><Phone size={13} /></FieldIcon>Contacto de la asociación <span className="font-normal text-[#9a8d78]">(persona o celular)</span></Label>
+                        <Input id="otherAssocContact" placeholder="Ej: Juan Pérez 3101234567" value={data.otherAssocContact} onChange={(e) => setData({ ...data, otherAssocContact: e.target.value })} error={errors.otherAssocContact} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

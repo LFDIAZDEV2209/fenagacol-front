@@ -46,6 +46,9 @@ export type RegistrationInput = {
   roles: string[]; // labels visibles
   otherDetail?: string;
   associationId?: string;
+  gallerosUnidos?: boolean;
+  otherAssocName?: string;
+  otherAssocContact?: string;
 };
 
 export async function createRegistration(input: RegistrationInput): Promise<{ id: string }> {
@@ -71,6 +74,9 @@ export async function createRegistration(input: RegistrationInput): Promise<{ id
     municipality_id: input.municipalityId,
     association_id: input.associationId || null,
     other_role_detail: input.otherDetail || null,
+    galleros_unidos: input.gallerosUnidos ?? false,
+    other_assoc_name: input.otherAssocName || null,
+    other_assoc_contact: input.otherAssocContact || null,
   });
   if (pErr) {
     if (pErr.code === "23505") throw new Error("DUPLICATE_IDENTITY");

@@ -132,6 +132,9 @@ type Ctx = {
     roles: string[];
     otherDetail?: string;
     associationId?: string;
+    gallerosUnidos?: boolean;
+    otherAssocName?: string;
+    otherAssocContact?: string;
   }) => Promise<AddPersonResult>;
 };
 
@@ -343,6 +346,9 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
         municipalityId: p.municipalityId,
         roles: p.roles,
         associationId: p.associationId || undefined,
+        gallerosUnidos: p.gallerosUnidos || undefined,
+        otherAssocName: p.otherAssocName || undefined,
+        otherAssocContact: p.otherAssocContact || undefined,
         createdAt: todayISO(),
       };
       try {
@@ -356,6 +362,9 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
           roles: p.roles,
           otherDetail: p.otherDetail,
           associationId: p.associationId,
+          gallerosUnidos: p.gallerosUnidos,
+          otherAssocName: p.otherAssocName,
+          otherAssocContact: p.otherAssocContact,
         });
         setCfg((c) => ({ ...c, people: [person, ...c.people] }));
         return { ok: true };

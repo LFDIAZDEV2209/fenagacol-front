@@ -14,6 +14,9 @@ export type Person = {
   municipalityId: string;
   roles: string[];
   associationId?: string;
+  gallerosUnidos?: boolean;
+  otherAssocName?: string;
+  otherAssocContact?: string;
   createdAt: string;
 };
 
@@ -51,6 +54,8 @@ export const ASSOCIATIONS: Association[] = [
   { id: "asogacol", name: "ASOGACOL", departmentId: "11", municipalityId: "11001", members: 0 },
   { id: "asogsdemon", name: "ASOGSDEMON", departmentId: "11", municipalityId: "11001", members: 0 },
   { id: "asogadisrio", name: "ASOGADISRIO", departmentId: "11", municipalityId: "11001", members: 0 },
+  { id: "asogaltolima", name: "ASOGAL TOLIMA", departmentId: "73", municipalityId: "73001", members: 0 },
+  { id: "asogallosdelhuila", name: "ASOGALLOS DEL HUILA", departmentId: "41", municipalityId: "41001", members: 0 },
   { id: "asoencria", name: "ASOENCRÍA", departmentId: "11", municipalityId: "11001", members: 0 },
 ];
 

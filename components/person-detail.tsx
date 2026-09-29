@@ -28,6 +28,9 @@ export function PersonDetail({ person, onClose }: { person: Person | null; onClo
     { icon: MapPin, label: "Departamento", value: deptName(person.departmentId) },
     { icon: MapPin, label: "Municipio", value: muniName(person.municipalityId) },
     { icon: Building2, label: "Asociación", value: resolveAssocName(person.associationId, cfg.assocs) },
+    ...(person.gallerosUnidos ? [{ icon: Bird, label: "Galleros Unidos", value: "Sí" }] : []),
+    ...(person.otherAssocName ? [{ icon: Building2, label: "Otra asociación", value: person.otherAssocName }] : []),
+    ...(person.otherAssocContact ? [{ icon: Phone, label: "Contacto", value: person.otherAssocContact }] : []),
     { icon: CalendarDays, label: "Fecha de registro", value: fmtDate(person.createdAt) },
   ];
 

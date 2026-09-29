@@ -97,6 +97,9 @@ export function personRows(people: Person[], assocs: AssocOpt[] = []) {
     Municipio: muniName(p.municipalityId),
     Roles: p.roles.join(", "),
     Asociación: resolveAssocName(p.associationId, assocs),
+    "Otra asociación": p.otherAssocName ?? "",
+    "Contacto otra asociación": p.otherAssocContact ?? "",
+    "Galleros Unidos de Colombia": p.gallerosUnidos ? "Sí" : "No",
     Fecha: fmtDate(p.createdAt),
   }));
 }

@@ -1,11 +1,13 @@
 // DIVIPOLA Colombia — catálogo territorial canónico (departamentos + municipios).
-// Datos en ./divipola.json (generado DANE vía datos.gov.co gdxc-w37w, corte dic-2025).
-// Alcance: 33 departamentos + 1104 municipios (1103 tipo Municipio + Isla San Andrés 88001).
-// Excluye 18 Áreas No Municipalizadas (sin gobierno municipal; fuera del registro).
+// Datos en ./divipola.json (generado DANE vía datos.gov.co gdxc-w37w).
+// Alcance: 33 departamentos + 1122 entidades territoriales
+// (1103 municipios + isla San Andrés 88001 + 18 ANCAP de Amazonas/Guainía/Vaupés,
+// necesarias para el registro de campesinos de esas zonas).
 // Incluye Nuevo Belén de Bajirá (27493, Chocó) y Vaupés (97, ausente antes).
 // Nombres históricos de la UI se conservaron por código; el resto en Title Case ES.
 // DB: tablas public.departments/municipalities, seed con supabase/seed-divipola.mjs.
-// ARCHIVO GENERADO — no editar a mano (regenerar JSON+TS juntos, validar 33/1104 y `yarn build`).
+// ARCHIVO GENERADO — no editar a mano (regenerar con supabase/gen-divipola.mjs,
+// validar 33/1122 y `yarn build`).
 
 import data from "./divipola.json";
 
