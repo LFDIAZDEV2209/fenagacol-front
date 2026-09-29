@@ -1,14 +1,25 @@
-// Generador DIVIPOLA -> lib/divipola.json (fuente: datos.gov.co gdxc-w37w, DANE).
+// Generador DIVIPOLA -> lib/divipola.json (fuentes: datos.gov.co xaxy-8nri corte dic-2024
+// [cabeceras municipales + centros poblados] y gdxc-w37w [municipios + ANCAP], DANE).
 // Uso: node supabase/gen-divipola.mjs
-// Sync no-destructivo por código: agrega entidades que falten y CORRIGE los
-// nombres desalineados contra el oficial (conserva abreviaciones históricas de
-// la UI cuando el nombre local es palabra del oficial, p. ej. Bogotá, Cali).
-// Luego ejecutar `node supabase/seed-divipola.mjs` para la DB.
+// Sync no-destructivo por código: agrega entidades que falten, CORRIGE nombres
+// desalineados contra el oficial (conserva abreviaciones históricas de UI cuando
+// el nombre local es palabra del oficial, p. ej. Bogotá, Cali, Cúcuta) y genera
+// la lista de centros poblados (pueblos) como parte del catálogo territorial.
+// Luego ejecutar `node supabase/seed-divipola.mjs` para el espejo en DB.
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const URL_DATASET = "https://www.datos.gov.co/resource/gdxc-w37w.json?$limit=50000";
 const jsonPath = fileURLToPath(new URL("../lib/divipola.json", import.meta.url));
+const load = async (url) => {
+  const r = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!r.ok) throw new Error(`HTTP ${r.status} descargando ${url}`);
+  return r.json();
+};
+
+const [xaxy, gdxc] = await Promise.all([
+  load("https://www.datos.gov.co/resource/xaxy-8nri.json?$limit=50000"),
+  load("https://www.datos.gov.co/resource/gdxc-w37w.json?$limit=50000"),
+]);
 
 const norm = (s) => String(s).normalize("NFC").trim().toLowerCase().replace(/\s+/g, " ");
 const normWord = (s) => norm(s).replace(/[,.]/g, "");
@@ -29,73 +40,72 @@ const titleCaseEs = (s) =>
 // (sin puntuación). Evita sobreescribir decisiones históricas de UI (Bogotá, Cali, Cartagena, Cúcuta).
 const esAbreviacion = (local, oficial) => normWord(oficial).split(" ").includes(normWord(local));
 
-const oficial = await fetch(URL_DATASET, { headers: { Accept: "application/json" } }).then((r) => {
-  if (!r.ok) throw new Error(`HTTP ${r.status} descargando DIVIPOLA`);
-  return r.json();
-});
-
 const local = JSON.parse(readFileSync(jsonPath, "utf8"));
-const depts = [...local.departments];
-const munis = [...local.municipalities];
+const departments = [...local.departments].sort((a, b) => a.code.localeCompare(b.code));
+const municipalities = [...local.municipalities];
+const muniByCode = new Map(municipalities.map((m) => [m.code, m]));
 
-const muniCodes = new Set(munis.map((m) => m.code));
-const deptCodes = new Set(depts.map((d) => d.code));
-
-let addedMunis = 0;
 let fixedNames = 0;
-const added = [];
 const fixed = [];
-for (const row of oficial) {
-  const code = String(row.cod_mpio).trim();
-  const dcode = String(row.cod_dpto).trim();
-  const name = String(row.nom_mpio).normalize("NFC").trim();
-  if (!/^\d{5}$/.test(code) || !/^\d{2}$/.test(dcode)) continue;
-
-  const existente = munis.find((m) => m.code === code);
-  if (existente) {
-    if (!esAbreviacion(existente.name, name)) {
-      const nuevo = titleCaseEs(name);
-      if (norm(existente.name) !== norm(nuevo)) {
-        fixed.push(`${code}: ${existente.name} -> ${nuevo}`);
-        existente.name = nuevo;
-        fixedNames++;
-      }
-    }
+// Municipios: xaxy CM (1104 con cabecera) — código + nombre_oficial
+for (const r of xaxy.filter((x) => x.tipo_centro_poblado === "CM")) {
+  const code = String(r.codigo_municipio).trim();
+  const existente = muniByCode.get(code);
+  if (!existente) {
+    municipalities.push({ code, departmentCode: String(r.codigo_departamento).trim(), name: titleCaseEs(r.nombre_municipio) });
+    muniByCode.set(code, { name: "" });
     continue;
   }
-  munis.push({ code, departmentCode: dcode, name: titleCaseEs(name) });
-  muniCodes.add(code);
-  addedMunis++;
-  added.push(`${code} ${titleCaseEs(name)}`);
-  if (!deptCodes.has(dcode)) {
-    depts.push({ code: dcode, name: titleCaseEs(String(row.dpto).normalize("NFC").trim()) });
-    deptCodes.add(dcode);
+  if (!esAbreviacion(existente.name, r.nombre_municipio)) {
+    const nuevo = titleCaseEs(r.nombre_municipio);
+    if (norm(existente.name) !== norm(nuevo)) { existente.name = nuevo; fixedNames++; fixed.push(code); }
+  }
+}
+// ANCAP: municipios sin centros poblados — solo están en gdxc
+for (const r of gdxc) {
+  const code = String(r.cod_mpio).trim();
+  if (muniByCode.has(code)) continue;
+  if (String(r.tipo_municipio ?? "").includes("no municipalizada")) {
+    municipalities.push({ code, departmentCode: String(r.cod_dpto).trim(), name: titleCaseEs(r.nom_mpio) });
+    muniByCode.set(code, { name: "" });
   }
 }
 
-depts.sort((a, b) => a.code.localeCompare(b.code));
-munis.sort((a, b) => a.code.localeCompare(b.code));
-
-const deptsOficiales = new Set(oficial.map((r) => String(r.cod_dpto).trim()));
-const codigosOficiales = new Set(oficial.map((r) => String(r.cod_mpio).trim()).filter((c) => /^\d{5}$/.test(c)));
-const faltanDepts = [...deptsOficiales].filter((c) => !deptCodes.has(c));
-const faltanMunis = [...codigosOficiales].filter((c) => !muniCodes.has(c));
-if (faltanDepts.length || faltanMunis.length) {
-  throw new Error(`Inconsistencia tras el merge. Depts faltantes: ${faltanDepts} — Munis faltantes: ${faltanMunis}`);
+// Centros poblados (pueblos): 7057 CP, código divipola de 8 dígitos
+const centrosPoblados = [];
+const cpVistos = new Set();
+for (const r of xaxy.filter((x) => x.tipo_centro_poblado === "CP")) {
+  const code = String(r.codigo_centro_poblado).trim();
+  if (!/^\d{8}$/.test(code) || cpVistos.has(code)) continue;
+  cpVistos.add(code);
+  const departmentCode = String(r.codigo_departamento).trim();
+  const muniCode = String(r.codigo_municipio).trim();
+  const muniName = titleCaseEs(r.nombre_municipio);
+  let name = titleCaseEs(r.nombre_centro_poblado);
+  // Desambiguar pueblos homónimos dentro del mismo departamento
+  const sameDept = centrosPoblados.filter((c) => c.departmentCode === departmentCode);
+  if (sameDept.some((c) => norm(c.name) === norm(name))) name = `${name} — ${muniName}`;
+  centrosPoblados.push({ code, departmentCode, municipalityCode: muniCode, name });
 }
 
-if (addedMunis || fixedNames) {
-  writeFileSync(jsonPath, JSON.stringify({ departments: depts, municipalities: munis }, null, 2) + "\n");
-  if (addedMunis) {
-    console.log(`Agregados: ${addedMunis} municipios/ANCAP`);
-    console.log(added.map((a) => "  + " + a).join("\n"));
-  }
-  if (fixedNames) {
-    console.log(`Nombres corregidos contra oficial: ${fixedNames}`);
-    console.log(fixed.map((a) => "  ~ " + a).join("\n"));
-  }
+departments.sort((a, b) => a.code.localeCompare(b.code));
+municipalities.sort((a, b) => a.code.localeCompare(b.code));
+centrosPoblados.sort((a, b) => a.code.localeCompare(b.code));
+
+// Validaciones
+const codigosMunis = new Set(municipalities.map((m) => m.code));
+const faltanMunis = [...muniByCode.keys()].filter((c) => /^\d{5}$/.test(c) && !codigosMunis.has(c));
+if (faltanMunis.length) throw new Error(`Municipios faltantes: ${faltanMunis}`);
+const orfanos = centrosPoblados.filter((c) => !muniByCode.has(c.municipalityCode));
+if (orfanos.length) throw new Error(`Centros poblados con municipio inexistente: ${orfanos.length}`);
+const huérfanosDepto = [...departments].filter((d) => !/^(\d{2})$/.test(d.code));
+if (huérfanosDepto.length) throw new Error("Departamentos con código inválido");
+
+const antesMunis = local.municipalities.length;
+if (fixedNames || antesMunis !== municipalities.length || local.centrosPoblados?.length !== centrosPoblados.length) {
+  writeFileSync(jsonPath, JSON.stringify({ departments, municipalities, centrosPoblados }, null, 2) + "\n");
 } else {
-  console.log("Sin cambios: el JSON ya cubre todas las entidades del dataset oficial.");
+  console.log("Sin cambios respecto al JSON actual.");
 }
-console.log(`DIVIPOLA OK: ${depts.length} departamentos, ${munis.length} municipios`);
-
+console.log(`DIVIPOLA OK: ${departments.length} departamentos, ${municipalities.length} municipios, ${centrosPoblados.length} centros poblados (pueblos)`);
+if (fixedNames) console.log(`Nombres de municipios corregidos: ${fixedNames}`);

@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Building2, Briefcase, Check, ChevronRight, Hash, ListChecks, Mail, MapPin, Phone, User } from "lucide-react";
 import { Button, Card, Combobox, Input, Label, Progress } from "./ui";
-import { DEPARTMENTS, MUNICIPALITIES, getMunicipalitiesByDept } from "@/lib/mock-data";
+import { DEPARTMENTS, muniName, getMunicipalitiesByDept, getCentrosPobladosByDept } from "@/lib/mock-data";
 import { useConfig } from "@/lib/config-store";
 import { useToast } from "./toast";
 import Link from "next/link";
@@ -55,7 +55,11 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
 
   const t = cfg.texts;
   const deptos = React.useMemo(() => DEPARTMENTS.filter((d) => !cfg.deptOff.includes(d.id)), [cfg.deptOff]);
-  const munis = React.useMemo(() => (data.departmentId ? getMunicipalitiesByDept(data.departmentId) : []), [data.departmentId]);
+  // Municipios + centros poblados (pueblos) del departamento elegido.
+  const munis = React.useMemo(
+    () => (data.departmentId ? [...getMunicipalitiesByDept(data.departmentId), ...getCentrosPobladosByDept(data.departmentId)] : []),
+    [data.departmentId]
+  );
   const otherSelected = data.roles.some((l) => activeRoles.find((r) => r.label === l)?.isOther);
 
   // El municipio se resetea en el onChange del departamento; aquí solo se valida
@@ -160,7 +164,7 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
 
   if (submitted) {
     const deptLabel = DEPARTMENTS.find((d) => d.id === data.departmentId)?.name;
-    const muniLabel = MUNICIPALITIES.find((m) => m.id === data.municipalityId)?.name ?? data.municipalityId;
+    const muniLabel = muniName(data.municipalityId) === "—" ? data.municipalityId : muniName(data.municipalityId);
     return (
       <Card className="animate-fade-up p-6 text-center sm:p-8">
         {preview && (
@@ -260,8 +264,8 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
                 error={errors.departmentId}
               />
               <Combobox
-                label={<span className="inline-flex items-center gap-1.5"><MapPin size={13} className="text-[#732427]" />Municipio *</span>}
-                placeholder={data.departmentId ? "Selecciona tu municipio" : "Primero elige departamento"}
+                label={<span className="inline-flex items-center gap-1.5"><MapPin size={13} className="text-[#732427]" />Municipio o pueblo *</span>}
+                placeholder={data.departmentId ? "Selecciona tu municipio o pueblo" : "Primero elige departamento"}
                 options={munis.map((m) => ({ value: m.id, label: m.name }))}
                 value={data.municipalityId}
                 onChange={(v) => setData((d) => ({ ...d, municipalityId: v }))}

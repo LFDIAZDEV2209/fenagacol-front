@@ -175,21 +175,28 @@ export function Combobox({
             {filtered.length === 0 ? (
               <p className="py-7 text-center text-[13px] text-[#A8A29E]">Sin resultados</p>
             ) : (
-              filtered.map((o) => (
-                <button
-                  key={o.value}
-                  type="button"
-                  onClick={() => {
-                    onChange(o.value);
-                    setOpen(false);
-                    setQuery("");
-                  }}
-                  className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[13px] transition-colors hover:bg-[#F8EDEF] active:bg-[#E8CDD4]/50 ${value === o.value ? "bg-[#F8EDEF] font-semibold text-[#732427]" : "text-[#1C1917]"}`}
-                >
-                  <span className="truncate">{o.label}</span>
-                  {value === o.value && <span className="text-[#732427]">✓</span>}
-                </button>
-              ))
+              <>
+                {filtered.slice(0, 100).map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => {
+                      onChange(o.value);
+                      setOpen(false);
+                      setQuery("");
+                    }}
+                    className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[13px] transition-colors hover:bg-[#F8EDEF] active:bg-[#E8CDD4]/50 ${value === o.value ? "bg-[#F8EDEF] font-semibold text-[#732427]" : "text-[#1C1917]"}`}
+                  >
+                    <span className="truncate">{o.label}</span>
+                    {value === o.value && <span className="text-[#732427]">✓</span>}
+                  </button>
+                ))}
+                {filtered.length > 100 && (
+                  <p className="px-3 py-2 text-center text-[12px] text-[#A8A29E]">
+                    Se muestran 100 de {filtered.length} — escribe más para afinar la búsqueda
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>

@@ -37,5 +37,12 @@ async function upsert(table, rows, onConflict) {
 }
 
 await upsert("departments", data.departments.map((d) => ({ code: d.code, name: d.name })), "code");
-await upsert("municipalities", data.municipalities.map((m) => ({ code: m.code, department_code: m.departmentCode, name: m.name })), "code");
+await upsert(
+  "municipalities",
+  [
+    ...data.municipalities.map((m) => ({ code: m.code, department_code: m.departmentCode, name: m.name })),
+    ...data.centrosPoblados.map((c) => ({ code: c.code, department_code: c.departmentCode, name: c.name })),
+  ],
+  "code"
+);
 console.log("DIVIPOLA seed OK");

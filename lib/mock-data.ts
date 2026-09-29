@@ -1,8 +1,8 @@
 // Datos mock realistas — estructura compatible con Supabase/Postgres
 // Territorio canónico en ./divipola (DIVIPOLA DANE, generado); aquí solo re-export compat.
 import { DEPARTMENTS, MUNICIPALITIES, getMunicipalitiesByDept } from "./divipola";
-export { DEPARTMENTS, MUNICIPALITIES, deptName, muniName, getMunicipalitiesByDept } from "./divipola";
-export type { Department, Municipality } from "./divipola";
+export { DEPARTMENTS, MUNICIPALITIES, CENTROS_POBLADOS, deptName, muniName, getMunicipalitiesByDept, getCentrosPobladosByDept } from "./divipola";
+export type { Department, Municipality, CentroPoblado } from "./divipola";
 export type Association = { id: string; name: string; departmentId: string; municipalityId: string; members: number };
 export type Person = {
   id: string;

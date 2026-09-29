@@ -42,7 +42,7 @@ Next 16.3 / React 19 / Tailwind 4 / Supabase. Public mobile-first `/registro` (4
 ## Domain invariants (DIVIPOLA + dynamic catalogs)
 
 - Department `id` = 2-digit DIVIPOLA; municipality `id` = 5-digit with `departmentId` FK. Filter `MUNICIPALITIES` by `departmentId` — never hardcode dept→muni maps in components.
-- Territorio canónico: `lib/divipola.json` (DANE, 33/1122 incl. 18 ANCAP, generado con `supabase/gen-divipola.mjs`) + wrapper `lib/divipola.ts`; espejo DB en `public.departments`/`municipalities` (migración + `node supabase/seed-divipola.mjs`). Regenerar JSON+DB juntos; nunca editar nombres a mano.
+- Territorio canónico: `lib/divipola.json` (DANE xaxy-8nri dic-2024 + gdxc-w37w: 33/1122 incl. 18 ANCAP + 7057 centros poblados con código divipola de 8 dígitos; generado con `supabase/gen-divipola.mjs`) + wrapper `lib/divipola.ts`; espejo DB en `public.departments`/`municipalities` (`municipalities.code` CHAR(8); migración + `node supabase/seed-divipola.mjs`). Regenerar JSON+DB juntos; nunca editar nombres a mano. Los pueblos (centros poblados) cuentan como opciones de "municipio" en el formulario (decisión de producto).
 - Roles/associations are admin-editable server data, not constants. Match roles by label (case-insensitive); resolve assoc names via `resolveAssocName(id, assocs)` in `lib/config-store.tsx`, never the static list directly.
 - Search sanitization + filter clamping live in `app/api/admin/_lib.ts` (`cleanSearch`, `parseFilters`, pageSize ≤ 100, export cap 20k rows) — extend there, don't reimplement per route.
 
