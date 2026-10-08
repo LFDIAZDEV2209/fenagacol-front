@@ -4,7 +4,7 @@ import { Building2, Search, MapPin, Users, Inbox, Power, Pencil, ArrowUp, ArrowD
 import Link from "next/link";
 import { Card, Input, PageHeader, ExportButton, SortTh } from "@/components/ui";
 import { useConfig } from "@/lib/config-store";
-import { deptName, muniName } from "@/lib/mock-data";
+import { useTerritory } from "@/lib/territory-store";
 import { emptyFilters } from "@/lib/filters";
 import { downloadExcel, assocRows } from "@/lib/export-excel";
 import { useSummaryQuery } from "@/lib/server-data";
@@ -12,6 +12,8 @@ import { useToast } from "@/components/toast";
 import { fmtNum } from "@/lib/format";
 
 export default function AsociacionesPage() {
+  const territory = useTerritory();
+  const { deptName, muniName } = territory;
   const { cfg, ready, toggleAssoc, membersOf } = useConfig();
   const { push } = useToast();
   const [q, setQ] = React.useState("");
@@ -37,7 +39,7 @@ export default function AsociacionesPage() {
         const bv = sort.key === "dept" ? deptName(b.departmentId) : sort.key === "muni" ? muniName(b.municipalityId) : b.name;
         return av.localeCompare(bv, "es", { sensitivity: "base" }) * dir;
       });
-  }, [cfg.assocs, q, status, sort, members]);
+  }, [cfg.assocs, q, status, sort, members, deptName, muniName]);
   const totalMembers = filtered.reduce((a, b) => a + members(b.id), 0);
 
   function toggleSort(key: typeof sort.key) {
@@ -57,10 +59,12 @@ export default function AsociacionesPage() {
   ];
 
   async function exportAll() {
+    try {
     await downloadExcel("asociaciones", [
-      { name: "Asociaciones", rows: assocRows(filtered.map((a) => ({ ...a, members: members(a.id) }))) },
+      { name: "Asociaciones", rows: assocRows(filtered.map((a) => ({ ...a, members: members(a.id) })), territory) },
     ]);
     push(`Excel descargado con ${fmtNum(filtered.length)} asociaciones`);
+    } catch (e) { push(e instanceof Error ? e.message : "No se pudo descargar el Excel.", "error"); }
   }
 
   return (

@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# índice local de CodeGraph y capturas de MCP (no versionar)
+/.codegraph/
+/.playwright-mcp/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

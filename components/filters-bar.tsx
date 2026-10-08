@@ -2,7 +2,7 @@
 import * as React from "react";
 import { CalendarDays, Filter, Eraser, X } from "lucide-react";
 import { Card, Combobox } from "./ui";
-import { DEPARTMENTS, MUNICIPALITIES, getMunicipalitiesByDept } from "@/lib/mock-data";
+import { useTerritory } from "@/lib/territory-store";
 import { useConfig } from "@/lib/config-store";
 import { activeFilterCount, type Filters } from "@/lib/filters";
 
@@ -20,6 +20,7 @@ export function FiltersBar({
   roleOptions: string[];
 }) {
   const { cfg, activeAssocs } = useConfig();
+  const { DEPARTMENTS, MUNICIPALITIES, getMunicipalitiesByDept } = useTerritory();
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch });
   const deptos = DEPARTMENTS.filter((d) => !cfg.deptOff.includes(d.id));
   const munis = filters.departmentId ? getMunicipalitiesByDept(filters.departmentId) : [];

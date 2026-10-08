@@ -3,6 +3,8 @@ import * as React from "react";
 import { ASSOCIATIONS, PEOPLE, ROLES, assocName as staticAssocName, type Person } from "./mock-data";
 import { todayISO } from "./format";
 import { createRegistration, getPublicCatalogs } from "./supabase/queries";
+import { TerritoryProvider } from "./territory-store";
+import { usePathname } from "next/navigation";
 
 // Fuente de verdad: Supabase (roles, associations, people) cuando hay conexión.
 // localStorage queda como caché/offline + preferencias (deptOff, texts).
@@ -111,6 +113,7 @@ type Ctx = {
   activeAssocs: AssocOpt[];
   allPeople: Person[];
   membersOf: (assocId: string) => number;
+  usageOfRole: (label: string) => number;
   addRole: (label: string) => void;
   renameRole: (id: string, label: string) => void;
   toggleRole: (id: string) => void;
@@ -150,39 +153,33 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
   const [cfg, setCfg] = React.useState<Stored>(defaults);
   const [ready, setReady] = React.useState(false);
   const [serverOk, setServerOk] = React.useState(false);
-  const [serverPeople, setServerPeople] = React.useState<Person[]>([]);
+  const [counts, setCounts] = React.useState<{ by_assoc: { id: string; value: number }[]; by_role: { label: string; value: number }[] } | null>(null);
+  const dashboard = usePathname().startsWith("/dashboard");
 
   // Carga diferida: prefs locales + catálogos del servidor (públicos) +
-  // directorio admin (solo con sesión; 401 silencioso en el form público).
+  // agregados admin (solo con sesión; 401 silencioso en el form público).
   // Ambas fuentes en paralelo para no sumar latencias en cascada.
   React.useEffect(() => {
     const id = window.setTimeout(async () => {
       setCfg(loadLocal());
       setReady(true);
-      const [cat, dir] = await Promise.allSettled([
+      const [cat, summary] = await Promise.allSettled([
         getPublicCatalogs(),
-        api("/api/admin/directory") as Promise<{
-          people: Person[];
-          roles: RoleOpt[];
-          assocs: AssocOpt[];
-        }>,
+        api("/api/admin/summary") as Promise<NonNullable<typeof counts>>,
       ]);
       const catalogs = cat.status === "fulfilled" ? cat.value : null;
       if (catalogs && catalogs.roles.length) {
         setCfg((c) => ({ ...c, roles: catalogs.roles, assocs: catalogs.assocs.length ? catalogs.assocs : c.assocs }));
         setServerOk(true);
       }
-      if (dir.status === "fulfilled") {
-        if (Array.isArray(dir.value.people)) setServerPeople(dir.value.people);
-        if (Array.isArray(dir.value.roles) && dir.value.roles.length) {
-          setCfg((c) => ({ ...c, roles: dir.value.roles, assocs: dir.value.assocs?.length ? dir.value.assocs : c.assocs }));
-        }
+      if (summary.status === "fulfilled") {
+        setCounts(summary.value);
         setServerOk(true);
       }
       // Rechazos = 401 en formulario público o sin red: se sigue con datos locales.
     }, 0);
     return () => window.clearTimeout(id);
-  }, []);
+  }, [dashboard]);
 
   React.useEffect(() => {
     if (ready) {
@@ -200,18 +197,19 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
   const allPeople = React.useMemo(() => {
     const seen = new Set<string>();
     const out: Person[] = [];
-    for (const p of [...serverPeople, ...cfg.people, ...PEOPLE]) {
+    for (const p of [...cfg.people, ...PEOPLE]) {
       if (seen.has(p.identity)) continue;
       seen.add(p.identity);
       out.push(p);
     }
     return out.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-  }, [serverPeople, cfg.people]);
+  }, [cfg.people]);
 
   const membersOf = React.useCallback(
-    (assocId: string) => allPeople.filter((p) => p.associationId === assocId).length,
-    [allPeople]
+    (assocId: string) => counts ? counts.by_assoc.find((a) => a.id === assocId)?.value ?? 0 : allPeople.filter((p) => p.associationId === assocId).length,
+    [allPeople, counts]
   );
+  const usageOfRole = React.useCallback((label: string) => counts ? counts.by_role.find((r) => r.label === label)?.value ?? 0 : allPeople.filter((p) => p.roles.includes(label)).length, [allPeople, counts]);
 
   // Memorizado: evita re-renderizar todo el admin en cada cambio del provider.
   const value: Ctx = React.useMemo(
@@ -223,6 +221,7 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     activeAssocs,
     allPeople,
     membersOf,
+    usageOfRole,
     addRole: (label) => {
       const l = label.trim();
       if (!l) return;
@@ -378,8 +377,8 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
       }
     },
     }),
-    [cfg, ready, serverOk, activeRoles, activeAssocs, allPeople, membersOf]
+    [cfg, ready, serverOk, activeRoles, activeAssocs, allPeople, membersOf, usageOfRole]
   );
 
-  return <C.Provider value={value}>{children}</C.Provider>;
+  return <TerritoryProvider><C.Provider value={value}>{children}</C.Provider></TerritoryProvider>;
 }

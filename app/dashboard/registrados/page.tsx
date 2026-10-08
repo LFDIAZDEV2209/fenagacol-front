@@ -6,9 +6,10 @@ import { FiltersBar } from "@/components/filters-bar";
 import { PersonDetail } from "@/components/person-detail";
 import { useConfig } from "@/lib/config-store";
 import { emptyFilters, type Filters } from "@/lib/filters";
-import { deptName, muniName, type Person } from "@/lib/mock-data";
+import { type Person } from "@/lib/mock-data";
+import { useTerritory } from "@/lib/territory-store";
 import { resolveAssocName } from "@/lib/config-store";
-import { downloadExcel, personRows } from "@/lib/export-excel";
+import { downloadExcel, personRows, exportNotice } from "@/lib/export-excel";
 import { fetchExportRows, useDebouncedValue, usePeopleQuery } from "@/lib/server-data";
 import { useToast } from "@/components/toast";
 import { fmtDate, fmtNum } from "@/lib/format";
@@ -18,6 +19,8 @@ const PAGE_SIZE = 10;
 type SortKey = "name" | "identity" | "phone" | "dept" | "muni" | "assoc" | "date";
 
 export default function RegistradosPage() {
+  const territory = useTerritory();
+  const { deptName, muniName } = territory;
   const { activeRoles, cfg } = useConfig();
   const { push } = useToast();
   const [filters, setFilters] = React.useState<Filters>(emptyFilters);
@@ -49,9 +52,12 @@ export default function RegistradosPage() {
   }
 
   async function exportFiltered() {
-    const rows = await fetchExportRows(serverFilters);
-    await downloadExcel("registros", [{ name: "Registros", rows: personRows(rows, cfg.assocs) }]);
-    push(`Excel descargado con ${fmtNum(rows.length)} registros`);
+    try {
+      const result = await fetchExportRows({ ...serverFilters, q: filters.q });
+      const notice = exportNotice(result);
+      await downloadExcel("registros", [{ name: "Registros", rows: personRows(result.rows, cfg.assocs, territory) }], notice);
+      push(notice || `Excel descargado con ${fmtNum(result.rows.length)} registros`, notice ? "info" : "success");
+    } catch (e) { push(e instanceof Error ? e.message : "No se pudo descargar el Excel.", "error"); }
   }
 
   return (

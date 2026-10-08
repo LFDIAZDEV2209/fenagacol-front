@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Building2, Briefcase, Check, ChevronRight, Hash, ListChecks, Mail, MapPin, Phone, User } from "lucide-react";
 import { Button, Card, Combobox, Input, Label, Progress } from "./ui";
-import { DEPARTMENTS, muniName, getMunicipalitiesByDept, getCentrosPobladosByDept } from "@/lib/mock-data";
+import { useTerritory } from "@/lib/territory-store";
 import { useConfig } from "@/lib/config-store";
 import { useToast } from "./toast";
 import Link from "next/link";
@@ -45,6 +45,7 @@ function FieldIcon({ children }: { children: React.ReactNode }) {
 
 // preview=true: recorrido visual completo SIN persistir ningún registro.
 export function RegistroForm({ preview = false }: { preview?: boolean }) {
+  const { DEPARTMENTS, muniName, getMunicipalitiesByDept, getCentrosPobladosByDept } = useTerritory();
   const { activeRoles, activeAssocs, addPerson, cfg, ready } = useConfig();
   const { push } = useToast();
   const [step, setStep] = React.useState(1);
@@ -54,11 +55,11 @@ export function RegistroForm({ preview = false }: { preview?: boolean }) {
   const [sending, setSending] = React.useState(false);
 
   const t = cfg.texts;
-  const deptos = React.useMemo(() => DEPARTMENTS.filter((d) => !cfg.deptOff.includes(d.id)), [cfg.deptOff]);
+  const deptos = React.useMemo(() => DEPARTMENTS.filter((d) => !cfg.deptOff.includes(d.id)), [cfg.deptOff, DEPARTMENTS]);
   // Municipios + centros poblados (pueblos) del departamento elegido.
   const munis = React.useMemo(
     () => (data.departmentId ? [...getMunicipalitiesByDept(data.departmentId), ...getCentrosPobladosByDept(data.departmentId)] : []),
-    [data.departmentId]
+    [data.departmentId, getMunicipalitiesByDept, getCentrosPobladosByDept]
   );
   const otherSelected = data.roles.some((l) => activeRoles.find((r) => r.label === l)?.isOther);
 

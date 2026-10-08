@@ -60,3 +60,25 @@ export function toNextDay(iso: string): string {
   d.setDate(d.getDate() + 1);
   return d.toISOString().slice(0, 10);
 }
+
+// Export: cap documentado en AGENTS.md (20.000 filas) y, cuando el caller
+// pagina con start/rows, un tope de 5000 filas por respuesta: un solo cuerpo
+// de ~16 mil registros rebasa el payload máximo (4,5 MB) de una función
+// serverless en Vercel. Sin Start explícito se conserva la respuesta única
+// de 20.000 (comportamiento legacy de scripts y de la primera versión).
+export const EXPORT_MAX_ROWS = 20000;
+export const EXPORT_CHUNK_ROWS = 5000;
+
+export function parseExportPaging(sp: URLSearchParams): { start: number; rows: number } {
+  const int = (raw: string | null): number | null => {
+    if (raw === null) return null;
+    const parsed = Number(raw);
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+  };
+  const start = Math.min(int(sp.get("start")) ?? 0, EXPORT_MAX_ROWS - 1);
+  const paginated = sp.get("start") !== null || int(sp.get("rows")) !== null;
+  const rows = paginated
+    ? clamp(int(sp.get("rows")) ?? EXPORT_CHUNK_ROWS, 1, EXPORT_CHUNK_ROWS)
+    : EXPORT_MAX_ROWS;
+  return { start, rows: Math.max(0, Math.min(rows, EXPORT_MAX_ROWS - start)) };
+}

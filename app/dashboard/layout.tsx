@@ -10,6 +10,7 @@ import {
   BarChart3,
   Share2,
   Settings,
+  MapPin,
   LogOut,
   Menu,
   X,
@@ -24,12 +25,14 @@ const NAV = [
   { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
   { href: "/dashboard/registrados", label: "Registrados", icon: Users },
   { href: "/dashboard/asociaciones", label: "Asociaciones", icon: Building2 },
+  { href: "/dashboard/territorio", label: "Territorio", icon: MapPin },
   { href: "/dashboard/reportes", label: "Reportes", icon: BarChart3 },
   { href: "/dashboard/compartir", label: "Compartir", icon: Share2 },
   { href: "/dashboard/configuracion", label: "Configuración", icon: Settings },
 ];
 
 const TITLES: Record<string, string> = {
+  "/dashboard/territorio": "Territorio",
   "/dashboard": "Resumen",
   "/dashboard/registrados": "Registrados",
   "/dashboard/asociaciones": "Asociaciones",

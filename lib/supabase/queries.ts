@@ -6,14 +6,26 @@ import type { AssocOpt, RoleOpt } from "../config-store";
 
 export type Catalogs = { roles: RoleOpt[]; assocs: AssocOpt[] };
 
+// Los catálogos también pueden superar Max Rows al crecer.
+async function allAssociations() {
+  const sb = createClient();
+  const rows = [];
+  for (let lo = 0; ; lo += 1000) {
+    const result = await sb.from("associations").select("id,name,department_id,municipality_id,active").order("id").range(lo, lo + 999);
+    if (result.error) throw new Error("No se pudieron cargar las asociaciones.");
+    rows.push(...(result.data ?? []));
+    if ((result.data?.length ?? 0) < 1000) return rows;
+  }
+}
+
 export async function getPublicCatalogs(): Promise<Catalogs | null> {
   try {
     const sb = createClient();
     const [rRoles, rAssocs] = await Promise.all([
       sb.from("roles").select("id,label,active,is_other").order("sort"),
-      sb.from("associations").select("id,name,department_id,municipality_id,active").order("name"),
+      allAssociations(),
     ]);
-    if (rRoles.error || rAssocs.error) return null;
+    if (rRoles.error) return null;
     return {
       roles: (rRoles.data ?? []).map((r) => ({
         id: r.id as string,
@@ -21,7 +33,7 @@ export async function getPublicCatalogs(): Promise<Catalogs | null> {
         active: r.active as boolean,
         isOther: r.is_other as boolean,
       })),
-      assocs: (rAssocs.data ?? []).map((a) => ({
+      assocs: rAssocs.map((a) => ({
         id: a.id as string,
         name: a.name as string,
         departmentId: a.department_id as string,

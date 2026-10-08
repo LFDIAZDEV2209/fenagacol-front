@@ -2,6 +2,7 @@
 import * as React from "react";
 import type { Person } from "./mock-data";
 import { deptName, muniName } from "./mock-data";
+import { useTerritory } from "./territory-store";
 import type { Filters, Summary } from "./filters";
 
 const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
@@ -61,7 +62,7 @@ function fillTrend(weekly: { week: string; value: number }[]): Summary["trend"] 
   return out;
 }
 
-export function toSummary(rpc: RpcSummary): Summary {
+export function toSummary(rpc: RpcSummary, names = { deptName, muniName }): Summary {
   const { total } = rpc;
   return {
     total,
@@ -70,14 +71,14 @@ export function toSummary(rpc: RpcSummary): Summary {
     municipios: rpc.municipios,
     pctGalleros: total ? Math.round((rpc.galleros / total) * 100) : 0,
     pctAsociados: total ? Math.round((rpc.asociados / total) * 100) : 0,
-    byDept: (rpc.by_dept ?? []).slice(0, 8).map((d) => ({ name: deptName(d.id), value: d.value })),
-    byMuni: (rpc.by_muni ?? []).slice(0, 8).map((m) => ({ name: muniName(m.id), value: m.value })),
+    byDept: (rpc.by_dept ?? []).map((d) => ({ name: names.deptName(d.id), value: d.value })),
+    byMuni: (rpc.by_muni ?? []).map((m) => ({ name: names.muniName(m.id), value: m.value })),
     byRole: (rpc.by_role ?? []).map((r) => ({
       label: r.label,
       value: r.value,
       pct: total ? Math.round((r.value / total) * 100) : 0,
     })),
-    byAssoc: (rpc.by_assoc ?? []).slice(0, 8).map((a) => ({ id: a.id, value: a.value })),
+    byAssoc: (rpc.by_assoc ?? []).map((a) => ({ id: a.id, value: a.value })),
     trend: fillTrend(rpc.weekly ?? []),
   };
 }
@@ -137,7 +138,9 @@ export function usePeopleQuery(opts: {
 
 // Agregados en servidor (KPIs + gráficas). Sin límite de filas.
 export function useSummaryQuery(filters: Filters) {
-  const [summary, setSummary] = React.useState<Summary | null>(null);
+  const names = useTerritory();
+  const [raw, setSummary] = React.useState<RpcSummary | null>(null);
+  const summary = React.useMemo(() => raw ? toSummary(raw, names) : null, [raw, names]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
   const [nonce, setNonce] = React.useState(0);
@@ -148,7 +151,7 @@ export function useSummaryQuery(filters: Filters) {
       setLoading(true);
       setError("");
       getJSON<RpcSummary>(`/api/admin/summary?${toQuery(filters)}`, ctrl.signal)
-        .then((d) => setSummary(toSummary(d)))
+        .then((d) => setSummary(d))
         .catch((e) => {
           if ((e as Error).name !== "AbortError") setError(e instanceof Error ? e.message : "Error de red.");
         })
@@ -165,11 +168,47 @@ export function useSummaryQuery(filters: Filters) {
   return { summary, loading, error, reload: () => setNonce((n) => n + 1) };
 }
 
-// Todas las filas filtradas para Excel (tope servidor 20.000).
-export async function fetchExportRows(filters: Filters): Promise<Person[]> {
-  const d = await getJSON<{ rows: Person[] }>(
-    `/api/admin/export?${toQuery(filters)}`,
-    new AbortController().signal
+// Todas las filas filtradas para Excel. El servidor pagina por Max Rows
+// (≤1000 por consulta) y este caller parte el total en chunks de 5000
+// filas: una respuesta única de ~16 mil registros rebasa el payload
+// máximo de 4,5 MB de una función serverless en Vercel.
+export type ExportResult = { rows: Person[]; total: number; truncated: boolean };
+export async function fetchExportRows(filters: Filters): Promise<ExportResult> {
+  const base = `/api/admin/export?${toQuery(filters)}`;
+  const signal = new AbortController().signal;
+  const first = await getJSON<ExportResult>(
+    `${base}&start=0&rows=5000`,
+    signal
   );
-  return d.rows ?? [];
+  const total = first.total;
+  const rows = first.rows ?? [];
+  while (rows.length < total && rows.length < 20000) {
+    const next = await getJSON<ExportResult>(
+      `${base}&start=${rows.length}&rows=5000`,
+      signal
+    );
+    if (!next.rows?.length) break;
+    rows.push(...next.rows);
+  }
+  return { rows, total, truncated: total > rows.length };
+}
+
+export type TerritoryRow = { id: string; divipola: string; name: string; departmentId?: string; municipalityCount: number };
+export function useTerritoryQuery(kind: "departments" | "municipalities", opts: {
+  q: string; departmentId: string; sort: "code" | "name"; dir: "asc" | "desc"; page: number; pageSize: number;
+}) {
+  const query = new URLSearchParams({ ...opts, page: String(opts.page), pageSize: String(opts.pageSize) }).toString();
+  const [nonce, setNonce] = React.useState(0);
+  const key = `${kind}?${query}&reload=${nonce}`;
+  const [state, setState] = React.useState<{ key: string; rows: TerritoryRow[]; total: number; error: string }>({ key: "", rows: [], total: 0, error: "" });
+  React.useEffect(() => {
+    const ctrl = new AbortController();
+    const timer = window.setTimeout(() => {
+      getJSON<{ rows: TerritoryRow[]; total: number }>(`/api/admin/${key}`, ctrl.signal)
+        .then((d) => { if (!ctrl.signal.aborted) setState({ key, rows: d.rows, total: d.total, error: "" }); })
+        .catch((e) => { if (!ctrl.signal.aborted) setState({ key, rows: [], total: 0, error: e instanceof Error ? e.message : "No se pudo cargar." }); });
+    }, 350);
+    return () => { window.clearTimeout(timer); ctrl.abort(); };
+  }, [key]);
+  return { ...state, loading: state.key !== key, reload: () => setNonce((n) => n + 1) };
 }

@@ -6,26 +6,31 @@ import { Donut, HBarList, TrendChart } from "@/components/dashboard-charts";
 import { FiltersBar } from "@/components/filters-bar";
 import { useConfig } from "@/lib/config-store";
 import { emptyFilters, type Filters } from "@/lib/filters";
-import { downloadExcel, personRows } from "@/lib/export-excel";
+import { downloadExcel, personRows, exportNotice } from "@/lib/export-excel";
+import { useTerritory } from "@/lib/territory-store";
 import { fetchExportRows, useSummaryQuery } from "@/lib/server-data";
 import { useToast } from "@/components/toast";
 import { fmtNum } from "@/lib/format";
 
 export default function ReportesPage() {
+  const territory = useTerritory();
   const { activeRoles, activeAssocs, cfg, ready } = useConfig();
   const { push } = useToast();
   const [filters, setFilters] = React.useState<Filters>(emptyFilters);
   const { summary: s, loading, error, reload } = useSummaryQuery(filters);
 
   async function exportReport() {
-    const rows = await fetchExportRows(filters);
+    try {
+    const result = await fetchExportRows(filters);
+    const notice = exportNotice(result);
     await downloadExcel("reporte_registros", [
-      { name: "Registros", rows: personRows(rows, cfg.assocs) },
+      { name: "Registros", rows: personRows(result.rows, cfg.assocs, territory) },
       { name: "Por departamento", rows: (s?.byDept ?? []).map((d) => ({ Departamento: d.name, Registros: d.value })) },
       { name: "Por municipio", rows: (s?.byMuni ?? []).map((m) => ({ Municipio: m.name, Registros: m.value })) },
       { name: "Por rol", rows: (s?.byRole ?? []).map((r) => ({ Rol: r.label, Registros: r.value, Porcentaje: `${r.pct}%` })) },
-    ]);
-    push(`Reporte descargado con ${fmtNum(rows.length)} registros`);
+    ], notice);
+    push(notice || `Reporte descargado con ${fmtNum(result.rows.length)} registros`, notice ? "info" : "success");
+    } catch (e) { push(e instanceof Error ? e.message : "No se pudo descargar el Excel.", "error"); }
   }
 
   return (

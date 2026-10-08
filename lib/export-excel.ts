@@ -17,13 +17,25 @@ const WHITE = "FFFFFFFF";
 const LINE = "FFD9D2C2";
 const THIN = { style: "thin" as const, color: { argb: LINE } };
 
-export async function downloadExcel(baseName: string, sheets: Sheet[]) {
+export function exportNotice(result: { rows: unknown[]; total: number; truncated: boolean }) {
+  return result.truncated
+    ? `Se exportaron ${result.rows.length.toLocaleString("es-CO")} de ${result.total.toLocaleString("es-CO")} registros. El tope es 20.000; filtra para descargar los restantes.`
+    : "";
+}
+
+export async function downloadExcel(baseName: string, sheets: Sheet[], notice = "") {
   // Carga diferida: exceljs (~800KB) solo se descarga cuando el usuario exporta,
   // no penaliza el bundle inicial del admin.
   const { default: ExcelJS } = await import("exceljs");
   const wb = new ExcelJS.Workbook();
   wb.creator = "Tu Carné Gremial · Fenagacol";
   wb.created = new Date();
+  if (notice) {
+    const aviso = wb.addWorksheet("Aviso de exportación");
+    aviso.getColumn(1).width = 100;
+    aviso.addRow([notice]).alignment = { wrapText: true };
+    aviso.getRow(1).height = 48;
+  }
 
   for (const s of sheets) {
     const ws = wb.addWorksheet(s.name.slice(0, 31), {
@@ -87,14 +99,15 @@ export async function downloadExcel(baseName: string, sheets: Sheet[]) {
   window.setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
 
-export function personRows(people: Person[], assocs: AssocOpt[] = []) {
+type Names = { deptName: (id: string) => string; muniName: (id: string) => string };
+export function personRows(people: Person[], assocs: AssocOpt[] = [], names: Names = { deptName, muniName }) {
   return people.map((p) => ({
     Nombre: p.fullName,
     Identidad: p.identity,
     Teléfono: p.phone,
     Correo: p.email ?? "",
-    Departamento: deptName(p.departmentId),
-    Municipio: muniName(p.municipalityId),
+    Departamento: names.deptName(p.departmentId),
+    Municipio: names.muniName(p.municipalityId),
     Roles: p.roles.join(", "),
     Asociación: resolveAssocName(p.associationId, assocs),
     "Otra asociación": p.otherAssocName ?? "",
@@ -104,11 +117,11 @@ export function personRows(people: Person[], assocs: AssocOpt[] = []) {
   }));
 }
 
-export function assocRows(assocs: { name: string; departmentId: string; municipalityId: string; members: number }[]) {
+export function assocRows(assocs: { name: string; departmentId: string; municipalityId: string; members: number }[], names: Names = { deptName, muniName }) {
   return assocs.map((a) => ({
     Asociación: a.name,
-    Departamento: deptName(a.departmentId),
-    Municipio: muniName(a.municipalityId),
+    Departamento: names.deptName(a.departmentId),
+    Municipio: names.muniName(a.municipalityId),
     Miembros: a.members,
   }));
 }

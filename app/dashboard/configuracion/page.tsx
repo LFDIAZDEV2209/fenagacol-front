@@ -3,7 +3,8 @@ import * as React from "react";
 import { Settings, Tags, Building2, MapPin, Type, Plus, Pencil, Trash2, Check, X, RotateCcw, Save } from "lucide-react";
 import { Card, Input, Label, PageHeader, SortTh } from "@/components/ui";
 import { useConfig, type FormTexts } from "@/lib/config-store";
-import { DEPARTMENTS, deptName, getMunicipalitiesByDept, muniName } from "@/lib/mock-data";
+import { useTerritory } from "@/lib/territory-store";
+import { TerritoryManager } from "@/components/territory-manager";
 import { useToast } from "@/components/toast";
 
 type Tab = "roles" | "asocs" | "territorio" | "form";
@@ -61,20 +62,20 @@ export default function ConfigPage() {
 
       {tab === "roles" && <RolesTab />}
       {tab === "asocs" && <AsocsTab />}
-      {tab === "territorio" && <TerritorioTab />}
+      {tab === "territorio" && <TerritoryManager />}
       {tab === "form" && <FormTab />}
     </div>
   );
 }
 
 function RolesTab() {
-  const { cfg, addRole, renameRole, toggleRole, deleteRole, allPeople } = useConfig();
+  const { cfg, addRole, renameRole, toggleRole, deleteRole, usageOfRole } = useConfig();
   const { push } = useToast();
   const [draft, setDraft] = React.useState("");
   const [editing, setEditing] = React.useState<string | null>(null);
   const [editVal, setEditVal] = React.useState("");
 
-  const usage = React.useCallback((label: string) => allPeople.filter((p) => p.roles.includes(label)).length, [allPeople]);
+  const usage = usageOfRole;
   const [sort, setSort] = React.useState<{ key: "name" | "usage"; dir: "asc" | "desc" }>({ key: "name", dir: "asc" });
 
   const sorted = React.useMemo(() => {
@@ -168,7 +169,8 @@ function RolesTab() {
 }
 
 function AsocsTab() {
-  const { cfg, addAssoc, updateAssoc, toggleAssoc, deleteAssoc } = useConfig();
+  const { DEPARTMENTS, deptName, getMunicipalitiesByDept, muniName } = useTerritory();
+  const { cfg, addAssoc, updateAssoc, toggleAssoc, deleteAssoc, membersOf } = useConfig();
   const { push } = useToast();
   const [name, setName] = React.useState("");
   const [dept, setDept] = React.useState("");
@@ -185,12 +187,12 @@ function AsocsTab() {
       .filter((a) => !aq || a.name.toLowerCase().includes(aq.toLowerCase()))
       .slice()
       .sort((a, b) => {
-        if (asort.key === "members") return ((a.members ?? 0) - (b.members ?? 0)) * dir;
+        if (asort.key === "members") return (membersOf(a.id) - membersOf(b.id)) * dir;
         const av = asort.key === "dept" ? deptName(a.departmentId) : asort.key === "muni" ? muniName(a.municipalityId) : a.name;
         const bv = asort.key === "dept" ? deptName(b.departmentId) : asort.key === "muni" ? muniName(b.municipalityId) : b.name;
         return av.localeCompare(bv, "es", { sensitivity: "base" }) * dir;
       });
-  }, [cfg.assocs, aq, asort]);
+  }, [cfg.assocs, aq, asort, deptName, muniName, membersOf]);
 
   function toggleAsort(key: typeof asort.key) {
     setAsort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
@@ -265,7 +267,7 @@ function AsocsTab() {
                         {munisFor(ed).map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
                       </select>
                     </td>
-                    <td className="px-3 py-2 text-right font-semibold">{a.members ?? 0}</td>
+                    <td className="px-3 py-2 text-right font-semibold">{membersOf(a.id)}</td>
                     <td className="px-4 py-2">
                       <div className="flex items-center justify-end gap-2">
                         <button
@@ -290,37 +292,6 @@ function AsocsTab() {
         </div>
       </Card>
     </div>
-  );
-}
-
-function TerritorioTab() {
-  const { cfg, toggleDept, allPeople } = useConfig();
-  const [q, setQ] = React.useState("");
-  const list = DEPARTMENTS.filter((d) => !q || d.name.toLowerCase().includes(q.toLowerCase()));
-
-  return (
-    <Card className="animate-fade-up stagger-2 p-4">
-      <h3 className="text-sm font-semibold text-[#1C1917]">Departamentos visibles en el formulario</h3>
-      <p className="mt-0.5 text-[13px] text-[#78716C]">Apaga los que no quieras ofrecer. Los municipios siguen la estructura DIVIPOLA.</p>
-      <div className="mt-3">
-        <Input compact placeholder="Buscar departamento..." value={q} onChange={(e) => setQ(e.target.value)} />
-      </div>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((d) => {
-          const off = cfg.deptOff.includes(d.id);
-          const regs = allPeople.filter((p) => p.departmentId === d.id).length;
-          return (
-            <div key={d.id} className={`flex items-center gap-2.5 rounded-xl border p-2.5 transition-colors ${off ? "border-[#EDE9E1] bg-[#FAFAF8] opacity-60" : "border-[#EDE9E1] bg-white"}`}>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-semibold text-[#1C1917]">{d.name}</p>
-                <p className="text-[11px] text-[#A8A29E]">{getMunicipalitiesByDept(d.id).length} mpios · {regs} regs</p>
-              </div>
-              <Toggle on={!off} onClick={() => toggleDept(d.id)} label={`Mostrar ${d.name}`} />
-            </div>
-          );
-        })}
-      </div>
-    </Card>
   );
 }
 

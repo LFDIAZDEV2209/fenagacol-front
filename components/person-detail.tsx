@@ -2,12 +2,13 @@
 import * as React from "react";
 import { X, User, Hash, Phone, Mail, MapPin, Users, Building2, CalendarDays, Bird } from "lucide-react";
 import type { Person } from "@/lib/mock-data";
-import { deptName, muniName } from "@/lib/mock-data";
+import { useTerritory } from "@/lib/territory-store";
 import { resolveAssocName, useConfig } from "@/lib/config-store";
 import { fmtDate } from "@/lib/format";
 
 export function PersonDetail({ person, onClose }: { person: Person | null; onClose: () => void }) {
   const { cfg } = useConfig();
+  const { deptName, muniName } = useTerritory();
   React.useEffect(() => {
     if (!person) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();

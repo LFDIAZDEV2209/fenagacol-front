@@ -19,13 +19,15 @@ import { Donut, HBarList, TrendChart } from "@/components/dashboard-charts";
 import { FiltersBar } from "@/components/filters-bar";
 import { resolveAssocName, useConfig } from "@/lib/config-store";
 import { emptyFilters, type Filters } from "@/lib/filters";
-import { deptName, muniName } from "@/lib/mock-data";
-import { downloadExcel, personRows } from "@/lib/export-excel";
+import { useTerritory } from "@/lib/territory-store";
+import { downloadExcel, personRows, exportNotice } from "@/lib/export-excel";
 import { fetchExportRows, usePeopleQuery, useSummaryQuery } from "@/lib/server-data";
 import { useToast } from "@/components/toast";
 import { fmtNum, fmtPct } from "@/lib/format";
 
 export default function DashboardHome() {
+  const territory = useTerritory();
+  const { deptName, muniName } = territory;
   const { activeRoles, cfg, ready } = useConfig();
   const { push } = useToast();
   const [filters, setFilters] = React.useState<Filters>(emptyFilters);
@@ -40,9 +42,11 @@ export default function DashboardHome() {
   });
 
   async function exportAll() {
-    const rows = await fetchExportRows(filters);
+    try {
+    const result = await fetchExportRows(filters);
+    const notice = exportNotice(result);
     await downloadExcel("resumen_registros", [
-      { name: "Registros filtrados", rows: personRows(rows, cfg.assocs) },
+      { name: "Registros filtrados", rows: personRows(result.rows, cfg.assocs, territory) },
       {
         name: "Por departamento",
         rows: (summary?.byDept ?? []).map((d) => ({ Departamento: d.name, Registros: d.value })),
@@ -51,8 +55,9 @@ export default function DashboardHome() {
         name: "Por rol",
         rows: (summary?.byRole ?? []).map((r) => ({ Rol: r.label, Registros: r.value, Porcentaje: `${r.pct}%` })),
       },
-    ]);
-    push(`Excel descargado con ${fmtNum(rows.length)} registros`);
+    ], notice);
+    push(notice || `Excel descargado con ${fmtNum(result.rows.length)} registros`, notice ? "info" : "success");
+    } catch (e) { push(e instanceof Error ? e.message : "No se pudo descargar el Excel.", "error"); }
   }
 
   if (!ready || (sumLoading && !summary)) {
