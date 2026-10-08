@@ -195,7 +195,7 @@ export async function fetchExportRows(filters: Filters): Promise<ExportResult> {
 
 export type TerritoryRow = { id: string; divipola: string; name: string; departmentId?: string; municipalityCount: number };
 export function useTerritoryQuery(kind: "departments" | "municipalities", opts: {
-  q: string; departmentId: string; sort: "code" | "name"; dir: "asc" | "desc"; page: number; pageSize: number;
+  q: string; departmentId: string; type?: "todos" | "municipio" | "pueblo"; sort: "code" | "name"; dir: "asc" | "desc"; page: number; pageSize: number;
 }) {
   const query = new URLSearchParams({ ...opts, page: String(opts.page), pageSize: String(opts.pageSize) }).toString();
   const [nonce, setNonce] = React.useState(0);
@@ -211,4 +211,32 @@ export function useTerritoryQuery(kind: "departments" | "municipalities", opts: 
     return () => { window.clearTimeout(timer); ctrl.abort(); };
   }, [key]);
   return { ...state, loading: state.key !== key, reload: () => setNonce((n) => n + 1) };
+}
+
+export type TerritoryStats = { by_dept: { id: string; value: number }[]; by_muni: { id: string; value: number }[]; generated_at: string };
+export async function fetchTerritoryStats(signal = new AbortController().signal) {
+  const data = await getJSON<TerritoryStats>("/api/admin/territory-stats", signal);
+  const valid = (rows: TerritoryStats["by_dept"]) => Array.isArray(rows) && rows.every((r) => typeof r.id === "string" && Number.isFinite(r.value) && r.value >= 0);
+  if (!data || !valid(data.by_dept) || !valid(data.by_muni) || typeof data.generated_at !== "string") throw new Error("Las estadísticas llegaron incompletas. Reintenta.");
+  return data;
+}
+
+export function useTerritoryStats() {
+  const [data, setData] = React.useState<TerritoryStats | null>(null);
+  const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
+  const [nonce, setNonce] = React.useState(0);
+  React.useEffect(() => {
+    const ctrl = new AbortController();
+    const timer = window.setTimeout(() => {
+      setLoading(true);
+      fetchTerritoryStats(ctrl.signal).then((stats) => {
+        if (!ctrl.signal.aborted) { setData(stats); setError(""); }
+      }).catch(() => {
+        if (!ctrl.signal.aborted) { setData(null); setError("No se pudieron cargar los registrados. Puedes consultar y exportar el catálogo."); }
+      }).finally(() => { if (!ctrl.signal.aborted) setLoading(false); });
+    }, 350);
+    return () => { window.clearTimeout(timer); ctrl.abort(); };
+  }, [nonce]);
+  return { data, error, loading, reload: () => setNonce((n) => n + 1) };
 }

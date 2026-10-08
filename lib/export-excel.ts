@@ -6,6 +6,8 @@ import type { Person } from "./mock-data";
 import { deptName, muniName } from "./mock-data";
 import { resolveAssocName, type AssocOpt } from "./config-store";
 import { dateStamp, fmtDate } from "./format";
+import type { TerritoryCatalog } from "./territory-store";
+import type { TerritoryStats } from "./server-data";
 
 export type Sheet = { name: string; rows: Record<string, string | number>[] };
 
@@ -124,4 +126,32 @@ export function assocRows(assocs: { name: string; departmentId: string; municipa
     Municipio: names.muniName(a.municipalityId),
     Miembros: a.members,
   }));
+}
+
+export function territorySheets(catalog: TerritoryCatalog, stats: TerritoryStats | null, hidden: string[] = []): Sheet[] {
+  const departments = new Map(catalog.departments.map((d) => [d.id, d.name]));
+  const byDept = new Map(stats?.by_dept.map((d) => [d.id, d.value]) ?? []);
+  const byMuni = new Map(stats?.by_muni.map((m) => [m.id, m.value]) ?? []);
+  const counts = new Map<string, number>();
+  for (const m of catalog.municipalities) counts.set(m.departmentId, (counts.get(m.departmentId) ?? 0) + 1);
+  const departmentRows = [...catalog.departments].sort((a, b) => a.id.localeCompare(b.id)).map((d) => ({
+    Código: d.id, Nombre: d.name, "Visible en formulario": hidden.includes(d.id) ? "No" : "Sí",
+    "Municipios y pueblos": counts.get(d.id) ?? 0,
+    ...(stats ? { Registrados: byDept.get(d.id) ?? 0 } : {}),
+  }));
+  const municipalityRows = [...catalog.municipalities].sort((a, b) => a.id.localeCompare(b.id)).map((m) => ({
+    Código: m.id, Nombre: m.name, Departamento: departments.get(m.departmentId) ?? m.departmentId,
+    Tipo: m.id.length === 8 ? "Pueblo" : "Municipio",
+    ...(stats ? { Registrados: byMuni.get(m.id) ?? 0 } : {}),
+  }));
+  const sheets: Sheet[] = [];
+  if (stats) {
+    sheets.push({ name: "Registrados por departamento", rows: departmentRows.map((d) => ({
+      Departamento: d.Nombre, Código: d.Código, "Municipios y pueblos": d["Municipios y pueblos"], Registrados: d.Registrados ?? 0,
+    })).sort((a, b) => b.Registrados - a.Registrados || a.Departamento.localeCompare(b.Departamento, "es")) });
+    sheets.push({ name: "Registrados por municipio", rows: municipalityRows.map((m) => ({
+      Municipio: m.Nombre, Código: m.Código, Departamento: m.Departamento, Tipo: m.Tipo, Registrados: m.Registrados ?? 0,
+    })).sort((a, b) => b.Registrados - a.Registrados || a.Municipio.localeCompare(b.Municipio, "es") || a.Código.localeCompare(b.Código)) });
+  }
+  return [...sheets, { name: "Departamentos", rows: departmentRows }, { name: "Municipios y pueblos", rows: municipalityRows }];
 }

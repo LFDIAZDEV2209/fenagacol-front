@@ -3,7 +3,7 @@ import * as React from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, FileSpreadsheet, Loader2 } from "lucide-react";
 
 // Botón de exportación con estado de carga y pista de alcance.
-// onExport genera el archivo (síncrono); el toast de éxito lo pone el caller.
+// onExport genera el archivo; el toast de resultado lo pone el caller.
 export function ExportButton({
   onExport,
   label = "Exportar Excel",
@@ -31,6 +31,7 @@ export function ExportButton({
     <button
       onClick={run}
       disabled={busy}
+      aria-label={busy ? "Generando Excel" : label}
       title={hint ? `${label} — ${hint.toLowerCase()}` : label}
       className={`group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-[#732427] shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:scale-[0.98] disabled:cursor-wait disabled:opacity-80 disabled:hover:translate-y-0 ${className}`}
     >
@@ -88,7 +89,7 @@ export function Input(props: React.InputHTMLAttributes<HTMLInputElement> & { err
   return (
     <div className="w-full">
       <input
-        className={`w-full rounded-xl border bg-white text-[#1C1917] outline-none transition-colors placeholder:text-[#A8A29E] focus:border-[#732427] focus:ring-4 focus:ring-[#732427]/10 ${compact ? "h-10 px-3 text-[13px]" : "h-12 px-4 text-[15px]"} ${error ? "border-red-400 bg-red-50/40 focus:border-red-500 focus:ring-red-100" : "border-[#E7E2D9]"} ${className}`}
+        className={`w-full rounded-xl border bg-white text-[#1C1917] outline-none transition-colors placeholder:text-[#57534E] focus:border-[#732427] focus:ring-4 focus:ring-[#732427]/10 ${compact ? "h-10 px-3 text-[13px]" : "h-12 px-4 text-[15px]"} ${error ? "border-red-400 bg-red-50/40 focus:border-red-500 focus:ring-red-100" : "border-[#E7E2D9]"} ${className}`}
         {...rest}
       />
       {error && <p className="mt-1.5 text-[13px] font-medium text-red-600">{error}</p>}
@@ -128,6 +129,7 @@ export function Combobox({
   disabled?: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
+  const controlId = React.useId();
   const [query, setQuery] = React.useState("");
   const ref = React.useRef<HTMLDivElement>(null);
   // Búsqueda sin acentos: "repelon" encuentra "Repelón", "cucuta" -> "Cúcuta", etc.
@@ -145,14 +147,17 @@ export function Combobox({
 
   return (
     <div ref={ref} className="relative w-full">
-      {label && <Label>{label}</Label>}
+      {label && <Label htmlFor={controlId}>{label}</Label>}
       <button
         type="button"
+        id={controlId}
+        aria-expanded={open}
+        aria-controls={open ? `${controlId}-options` : undefined}
         disabled={disabled}
         onClick={() => !disabled && setOpen((v) => !v)}
-        className={`flex h-12 w-full cursor-pointer items-center justify-between rounded-xl border bg-white px-3.5 text-left text-sm transition-all ${disabled ? "cursor-not-allowed bg-[#FAFAF8] text-[#A8A29E]" : "hover:border-[#732427]/50 hover:shadow-sm"} ${error ? "border-red-400 bg-red-50/30" : "border-[#E7E2D9]"} ${open ? "border-[#732427] ring-4 ring-[#732427]/10" : ""}`}
+        className={`flex h-12 w-full cursor-pointer items-center justify-between rounded-xl border bg-white px-3.5 text-left text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#732427] ${disabled ? "cursor-not-allowed bg-[#FAFAF8] text-[#57534E]" : "hover:border-[#732427]/50 hover:shadow-sm"} ${error ? "border-red-400 bg-red-50/30" : "border-[#E7E2D9]"} ${open ? "border-[#732427] ring-4 ring-[#732427]/10" : ""}`}
       >
-        <span className={`truncate ${selected ? "text-[#1C1917]" : "text-[#A8A29E]"}`}>
+        <span className={`truncate ${selected ? "text-[#1C1917]" : "text-[#57534E]"}`}>
           {selected ? selected.label : placeholder}
         </span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A29E" strokeWidth="2" className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`}>
@@ -165,15 +170,17 @@ export function Combobox({
           <div className="border-b border-[#F1EFEA] bg-[#FAFAF8] p-2">
             <input
               autoFocus
+              aria-label={typeof label === "string" ? `Buscar ${label.toLowerCase()}` : "Buscar opción"}
+              onKeyDown={(e) => { if (e.key === "Escape") { setOpen(false); document.getElementById(controlId)?.focus(); } }}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Escribe para buscar..."
-              className="h-9 w-full rounded-lg border border-[#E7E2D9] bg-white px-3 text-[13px] outline-none placeholder:text-[#A8A29E] focus:border-[#732427]"
+              className="h-10 w-full rounded-lg border border-[#E7E2D9] bg-white px-3 text-[13px] outline-none placeholder:text-[#57534E] focus:border-[#732427] focus:ring-2 focus:ring-[#732427]"
             />
           </div>
-          <div className="max-h-[220px] overflow-auto p-1.5">
+          <div id={`${controlId}-options`} className="max-h-[220px] overflow-auto p-1.5">
             {filtered.length === 0 ? (
-              <p className="py-7 text-center text-[13px] text-[#A8A29E]">Sin resultados</p>
+              <p className="py-7 text-center text-[13px] text-[#57534E]">Sin resultados</p>
             ) : (
               <>
                 {filtered.slice(0, 100).map((o) => (
@@ -185,14 +192,14 @@ export function Combobox({
                       setOpen(false);
                       setQuery("");
                     }}
-                    className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[13px] transition-colors hover:bg-[#F8EDEF] active:bg-[#E8CDD4]/50 ${value === o.value ? "bg-[#F8EDEF] font-semibold text-[#732427]" : "text-[#1C1917]"}`}
+                    className={`flex min-h-10 w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[13px] transition-colors hover:bg-[#F8EDEF] focus-visible:outline-2 focus-visible:outline-[#732427] active:bg-[#E8CDD4]/50 ${value === o.value ? "bg-[#F8EDEF] font-semibold text-[#732427]" : "text-[#1C1917]"}`}
                   >
                     <span className="truncate">{o.label}</span>
                     {value === o.value && <span className="text-[#732427]">✓</span>}
                   </button>
                 ))}
                 {filtered.length > 100 && (
-                  <p className="px-3 py-2 text-center text-[12px] text-[#A8A29E]">
+                  <p className="px-3 py-2 text-center text-[12px] text-[#57534E]">
                     Se muestran 100 de {filtered.length} — escribe más para afinar la búsqueda
                   </p>
                 )}
@@ -245,11 +252,13 @@ export function PageHeader({
   title,
   subtitle,
   actions,
+  actionsClassName = "",
 }: {
   icon: React.ReactNode;
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
+  actionsClassName?: string;
 }) {
   return (
     <div className="animate-fade-up relative overflow-hidden rounded-xl bg-gradient-to-br from-[#732427] to-[#481418] p-4 text-white shadow-[0_10px_28px_rgba(115,36,39,0.32)] sm:p-5">
@@ -263,7 +272,7 @@ export function PageHeader({
           <h1 className="font-display text-xl font-bold leading-tight sm:text-[22px]">{title}</h1>
           {subtitle && <p className="mt-0.5 text-[13px] text-white/75">{subtitle}</p>}
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+        {actions && <div className={`flex flex-wrap items-center gap-2 ${actionsClassName}`}>{actions}</div>}
       </div>
     </div>
   );

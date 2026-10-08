@@ -32,6 +32,10 @@ export async function listTerritory(req: Request, kind: Kind) {
     if (f.q) query = query.or(`name.ilike.%${f.q}%,code.ilike.%${f.q}%`);
     if (kind === "municipalities" && f.departmentId)
       query = query.eq("department_code", f.departmentId);
+    if (kind === "municipalities") {
+      if (sp.get("type") === "municipio") query = query.like("code", "_____");
+      if (sp.get("type") === "pueblo") query = query.like("code", "________");
+    }
     const column = sp.get("sort") === "name" ? "name" : "code";
     query = query.order(column, { ascending: sp.get("dir") !== "desc" });
     if (column !== "code") query = query.order("code", { ascending: true });

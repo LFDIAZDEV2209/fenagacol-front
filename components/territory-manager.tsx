@@ -13,7 +13,11 @@ import { Button, Card, Combobox, Input, Label, SortTh } from "./ui";
 import { useToast } from "./toast";
 import { useConfig } from "@/lib/config-store";
 import { useTerritory } from "@/lib/territory-store";
-import { useTerritoryQuery, type TerritoryRow } from "@/lib/server-data";
+import {
+  useTerritoryQuery,
+  useTerritoryStats,
+  type TerritoryRow,
+} from "@/lib/server-data";
 import { fmtNum } from "@/lib/format";
 
 type Kind = "departments" | "municipalities";
@@ -67,20 +71,60 @@ function ListState({
   return null;
 }
 
+const fold = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+const iconAction = "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[#732427] hover:bg-[#F8EDEF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#732427] disabled:opacity-40";
+
+function RegistrationBadge({ count }: { count: number | undefined }) {
+  return count ? (
+    <span
+      className="inline-flex whitespace-nowrap rounded-full bg-[#F8EDEF] px-2 py-0.5 text-xs font-semibold tabular-nums text-[#732427]"
+      aria-label={`${fmtNum(count)} registrados`}
+    >
+      {fmtNum(count)}
+    </span>
+  ) : (
+    <span
+      className="text-xs text-[#57534E]"
+      aria-label={
+        count === undefined
+          ? "Registrados pendientes de cargar"
+          : "Sin registrados"
+      }
+    >
+      —
+    </span>
+  );
+}
+
 export function TerritoryManager() {
-  const { DEPARTMENTS, refreshTerritory, territoryError } = useTerritory();
+  const territory = useTerritory();
+  const {
+    DEPARTMENTS,
+    MUNICIPALITIES,
+    refreshTerritory,
+    territoryError,
+    catalogReady,
+  } = territory;
   const { cfg, toggleDept } = useConfig();
   const { push } = useToast();
+  const stats = useTerritoryStats();
   const [departmentId, setDepartmentId] = React.useState("");
+  const [type, setType] = React.useState<"todos" | "municipio" | "pueblo">(
+    "todos",
+  );
   const [dq, setDq] = React.useState("");
   const [q, setQ] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [dsort, setDsort] = React.useState<{
     key: "code" | "name";
     dir: "asc" | "desc";
-  }>({ key: "name", dir: "asc" });
+  }>({ key: "code", dir: "asc" });
   const [sort, setSort] = React.useState<typeof dsort>({
-    key: "name",
+    key: "code",
     dir: "asc",
   });
   const [editor, setEditor] = React.useState<Editor | null>(null);
@@ -95,35 +139,67 @@ export function TerritoryManager() {
   const municipalities = useTerritoryQuery("municipalities", {
     q,
     departmentId,
+    type,
     sort: sort.key,
     dir: sort.dir,
     page,
     pageSize: PAGE_SIZE,
   });
-  const fold = (text: string) =>
-    text
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-  const list = departments.rows.filter((d) =>
-    fold(`${d.name} ${d.id}`).includes(fold(dq)),
+  const term = fold(dq);
+  const list = React.useMemo(
+    () =>
+      departments.rows.filter((d) => fold(`${d.name} ${d.id}`).includes(term)),
+    [departments.rows, term],
+  );
+  const byDept = React.useMemo(
+    () => new Map(stats.data?.by_dept.map((d) => [d.id, d.value]) ?? []),
+    [stats.data],
+  );
+  const byMuni = React.useMemo(
+    () => new Map(stats.data?.by_muni.map((m) => [m.id, m.value]) ?? []),
+    [stats.data],
+  );
+  const departmentNames = React.useMemo(
+    () => new Map(DEPARTMENTS.map((d) => [d.id, d.name])),
+    [DEPARTMENTS],
+  );
+  const options = React.useMemo(
+    () =>
+      DEPARTMENTS.map((d) => ({ value: d.id, label: `${d.name} · ${d.id}` })),
+    [DEPARTMENTS],
+  );
+  const hidden = React.useMemo(() => new Set(cfg.deptOff), [cfg.deptOff]);
+  const counts = React.useMemo(() => {
+    const municipios = MUNICIPALITIES.reduce(
+      (n, m) => n + Number(m.id.length === 5),
+      0,
+    );
+    return { municipios, pueblos: MUNICIPALITIES.length - municipios };
+  }, [MUNICIPALITIES]);
+  const registered = React.useMemo(
+    () => stats.data?.by_dept.reduce((n, d) => n + d.value, 0),
+    [stats.data],
   );
   const pages = Math.max(1, Math.ceil(municipalities.total / PAGE_SIZE));
   function chooseDepartment(id: string) {
     setDepartmentId(id);
     setQ("");
     setPage(1);
-    if (window.matchMedia("(max-width: 767px)").matches) {
+    if (window.matchMedia("(max-width: 767px)").matches)
       window.requestAnimationFrame(() =>
         document
           .getElementById("territory-municipalities")
-          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+          ?.scrollIntoView({
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+              .matches
+              ? "instant"
+              : "smooth",
+            block: "start",
+          }),
       );
-    }
   }
   function changeSort(key: "code" | "name", dept = false) {
-    const setter = dept ? setDsort : setSort;
-    setter((s) => ({
+    (dept ? setDsort : setSort)((s) => ({
       key,
       dir: s.key === key && s.dir === "asc" ? "desc" : "asc",
     }));
@@ -132,6 +208,7 @@ export function TerritoryManager() {
   async function saved(kind: Kind, removed?: string) {
     departments.reload();
     municipalities.reload();
+    stats.reload();
     if (kind === "municipalities") setPage(1);
     if (removed === departmentId) chooseDepartment("");
     push(
@@ -152,33 +229,59 @@ export function TerritoryManager() {
     !municipalities.loading &&
     !municipalities.error &&
     municipalities.rows.length > 0;
-  const options = (
-    departments.error || departments.loading ? DEPARTMENTS : departments.rows
-  ).map((d) => ({ value: d.id, label: `${d.name} · ${d.id}` }));
   return (
     <div className="space-y-4">
-      {territoryError && (
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl border border-[#E7E2D9] bg-[#FAFAF8] px-4 py-3 text-[13px] text-[#57534E]"
+      >
+        <span>
+          <strong className="tabular-nums text-[#1C1917]">
+            {fmtNum(DEPARTMENTS.length)}
+          </strong>{" "}
+          departamentos
+        </span>
+        <span>
+          <strong className="tabular-nums text-[#1C1917]">
+            {fmtNum(MUNICIPALITIES.length)}
+          </strong>{" "}
+          municipios y pueblos{" "}
+          <span className="block text-xs sm:inline">
+            ({fmtNum(counts.municipios)} municipios · {fmtNum(counts.pueblos)}{" "}
+            pueblos){!catalogReady ? " · catálogo en actualización" : ""}
+          </span>
+        </span>
+        <span className="sm:ml-auto">
+          <strong className="tabular-nums text-[#732427]">
+            {registered === undefined ? "—" : fmtNum(registered)}
+          </strong>{" "}
+          registrados{stats.loading ? " · actualizando" : ""}
+        </span>
+      </div>
+      {(territoryError || stats.error) && (
         <div
           role="alert"
           className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900"
         >
-          <p>{territoryError}</p>
+          <p>{territoryError || stats.error}</p>
           <button
             className={actionClass}
             onClick={() => {
+              stats.reload();
               void refreshTerritory().catch(() =>
                 push("No se pudo actualizar el catálogo.", "error"),
               );
             }}
           >
-            Actualizar catálogo
+            Reintentar actualización
           </button>
         </div>
       )}
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(320px,0.85fr)_minmax(0,1.5fr)]">
-        <Card className="overflow-hidden">
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(460px,0.85fr)_minmax(0,1.4fr)]">
+        <Card className="rounded-2xl">
           <div className="space-y-3 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2">
               <h2 className="text-base font-bold text-[#1C1917]">
                 Departamentos{" "}
                 <span className="text-sm font-normal text-[#57534E]">
@@ -188,21 +291,29 @@ export function TerritoryManager() {
               <Button
                 size="sm"
                 variant="secondary"
+                className="min-h-10"
                 onClick={() => setEditor({ kind: "departments" })}
               >
                 <Plus size={15} /> Crear
               </Button>
             </div>
-            <p className="text-[13px] text-[#57534E]">
-              Abre un departamento para ver sus municipios y pueblos.
+            <p className="text-xs text-[#57534E]">
+              Abre un departamento para ver su territorio. Oculta del formulario
+              público los que no ofrezcas.
             </p>
-            <Input
-              compact
-              aria-label="Buscar departamento por nombre o código"
-              placeholder="Buscar nombre o código…"
-              value={dq}
-              onChange={(e) => setDq(e.target.value)}
-            />
+            <div>
+              <Label htmlFor="territory-department-search">
+                Buscar departamento
+              </Label>
+              <Input
+                compact
+                id="territory-department-search"
+                placeholder="Nombre o código"
+                value={dq}
+                onChange={(e) => setDq(e.target.value)}
+                className="placeholder:text-[#57534E]"
+              />
+            </div>
           </div>
           <ListState
             loading={departments.loading}
@@ -212,96 +323,122 @@ export function TerritoryManager() {
             create={() => setEditor({ kind: "departments" })}
           />
           {showDepartments && (
-            <div className="max-h-[650px] overflow-auto">
-              <table className="w-full text-[13px]">
-                <caption className="sr-only">
-                  Departamentos del catálogo administrado
-                </caption>
-                <thead className="sticky top-0 bg-[#732427] text-left text-white">
-                  <tr>
-                    <SortTh
-                      label="Código"
-                      active={dsort.key === "code"}
-                      dir={dsort.dir}
-                      onToggle={() => changeSort("code", true)}
-                    />
-                    <SortTh
-                      label="Nombre"
-                      active={dsort.key === "name"}
-                      dir={dsort.dir}
-                      onToggle={() => changeSort("name", true)}
-                    />
-                    <th scope="col" className="px-3 py-2.5">
-                      <span className="sr-only">Acciones</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#F1EFEA]">
-                  {list.map((d) => (
-                    <tr
-                      key={d.id}
-                      className={
-                        departmentId === d.id
-                          ? "bg-[#F8EDEF]"
-                          : "hover:bg-[#FAFAF8]"
-                      }
-                    >
-                      <td className="px-3 py-3 tabular-nums">{d.id}</td>
-                      <td className="py-2">
-                        <button
-                          className="w-full rounded-lg py-1 text-left font-semibold text-[#732427] focus-visible:outline-2"
-                          aria-pressed={departmentId === d.id}
-                          onClick={() => chooseDepartment(d.id)}
-                        >
+            <table className="w-full table-fixed text-[13px]">
+              <caption className="sr-only">
+                Departamentos: municipios, registrados y gestión
+              </caption>
+              <thead className="bg-[#732427] text-left text-white">
+                <tr>
+                  <SortTh
+                    label="Código"
+                    className="w-20 px-3 py-2.5"
+                    active={dsort.key === "code"}
+                    dir={dsort.dir}
+                    onToggle={() => changeSort("code", true)}
+                  />
+                  <SortTh
+                    label="Nombre"
+                    active={dsort.key === "name"}
+                    dir={dsort.dir}
+                    onToggle={() => changeSort("name", true)}
+                  />
+                  <th scope="col" className="w-[124px] px-2 py-2.5">
+                    <span className="sr-only">
+                      Visibilidad, editar y eliminar
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#F1EFEA]">
+                {list.map((d) => (
+                  <tr
+                    key={d.id}
+                    className={
+                      departmentId === d.id
+                        ? "bg-[#F8EDEF]"
+                        : "hover:bg-[#FAFAF8]"
+                    }
+                  >
+                    <td className="px-3 py-2">
+                      <span className="rounded-md bg-[#F1EFEA] px-2 py-1 text-xs font-semibold tabular-nums text-[#57534E]">
+                        {d.id}
+                      </span>
+                    </td>
+                    <td className="py-1.5">
+                      <button
+                        className="block min-h-10 w-full min-w-0 rounded-md text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#732427]"
+                        title={d.name}
+                        aria-pressed={departmentId === d.id}
+                        onClick={() => chooseDepartment(d.id)}
+                      >
+                        <span className="block truncate font-semibold text-[#1C1917]">
                           {d.name}
-                          <span className="mt-1 block text-xs font-normal text-[#57534E]">
-                            {fmtNum(d.municipalityCount)} municipios y pueblos
+                        </span>
+                        <span className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] text-[#57534E]">
+                          {fmtNum(d.municipalityCount)} municipios y pueblos ·{" "}
+                          <RegistrationBadge
+                            count={
+                              stats.data ? (byDept.get(d.id) ?? 0) : undefined
+                            }
+                          />
+                          <span>registrados</span>
+                        </span>
+                      </button>
+                    </td>
+                    <td className="py-1.5 pr-2">
+                      <div className="flex items-center justify-end">
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={!hidden.has(d.id)}
+                          aria-label={`Mostrar ${d.name} en el formulario público`}
+                          title={`Mostrar ${d.name} en el formulario público`}
+                          className={`${iconAction} focus-visible:ring-offset-2`}
+                          onClick={() => toggleDept(d.id)}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={`relative block h-5 w-8 rounded-full ${hidden.has(d.id) ? "bg-[#57534E]" : "bg-[#732427]"}`}
+                          >
+                            <span
+                              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${hidden.has(d.id) ? "left-0.5" : "left-3.5"}`}
+                            />
                           </span>
                         </button>
-                        <label className="mt-1 flex items-center gap-2 text-xs text-[#57534E]">
-                          <input
-                            type="checkbox"
-                            className="accent-[#732427]"
-                            checked={!cfg.deptOff.includes(d.id)}
-                            onChange={() => toggleDept(d.id)}
-                          />{" "}
-                          Visible en el formulario
-                        </label>
-                      </td>
-                      <td className="px-1">
-                        <div className="flex flex-col">
-                          <button
-                            className={actionClass}
-                            aria-label={`Editar ${d.name}`}
-                            onClick={() =>
-                              setEditor({ kind: "departments", row: d })
-                            }
-                          >
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            className={actionClass}
-                            aria-label={`Eliminar ${d.name}`}
-                            onClick={() =>
-                              setEditor({
-                                kind: "departments",
-                                row: d,
-                                remove: true,
-                              })
-                            }
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        <button
+                          className={iconAction}
+                          aria-label={`Editar ${d.name}`}
+                          onClick={() =>
+                            setEditor({ kind: "departments", row: d })
+                          }
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          className={iconAction}
+                          aria-label={`Eliminar ${d.name}`}
+                          onClick={() =>
+                            setEditor({
+                              kind: "departments",
+                              row: d,
+                              remove: true,
+                            })
+                          }
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </Card>
-        <Card id="territory-municipalities" className="scroll-mt-20 overflow-hidden">
+        <Card
+          id="territory-municipalities"
+          className="min-w-0 scroll-mt-20 rounded-2xl"
+        >
           <div className="space-y-3 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-base font-bold text-[#1C1917]">
@@ -310,30 +447,54 @@ export function TerritoryManager() {
               <Button
                 size="sm"
                 variant="secondary"
+                className="min-h-10"
                 onClick={() => setEditor({ kind: "municipalities" })}
               >
                 <Plus size={15} /> Crear municipio
               </Button>
             </div>
-            <Combobox
-              label="Departamento"
-              options={[
-                { value: "", label: "Todos los departamentos" },
-                ...options,
-              ]}
-              value={departmentId}
-              onChange={chooseDepartment}
-            />
-            <Input
-              compact
-              aria-label="Buscar municipio por nombre o código"
-              placeholder="Buscar municipio o pueblo por nombre o código…"
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-                setPage(1);
-              }}
-            />
+            <div className="grid items-end gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(110px,0.7fr)_minmax(0,1fr)]">
+              <Combobox
+                label="Departamento"
+                options={[
+                  { value: "", label: "Todos los departamentos" },
+                  ...options,
+                ]}
+                value={departmentId}
+                onChange={chooseDepartment}
+              />
+              <div>
+                <Label htmlFor="territory-type">Tipo</Label>
+                <select
+                  id="territory-type"
+                  className="h-12 w-full rounded-xl border border-[#E7E2D9] bg-white px-3 text-sm text-[#1C1917] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#732427]"
+                  value={type}
+                  onChange={(e) => {
+                    setType(e.target.value as typeof type);
+                    setPage(1);
+                  }}
+                >
+                  <option value="todos">Todos</option>
+                  <option value="municipio">Municipios</option>
+                  <option value="pueblo">Pueblos</option>
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="territory-municipality-search">
+                  Buscar territorio
+                </Label>
+                <Input
+                  id="territory-municipality-search"
+                  placeholder="Nombre o código"
+                  value={q}
+                  onChange={(e) => {
+                    setQ(e.target.value);
+                    setPage(1);
+                  }}
+                  className="placeholder:text-[#57534E]"
+                />
+              </div>
+            </div>
           </div>
           <ListState
             loading={municipalities.loading}
@@ -343,77 +504,91 @@ export function TerritoryManager() {
             create={() => setEditor({ kind: "municipalities" })}
           />
           {showMunicipalities && (
-            <div className="max-h-[650px] overflow-auto">
-              <table className="w-full text-[13px]">
-                <caption className="sr-only">
-                  Municipios y centros poblados
-                </caption>
-                <thead className="bg-[#732427] text-left text-white">
-                  <tr>
-                    <SortTh
-                      label="Código"
-                      active={sort.key === "code"}
-                      dir={sort.dir}
-                      onToggle={() => changeSort("code")}
-                    />
-                    <SortTh
-                      label="Nombre"
-                      active={sort.key === "name"}
-                      dir={sort.dir}
-                      onToggle={() => changeSort("name")}
-                    />
-                    <th scope="col" className="px-3 py-2.5">
-                      Acciones
-                    </th>
+            <table className="w-full table-fixed text-[13px]">
+              <caption className="sr-only">
+                Municipios y pueblos con registrados y acciones de gestión
+              </caption>
+              <thead className="bg-[#732427] text-left text-white">
+                <tr>
+                  <SortTh
+                    label="Código"
+                    className="w-[92px] px-3 py-2.5"
+                    active={sort.key === "code"}
+                    dir={sort.dir}
+                    onToggle={() => changeSort("code")}
+                  />
+                  <SortTh
+                    label="Nombre"
+                    active={sort.key === "name"}
+                    dir={sort.dir}
+                    onToggle={() => changeSort("name")}
+                  />
+                  <th
+                    scope="col"
+                    className="w-14 px-1 py-2.5 text-center sm:w-20"
+                  >
+                    <abbr title="Registrados" className="no-underline">
+                      Regs.
+                    </abbr>
+                  </th>
+                  <th scope="col" className="w-[84px] px-1 py-2.5 text-center">
+                    <span className="sr-only">Acciones</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#F1EFEA]">
+                {municipalities.rows.map((m) => (
+                  <tr key={m.id} className="hover:bg-[#FAFAF8]">
+                    <td className="px-3 py-2 tabular-nums text-[#57534E]">
+                      {m.id}
+                    </td>
+                    <td className="px-2 py-2">
+                      <p className="break-words font-semibold text-[#1C1917]">
+                        {m.name}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-[#57534E]">
+                        {departmentNames.get(m.departmentId ?? "") ??
+                          m.departmentId}{" "}
+                        · {m.id.length === 8 ? "Pueblo" : "Municipio"}
+                      </p>
+                    </td>
+                    <td className="px-1 py-2 text-center">
+                      <RegistrationBadge
+                        count={stats.data ? (byMuni.get(m.id) ?? 0) : undefined}
+                      />
+                    </td>
+                    <td className="px-1 py-2">
+                      <div className="flex justify-end">
+                        <button
+                          className={iconAction}
+                          aria-label={`Editar ${m.name}`}
+                          onClick={() =>
+                            setEditor({ kind: "municipalities", row: m })
+                          }
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          className={iconAction}
+                          aria-label={`Eliminar ${m.name}`}
+                          onClick={() =>
+                            setEditor({
+                              kind: "municipalities",
+                              row: m,
+                              remove: true,
+                            })
+                          }
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-[#F1EFEA]">
-                  {municipalities.rows.map((m) => (
-                    <tr key={m.id} className="hover:bg-[#FAFAF8]">
-                      <td className="px-3 py-3 tabular-nums">{m.id}</td>
-                      <td className="px-3 py-3">
-                        <p className="font-semibold text-[#1C1917]">{m.name}</p>
-                        <p className="mt-0.5 text-xs text-[#57534E]">
-                          {
-                            options.find((d) => d.value === m.departmentId)
-                              ?.label
-                          }{" "}
-                          · {m.id.length === 8 ? "Pueblo" : "Municipio"}
-                        </p>
-                      </td>
-                      <td className="px-1 py-2">
-                        <div className="flex flex-col sm:flex-row">
-                          <button
-                            className={actionClass}
-                            aria-label={`Editar ${m.name}`}
-                            onClick={() =>
-                              setEditor({ kind: "municipalities", row: m })
-                            }
-                          >
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            className={actionClass}
-                            aria-label={`Eliminar ${m.name}`}
-                            onClick={() =>
-                              setEditor({
-                                kind: "municipalities",
-                                row: m,
-                                remove: true,
-                              })
-                            }
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           )}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#F1EFEA] p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#F1EFEA] p-3">
             <p
               role="status"
               aria-live="polite"
@@ -423,7 +598,7 @@ export function TerritoryManager() {
                 ? "Buscando…"
                 : `${municipalities.total ? (page - 1) * PAGE_SIZE + 1 : 0}–${Math.min(page * PAGE_SIZE, municipalities.total)} de ${fmtNum(municipalities.total)}`}
             </p>
-            <div className="flex gap-1">
+            <div className="flex">
               <button
                 className={actionClass}
                 disabled={
